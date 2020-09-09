@@ -27,6 +27,13 @@ pvstate_df <- read_csv("lab1/popvote_bystate_1948-2016.csv")
 
 ```
 
+The US Electoral College system places a great importance on "Swing States". However, the notion of electoral swing may take on several meanings depending on the context. For example, a *swing* could indicate volatility in a state's vote share between elections, but it could also indicate a close race within a state that could *swing* either way. 
+
+For the purpose of this analysis, electoral swing captures the swing between years in a single state--that is, how much the share of a particular party's vote share has changed between elections. In this case, a larger quantity indicates a larger swing.
+
+For the past couple of decades, most states consistently voted either red or blue. However, Donald Trump's 2016 victory, in the words of [Politico](https://www.politico.com/news/magazine/2020/02/07/election-2020-new-electoral-map-110496), "blew up" the Electoral Map, flipping many reliably blue states to red. The below map shows the change in the proportion of the two-party vote between 2012 to 2016: 
+
+
 ```{r plot_2016, warning=FALSE}
 
 # doing difference between 2016 and 2012
@@ -50,91 +57,54 @@ plot_usmap(data = pv_swing_2016, regions = "states",
       low = "red", 
       breaks = c(-0.1,-0.05,0.05,0.1), 
       limits = c(-0.1,0.1),
-      name = "Change in Democratic Votes"
+      name = "Change in Proportion \nof Democratic Votes"
     ) +
     theme_void() +
   labs(title = "Swing Margin from 2012 to 2016")
 
 ```
 
-```{r big_dem_change_2016}
+In the above map, there are far more red-tinted states than blue, indicating that Republican vote share increased in the 2016 presidential race relative to the 2012 race.
 
-# finding top 5 change in Democrat
+With the 2020 election on the horizon, the possibility of electoral swing has become increasingly important. Enough red states swinging blue could unseat the incumbent. 
+
+To take a closer look at trends between 2012 and 2016, it may be helpful to identify key *battleground* states that have swung in one direction or another. In order to do that, one must define what constitutes a battle ground state. Most people refer to battleground states as those with a close race between the two competing parties. In order to approximate that, I filtered for states with vote shares between 45% and 55% for both parties in 2012 and 2016. The below table displays *battleground* states by this definition and their respective swing margins:
+
+```{r big_dem_change_2016, message=FALSE}
+
+# finding top 10 change in Democrat note that GA & TX are creeping closer to
+# turning blue UT change may just be because Mitt Romney ran in 2012
 
 pv_swing_2016 %>% 
   select(state, D_pv2p_2012, D_pv2p_2016, swing_margin) %>% 
+  filter(D_pv2p_2012 > 45 & D_pv2p_2012 < 55,
+         D_pv2p_2016 > 45 & D_pv2p_2016 < 55) %>% 
+  
+  # rounding the numbers in the table and converting the swing margin to
+  # increase ease of readability
+  
+  mutate(swing_margin = swing_margin * 100) %>% 
+  mutate_if(is.numeric, ~round(., 2)) %>% 
   arrange(desc(swing_margin)) %>% 
   ungroup() %>% 
-  slice(1:5) %>% 
   gt() %>% 
-  tab_header("Top 5 Democratic Increases in 2016",
+  tab_header("Swinging Battleground States in 2016",
              "Proportions of the Two-Party Vote") %>% 
   tab_footnote(
-    "Calculated as the change in the Democratic proportion of the two-party vote from 2012 to 2016",
+    "Difference in the Democratic proportion of the two-party vote from 2012 to 2016, multiplied by 100 to convert units to percent",
     cells_column_labels(vars(swing_margin))
     ) %>% 
   cols_label(
     state = "State",
-    D_pv2p_2012 = "Democratic Vote in 2012",
-    D_pv2p_2016 = "Democratic Vote in 2016",
-    swing_margin = "Swing Margin"
+    D_pv2p_2012 = "Democratic Vote in 2012 (%)",
+    D_pv2p_2016 = "Democratic Vote in 2016 (%)",
+    swing_margin = "Swing Margin (%)"
   ) 
 
 ```
 
-```{r big_rep_change_2016}
 
-# doing the same for Republican
-# note that Iowa crossed over to a Republican majority and Maine came close
 
-pv_swing_2016 %>% 
-  select(state, R_pv2p_2012, R_pv2p_2016, swing_margin) %>% 
-  arrange(swing_margin) %>% 
-  ungroup() %>% 
-  slice(1:5) %>% 
-  gt() %>% 
-  tab_header("Top 5 Republican Increases in 2016",
-             "Proportions of the Two-Party Vote") %>% 
-  tab_footnote(
-    "Calculated as the change in the Democratic proportion of the two-party vote from 2012 to 2016",
-    cells_column_labels(vars(swing_margin))
-    ) %>% 
-  cols_label(
-    state = "State",
-    R_pv2p_2012 = "Republican Vote in 2012",
-    R_pv2p_2016 = "Republican Vote in 2016",
-    swing_margin = "Swing Margin"
-  ) 
-
-```
-
-```{r plot_2012, warning=FALSE}
-
-# doing difference between 2012 and 2008
-
-pv_swing_2012 <- pvstate_df %>%
-  filter(year %in% c(2008, 2012)) %>%
-  group_by(state) %>%
-  arrange(year, .by_group = TRUE) %>%
-  select(state, year, D_pv2p, R_pv2p) %>% 
-  pivot_wider(names_from = year, values_from = c(D_pv2p, R_pv2p)) %>% 
-  mutate(swing_margin = D_pv2p_2012 / (D_pv2p_2012 + R_pv2p_2012) -
-           D_pv2p_2008 / (D_pv2p_2008 + R_pv2p_2008))
-
-# plotting data, modified from lab code
-
-plot_usmap(data = pv_swing_2012, regions = "states", 
-           values = "swing_margin", labels = TRUE) +
-    scale_fill_gradient2(
-      high = "blue", 
-      mid = "white",
-      low = "red", 
-      breaks = c(-0.1,-0.05,0.05,0.1), 
-      limits = c(-0.1,0.1),
-      name = "swing margin"
-    ) +
-    theme_void()
-
-```
+Of course, 2020 has been an usual year, so the additional context of COVID-19, the current state of the economy, and racial protests may have an impact on the trends observed between 2012 and 2016. However, patterns of the past lay the groundwork for the future.
 
 
