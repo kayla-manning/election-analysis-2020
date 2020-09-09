@@ -14,6 +14,7 @@ library(usmap)
 library(tidyverse)
 library(patchwork)
 library(gt)
+library(ggthemes)
 
 ```
 
@@ -27,11 +28,11 @@ pvstate_df <- read_csv("lab1/popvote_bystate_1948-2016.csv")
 
 ```
 
-The US Electoral College system places a great importance on "Swing States". However, the notion of electoral swing may take on several meanings depending on the context. For example, a *swing* could indicate volatility in a state's vote share between elections, but it could also indicate a close race within a state that could *swing* either way. 
+The US Electoral College system places a great importance on "swing states." However, the notion of electoral swing takes on several definitions, varying by context. For example, the label of "swing state" could indicate volatility between elections, such that it "swings" in one direction or another. Conversely, a "swing state" could also consistently post close races within a state that could *swing* either way. 
 
-For the purpose of this analysis, electoral swing captures the swing between years in a single state--that is, how much the share of a particular party's vote share has changed between elections. In this case, a larger quantity indicates a larger swing.
+For the purpose of this analysis, electoral "swing" captures the magnitude of the change in a particular party's vote share between elections. In this case, a larger quantity indicates a larger swing.
 
-For the past couple of decades, most states consistently voted either red or blue. However, Donald Trump's 2016 victory, in the words of [Politico](https://www.politico.com/news/magazine/2020/02/07/election-2020-new-electoral-map-110496), "blew up" the Electoral Map, flipping many reliably blue states to red. The below map shows the change in the proportion of the two-party vote between 2012 to 2016: 
+For the past couple of decades, most states consistently voted either red or blue. However, Donald Trump flipped many reliably blue states to red in his 2016 victory, and, in the words of [Politico](https://www.politico.com/news/magazine/2020/02/07/election-2020-new-electoral-map-110496), "blew up" the Electoral Map. The below graphic displays shifts in the two-party vote across the country between the 2012 and 2016 presidential elections: 
 
 
 ```{r plot_2016, warning=FALSE}
@@ -64,11 +65,12 @@ plot_usmap(data = pv_swing_2016, regions = "states",
 
 ```
 
-In the above map, there are far more red-tinted states than blue, indicating that Republican vote share increased in the 2016 presidential race relative to the 2012 race.
+Positive values indicate blue-trending states, while negative values indicated red-trending states. In the above map, there are far more red-trending states than blue, indicating that Republican vote share increased in the 2016 presidential race relative to the 2012 race, as expected given the outcome of the election.
 
-With the 2020 election on the horizon, the possibility of electoral swing has become increasingly important. Enough red states swinging blue could unseat the incumbent. 
+With the 2020 election on the horizon, the possibility of electoral swing has become increasingly important. Research by (Gallup)[https://news.gallup.com/poll/313079/mood-doesn-bright-incumbents-win.aspx] reveals that an incumbent can still win re-election in the face of low approval numbers, so a Democratic victory in 2020 requires enough red states from 2016 to swing blue.
 
-To take a closer look at trends between 2012 and 2016, it may be helpful to identify key *battleground* states that have swung in one direction or another. In order to do that, one must define what constitutes a battle ground state. Most people refer to battleground states as those with a close race between the two competing parties. In order to approximate that, I filtered for states with vote shares between 45% and 55% for both parties in 2012 and 2016. The below table displays *battleground* states by this definition and their respective swing margins:
+To take a closer look at trends between 2012 and 2016, it is helpful to identify key *battleground* states that have swung in one direction or another. To begin, one must define 
+*battleground state*. Generally, *battleground states* have a close race between the two competing parties. For the purpose of this analysis, I defined *battleground states* as those with vote shares between 45% and 55% in at least one of the 2012 and 2016 presidential elections. The below table displays these battleground states and their respective changes in two-party Democratic vote share:
 
 ```{r big_dem_change_2016, message=FALSE}
 
@@ -77,8 +79,8 @@ To take a closer look at trends between 2012 and 2016, it may be helpful to iden
 
 pv_swing_2016 %>% 
   select(state, D_pv2p_2012, D_pv2p_2016, swing_margin) %>% 
-  filter(D_pv2p_2012 > 45 & D_pv2p_2012 < 55,
-         D_pv2p_2016 > 45 & D_pv2p_2016 < 55) %>% 
+  filter((D_pv2p_2012 > 45 & D_pv2p_2012 < 55) |
+         (D_pv2p_2016 > 45 & D_pv2p_2016 < 55)) %>% 
   
   # rounding the numbers in the table and converting the swing margin to
   # increase ease of readability
@@ -91,20 +93,50 @@ pv_swing_2016 %>%
   tab_header("Swinging Battleground States in 2016",
              "Proportions of the Two-Party Vote") %>% 
   tab_footnote(
-    "Difference in the Democratic proportion of the two-party vote from 2012 to 2016, multiplied by 100 to convert units to percent",
+    "Difference in the Democratic percentage of the two-party vote from 2012 to 2016",
     cells_column_labels(vars(swing_margin))
     ) %>% 
   cols_label(
     state = "State",
-    D_pv2p_2012 = "Democratic Vote in 2012 (%)",
-    D_pv2p_2016 = "Democratic Vote in 2016 (%)",
-    swing_margin = "Swing Margin (%)"
+    D_pv2p_2012 = "Democratic Vote \nin 2012 (%)",
+    D_pv2p_2016 = "Democratic Vote \nin 2016 (%)",
+    swing_margin = "Change in Share \nof Democratic Vote (%)"
   ) 
+
+```
+Of the states that met the pre-defined *battleground* criteria, three out of four of the blue-trending battleground states voted Republican in both elections, with none of the blue-trending states flipping. Likewise, the vast majority of red-trending battleground states voted Democrat in 2012.
+
+Texas exhibited the largest Democratic shift, followed by Arizona and Georgia. If the trends in these states continue over time, they could reasonably flip to blue in the next few election cycles. 
+
+In the 2016 election, Florida, Pennsylvania, Wisconsin, Michigan, Ohio, and Iowa flipped from blue to red, with Iowa doing so by the largest margin. While Maine missed the mark to flip in 2016 by a narrow margin, the state could plausibly vote Republican in 2020 if the trend continues. In general, red-trending states saw shifts of a larger magnitude than blue-trending states:
+
+```{r margin_graph}
+
+pv_swing_2016 %>% 
+  select(state, D_pv2p_2012, D_pv2p_2016, swing_margin) %>% 
+  filter((D_pv2p_2012 > 45 & D_pv2p_2012 < 55) |
+         (D_pv2p_2016 > 45 & D_pv2p_2016 < 55)) %>%
+  
+  # rounding the numbers in the table and converting the swing margin to
+  # increase ease of readability
+  
+  mutate(swing_margin = swing_margin * 100,
+         toward_dem = as.factor(ifelse(swing_margin > 0, 1, 0)),
+         state = as_factor(state)) %>%
+  ggplot(aes(fct_reorder(state, swing_margin), swing_margin, fill = toward_dem)) + 
+  geom_col() +
+  coord_flip() +
+  scale_fill_manual(values = c("blue", "red")) +
+  theme_classic() + 
+  labs(title = "Swing from 2012 to 2016 in Battleground States",
+       y = "Change in Share of Democratic Vote",
+       x = "State") +
+  scale_y_continuous(limits = c(-8.5, 8.5), breaks = seq(-8, 8, 2)) +
+  theme(legend.position = "none")
 
 ```
 
 
-
-Of course, 2020 has been an usual year, so the additional context of COVID-19, the current state of the economy, and racial protests may have an impact on the trends observed between 2012 and 2016. However, patterns of the past lay the groundwork for the future.
+Of course, the additional context of COVID-19, the resulting economic turmoil, and racial protests around the country add additional noise to the election not captured in the trends observed between 2012 and 2016. However, patterns of the past lay the groundwork for the future, and shifting ideological trends in states may prove worthwhile when anticipating the results in November.
 
 
