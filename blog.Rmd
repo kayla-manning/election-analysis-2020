@@ -1,0 +1,140 @@
+---
+title: "Blog"
+author: "Kayla Manning"
+date: "9/8/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+# loading necessary packages
+
+library(usmap)
+library(tidyverse)
+library(patchwork)
+library(gt)
+
+```
+
+
+```{r data, warning = FALSE, message=FALSE}
+
+# reading in datasets from our first lab
+
+popvote_df <- read_csv("lab1/popvote_1948-2016.csv")
+pvstate_df <- read_csv("lab1/popvote_bystate_1948-2016.csv")
+
+```
+
+```{r plot_2016, warning=FALSE}
+
+# doing difference between 2016 and 2012
+
+pv_swing_2016 <- pvstate_df %>%
+  filter(year %in% c(2012, 2016)) %>%
+  group_by(state) %>%
+  arrange(year, .by_group = TRUE) %>%
+  select(state, year, D_pv2p, R_pv2p) %>% 
+  pivot_wider(names_from = year, values_from = c(D_pv2p, R_pv2p)) %>% 
+  mutate(swing_margin = D_pv2p_2016 / (D_pv2p_2016 + R_pv2p_2016) -
+           D_pv2p_2012 / (D_pv2p_2012 + R_pv2p_2012))
+
+# plotting data, modified from lab code
+
+plot_usmap(data = pv_swing_2016, regions = "states", 
+           values = "swing_margin", labels = TRUE) +
+    scale_fill_gradient2(
+      high = "blue", 
+      mid = "white",
+      low = "red", 
+      breaks = c(-0.1,-0.05,0.05,0.1), 
+      limits = c(-0.1,0.1),
+      name = "Change in Democratic Votes"
+    ) +
+    theme_void() +
+  labs(title = "Swing Margin from 2012 to 2016")
+
+```
+
+```{r big_dem_change_2016}
+
+# finding top 5 change in Democrat
+
+pv_swing_2016 %>% 
+  select(state, D_pv2p_2012, D_pv2p_2016, swing_margin) %>% 
+  arrange(desc(swing_margin)) %>% 
+  ungroup() %>% 
+  slice(1:5) %>% 
+  gt() %>% 
+  tab_header("Top 5 Democratic Increases in 2016",
+             "Proportions of the Two-Party Vote") %>% 
+  tab_footnote(
+    "Calculated as the change in the Democratic proportion of the two-party vote from 2012 to 2016",
+    cells_column_labels(vars(swing_margin))
+    ) %>% 
+  cols_label(
+    state = "State",
+    D_pv2p_2012 = "Democratic Vote in 2012",
+    D_pv2p_2016 = "Democratic Vote in 2016",
+    swing_margin = "Swing Margin"
+  ) 
+
+```
+
+```{r big_rep_change_2016}
+
+# doing the same for Republican
+# note that Iowa crossed over to a Republican majority and Maine came close
+
+pv_swing_2016 %>% 
+  select(state, R_pv2p_2012, R_pv2p_2016, swing_margin) %>% 
+  arrange(swing_margin) %>% 
+  ungroup() %>% 
+  slice(1:5) %>% 
+  gt() %>% 
+  tab_header("Top 5 Republican Increases in 2016",
+             "Proportions of the Two-Party Vote") %>% 
+  tab_footnote(
+    "Calculated as the change in the Democratic proportion of the two-party vote from 2012 to 2016",
+    cells_column_labels(vars(swing_margin))
+    ) %>% 
+  cols_label(
+    state = "State",
+    R_pv2p_2012 = "Republican Vote in 2012",
+    R_pv2p_2016 = "Republican Vote in 2016",
+    swing_margin = "Swing Margin"
+  ) 
+
+```
+
+```{r plot_2012, warning=FALSE}
+
+# doing difference between 2012 and 2008
+
+pv_swing_2012 <- pvstate_df %>%
+  filter(year %in% c(2008, 2012)) %>%
+  group_by(state) %>%
+  arrange(year, .by_group = TRUE) %>%
+  select(state, year, D_pv2p, R_pv2p) %>% 
+  pivot_wider(names_from = year, values_from = c(D_pv2p, R_pv2p)) %>% 
+  mutate(swing_margin = D_pv2p_2012 / (D_pv2p_2012 + R_pv2p_2012) -
+           D_pv2p_2008 / (D_pv2p_2008 + R_pv2p_2008))
+
+# plotting data, modified from lab code
+
+plot_usmap(data = pv_swing_2012, regions = "states", 
+           values = "swing_margin", labels = TRUE) +
+    scale_fill_gradient2(
+      high = "blue", 
+      mid = "white",
+      low = "red", 
+      breaks = c(-0.1,-0.05,0.05,0.1), 
+      limits = c(-0.1,0.1),
+      name = "swing margin"
+    ) +
+    theme_void()
+
+```
+
+
