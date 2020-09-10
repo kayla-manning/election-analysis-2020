@@ -8,7 +8,8 @@ During election season, political aficionados devote large amounts of attention 
 For the purpose of this analysis, electoral **swing** focuses on the magnitude of changes in vote share between elections. More specifically, this analysis quantifies electoral swing by the change in the Democratic share of the two-party vote from 2012 to 2016:
 
 ```
-swing_margin = dem_2016 / (dem_2016 + rep_2016) - dem_2012 / (dem_2012 + repub_2012)
+swing_margin = dem_2016 / (dem_2016 + rep_2016) - 
+                      dem_2012 / (dem_2012 + repub_2012)
 
 ```
 
