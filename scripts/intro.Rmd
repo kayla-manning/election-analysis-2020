@@ -15,6 +15,8 @@ library(tidyverse)
 library(patchwork)
 library(gt)
 library(ggthemes)
+library(webshot)
+library(kableExtra)
 
 ```
 
@@ -65,7 +67,7 @@ plot_usmap(data = pv_swing_2016, regions = "states",
 
 # saving to put it in my markdown file
 
-ggsave("../figures/swing_map.jpg")
+ggsave("../figures/swing_map.jpg", height = 5)
 
 ```
 
@@ -105,9 +107,8 @@ pv_swing_2016 %>%
     D_pv2p_2012 = "Democratic Vote \nin 2012 (%)",
     D_pv2p_2016 = "Democratic Vote \nin 2016 (%)",
     swing_margin = "Change in Share \nof Democratic Vote (%)"
-  ) 
-
-ggsave("../figures/swing_table.jpg")
+  ) %>% 
+  gtsave("../figures/swing_table.html")
 
 ```
 Of the states that met the pre-defined *battleground* criteria, three out of four of the blue-trending battleground states voted Republican in both elections, with none of the blue-trending states flipping. Likewise, the vast majority of red-trending battleground states voted Democrat in 2012.
