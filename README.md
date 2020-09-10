@@ -1,1 +1,1 @@
-# gov1347
+# Welcome to my election analysis blog! It will be updated every Friday. Feel free to reach out to me (kaylamanning@college.harvard.edu) if you have any comments or questions.
