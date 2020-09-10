@@ -110,6 +110,42 @@ pv_swing_2016 %>%
   )
 
 ```
+
+```{r swing_table_graph}
+
+# trying to get the info from the table into a graph that shows vote share in
+# both years as well as change
+
+pv_swing_2016 %>% 
+  select(state, D_pv2p_2012, D_pv2p_2016, swing_margin) %>% 
+  filter((D_pv2p_2012 > 45 & D_pv2p_2012 < 55) |
+         (D_pv2p_2016 > 45 & D_pv2p_2016 < 55)) %>% 
+  pivot_longer(2:3, names_to = "year") %>% 
+  mutate(year = str_remove(year, "D_pv2p_"),
+         swing_margin = swing_margin * 100,
+         state = as_factor(state),
+         vote_dem = ifelse(value > 50, 1, 0) %>% as_factor())  %>% 
+  group_by(state) %>% 
+  ggplot(aes(value, fct_reorder(state, value), shape = year, color = vote_dem, group = state)) +
+  geom_point() +
+  geom_line(col = "gray") +
+  scale_x_continuous(limits = c(40, 60)) +
+  geom_vline(xintercept = 50) +
+  scale_color_manual(values = c("red", "blue"),
+                     labels = c("Republican", "Democrat"),
+                     name = "Majority Vote") +
+  guides(shape = guide_legend("Year")) +
+  theme_classic() +
+  labs(title = "Vote Share in Battleground States",
+       x = "Democratic Percentage of Two-Party Vote",
+       y = "State")
+  
+ggsave("../figures/swing_point_line.jpg")
+
+
+```
+
+
 Of the states that met the pre-defined *battleground* criteria, three out of four of the blue-trending battleground states voted Republican in both elections, with none of the blue-trending states flipping. Likewise, the vast majority of red-trending battleground states voted Democrat in 2012.
 
 Texas exhibited the largest Democratic shift, followed by Arizona and Georgia. If the trends in these states continue over time, they could reasonably flip to blue in the next few election cycles. 
