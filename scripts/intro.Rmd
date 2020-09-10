@@ -107,8 +107,7 @@ pv_swing_2016 %>%
     D_pv2p_2012 = "Democratic Vote \nin 2012 (%)",
     D_pv2p_2016 = "Democratic Vote \nin 2016 (%)",
     swing_margin = "Change in Share \nof Democratic Vote (%)"
-  ) %>% 
-  gtsave("../figures/swing_table.html")
+  )
 
 ```
 Of the states that met the pre-defined *battleground* criteria, three out of four of the blue-trending battleground states voted Republican in both elections, with none of the blue-trending states flipping. Likewise, the vast majority of red-trending battleground states voted Democrat in 2012.

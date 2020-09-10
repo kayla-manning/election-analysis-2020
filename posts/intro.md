@@ -16,7 +16,7 @@ With the 2020 election on the horizon, the possibility of electoral swing has be
 To take a closer look at trends between 2012 and 2016, it is helpful to identify key *battleground* states that have swung in one direction or another. To begin, one must define 
 *battleground state*. Generally, *battleground states* have a close race between the two competing parties. For the purpose of this analysis, I defined *battleground states* as those with vote shares between 45% and 55% in at least one of the 2012 and 2016 presidential elections. The below table displays these battleground states and their respective changes in two-party Democratic vote share:
 
-![](../figures/swing_table.html)
+![](../figures/swing_table.jpg)
 
 Of the states that met the pre-defined *battleground* criteria, three out of four of the blue-trending battleground states voted Republican in both elections, with none of the blue-trending states flipping. Likewise, the vast majority of red-trending battleground states voted Democrat in 2012.
 
