@@ -154,7 +154,7 @@ pv_swing_2016 %>%
   scale_fill_manual(values = c("blue", "red")) +
   theme_classic() + 
   labs(title = "Electoral Swing in Battleground States from 2012 to 2016",
-       y = "Change in Share of Democratic Vote",
+       y = "Change in Democratic Percentage of Two-Party Vote",
        x = "State") +
   scale_y_continuous(limits = c(-8.5, 8.5), breaks = seq(-8, 8, 2)) +
   theme(legend.position = "none")

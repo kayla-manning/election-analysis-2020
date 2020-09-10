@@ -5,11 +5,18 @@
 
 During election season, political aficionados devote large amounts of attention to swing states. The US Electoral College system often places the election in the hands of voters in a select few states, often referred to as *swing states*. The notion of electoral swing takes on several definitions that vary by context. For example, a state with electoral volatility experiences *swings* in voting patterns between elections. Conversely, a state that consistently posts close races could *swing* either way on Election Day. 
 
-For the purpose of this analysis, electoral **swing** focuses on the magnitude of changes in vote share between elections. By this definition, a state that experiences a large swing may not necessarily have a close election. To address close elections, this analysis defines **battleground** states as those with two-party vote shares between 45% and 55% for either one or both of the 2012 and 2016 presidential elections.
+For the purpose of this analysis, electoral **swing** focuses on the magnitude of changes in vote share between elections. More specifically, this analysis quantifies electoral swing by the change in the Democratic share of the two-party vote from 2012 to 2016:
+
+```
+swing_margin = dem_2016 / (dem_2016 + rep_2016) - dem_2012 / (dem_2012 + repub_2012)
+
+```
+
+By this definition, a state with a large swing may not have a close election. To address close elections, this analysis defines **battleground** states as those with two-party vote shares between 45% and 55% for one or both of the 2012 and 2016 presidential elections.
 
 #### Swing States in Recent Years
 
-For the past two decades, states followed similar voting patterns year over year. However, Donald Trump "[blew up]((https://www.politico.com/news/magazine/2020/02/07/election-2020-new-electoral-map-110496)" the Electoral Map in his 2016 victory when he flipped many reliably blue states to red. Using data on the presidential popular vote by state from 1948 to 2016, the below graphic displays shifts in the two-party vote across the country between the 2012 and 2016 presidential elections: 
+For the past two decades, states followed similar voting patterns year over year. However, Donald Trump "[blew up](https://www.politico.com/news/magazine/2020/02/07/election-2020-new-electoral-map-110496)" the Electoral Map in his 2016 victory when he flipped many reliably blue states to red. Using data on the presidential popular vote by state from 1948 to 2016, the below graphic displays shifts in the two-party vote across the country between the 2012 and 2016 presidential elections: 
 
 ![](../figures/swing_map.jpg)
 
