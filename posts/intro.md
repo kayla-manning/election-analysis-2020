@@ -9,7 +9,7 @@ For the purpose of this analysis, electoral **swing** focuses on the magnitude o
 
 #### Swing States in Recent Years
 
-For the past two decades, states followed similar voting patterns year over year. However, Donald Trump "[blew up]((https://www.politico.com/news/magazine/2020/02/07/election-2020-new-electoral-map-110496)" the Electoral Map in his 2016 victory when he flipped many reliably blue states to red. The below graphic displays shifts in the two-party vote across the country between the 2012 and 2016 presidential elections: 
+For the past two decades, states followed similar voting patterns year over year. However, Donald Trump "[blew up]((https://www.politico.com/news/magazine/2020/02/07/election-2020-new-electoral-map-110496)" the Electoral Map in his 2016 victory when he flipped many reliably blue states to red. Using data on the presidential popular vote by state from 1948 to 2016, the below graphic displays shifts in the two-party vote across the country between the 2012 and 2016 presidential elections: 
 
 ![](../figures/swing_map.jpg)
 
