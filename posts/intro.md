@@ -1,3 +1,7 @@
+## Introduction: Past Presidential Election Results
+
+### September 11, 2020
+
 The US Electoral College system places a great importance on "swing states." However, the notion of electoral swing takes on several definitions, varying by context. For example, the label of "swing state" could indicate volatility between elections, such that it "swings" in one direction or another. Conversely, a "swing state" could also consistently post close races within a state that could *swing* either way. 
 
 For the purpose of this analysis, electoral "swing" captures the magnitude of the change in a particular party's vote share between elections. In this case, a larger quantity indicates a larger swing.
