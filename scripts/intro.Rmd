@@ -107,7 +107,8 @@ pv_swing_2016 %>%
     D_pv2p_2012 = "Democratic Vote \nin 2012 (%)",
     D_pv2p_2016 = "Democratic Vote \nin 2016 (%)",
     swing_margin = "Change in Share \nof Democratic Vote (%)"
-  )
+  ) %>% 
+  gtsave("../figures/swing_table.html")
 
 ```
 
