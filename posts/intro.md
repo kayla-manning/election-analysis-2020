@@ -9,7 +9,7 @@ For the purpose of this analysis, electoral **swing** focuses on the magnitude o
 
 ```
 swing_margin = dem_2016 / (dem_2016 + rep_2016) - 
-                      dem_2012 / (dem_2012 + repub_2012)
+                      dem_2012 / (dem_2012 + rep_2012)
 
 ```
 
