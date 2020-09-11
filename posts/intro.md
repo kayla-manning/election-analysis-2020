@@ -1,7 +1,7 @@
 # Introduction: Past Presidential Election Results
 ## September 11, 2020
 
-#### Defining Electoral Swing
+#### Defining Electoral Swing and Battleground States
 
 The US Electoral College system places presidential elections in the hands of voters in a select few states, often referred to as swing states. The notion of electoral swing takes on several definitions that vary by context. For example, a state with electoral volatility experiences *swings* in voting patterns between elections. Conversely, a state that consistently posts close races could *swing* either way on Election Day. 
 
@@ -15,13 +15,15 @@ swing_margin = dem_2016 / (dem_2016 + rep_2016) -
 
 By this definition, a state with a large swing may not have a close election. To address close elections, this analysis defines **battleground states** as those with two-party vote shares between 45% and 55% for one or both of the 2012 and 2016 presidential elections.
 
-#### Swing States in Recent Years
+#### Electoral Swing in Recent Years
 
 States have followed similar voting patterns in elections over the course of the past two decades. However, Donald Trump "[blew up](https://www.politico.com/news/magazine/2020/02/07/election-2020-new-electoral-map-110496)" the Electoral Map in his 2016 victory when many reliably blue states flipped to red. The below graphic displays shifts in the two-party vote across the country between the 2012 and 2016 presidential elections: 
 
 ![](../figures/swing_map.jpg)
 
 Positive values indicate blue-trending states, while negative values indicated red-trending states. In the above map, there are far more red-trending states than blue, indicating that Republican vote share increased in the 2016 presidential race relative to the 2012 race, as expected given the outcomes of the two elections.[^bignote]
+
+#### Electoral Swing in Battleground States
 
 To identify potentially meaningful trends for 2020, it is helpful to focus on electoral swing in battleground states between 2012 and 2016. The plot below displays battleground states and their respective changes in two-party vote share (see this  [table](../figures/swing_table.html) for a closer look at the numbers):
 
