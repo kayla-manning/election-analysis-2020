@@ -123,7 +123,8 @@ pv_swing_2016 %>%
   scale_color_manual(values = c("red", "blue"),
                      labels = c("Republican", "Democrat"),
                      name = "Majority Vote") +
-  guides(shape = guide_legend("Year")) +
+  scale_shape_manual(values = c(1, 16),
+                     name = "Year") +
   theme_classic() +
   labs(title = "Electoral Swing in Battleground States",
        x = "Democratic Percentage of Two-Party Vote",
