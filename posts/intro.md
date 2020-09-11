@@ -5,7 +5,7 @@
 
 The US Electoral College system often places the election in the hands of voters in a select few states, often referred to as *swing states*. The notion of electoral swing takes on several definitions that vary by context. For example, a state with electoral volatility experiences *swings* in voting patterns between elections. Conversely, a state that consistently posts close races could *swing* either way on Election Day. 
 
-For the purpose of this analysis, electoral **swing** focuses on the magnitude of changes in vote share between elections. More specifically, this analysis quantifies electoral swing by the change in the Democratic share of the two-party vote from 2012 to 2016[^1]:
+For the purpose of this analysis, electoral **swing** focuses on the magnitude of changes in vote share between elections. More specifically, this analysis quantifies electoral swing by the change in the Democratic share of the two-party vote from 2012 to 2016:[^1]
 
 ```
 swing_margin = dem_2016 / (dem_2016 + rep_2016) - 
