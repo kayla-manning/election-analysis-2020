@@ -5,7 +5,7 @@
 
 During election season, political aficionados devote large amounts of attention to swing states. The US Electoral College system often places the election in the hands of voters in a select few states, often referred to as *swing states*. The notion of electoral swing takes on several definitions that vary by context. For example, a state with electoral volatility experiences *swings* in voting patterns between elections. Conversely, a state that consistently posts close races could *swing* either way on Election Day. 
 
-For the purpose of this analysis, electoral **swing** focuses on the magnitude of changes in vote share between elections. More specifically, this analysis quantifies electoral swing by the change in the Democratic share of the two-party vote from 2012 to 2016:
+For the purpose of this analysis, electoral **swing** focuses on the magnitude of changes in vote share between elections. More specifically, this analysis quantifies electoral swing by the change in the Democratic share of the two-party vote from 2012 to 2016[^1]:
 
 ```
 swing_margin = dem_2016 / (dem_2016 + rep_2016) - 
@@ -17,7 +17,7 @@ By this definition, a state with a large swing may not have a close election. To
 
 #### Swing States in Recent Years
 
-For the past two decades, states followed similar voting patterns year over year. However, Donald Trump "[blew up](https://www.politico.com/news/magazine/2020/02/07/election-2020-new-electoral-map-110496)" the Electoral Map in his 2016 victory when he flipped many reliably blue states to red. Using data on the presidential popular vote by state from 1948 to 2016, the below graphic displays shifts in the two-party vote across the country between the 2012 and 2016 presidential elections: 
+For the past two decades, states followed similar voting patterns year over year. However, Donald Trump "[blew up](https://www.politico.com/news/magazine/2020/02/07/election-2020-new-electoral-map-110496)" the Electoral Map in his 2016 victory when he flipped many reliably blue states to red. The below graphic displays shifts in the two-party vote across the country between the 2012 and 2016 presidential elections: 
 
 ![](../figures/swing_map.jpg)
 
@@ -39,4 +39,6 @@ With the 2020 election on the horizon, electoral swing is becoming increasingly 
 
 Of course, the additional context of COVID-19, racial protests, and economic turmoil add additional noise not captured in the trends observed between 2012 and 2016. However, patterns of the past lay the groundwork for the future, and studying partisan shifts in states may prove worthwhile when anticipating the results in November.
 
-[^bignote]: The magnitude of the Democratic shift in Utah likely owes itself to the individual candidates running for office in 2012 and 2016 rather than partisan shifts across the state. Approximately [69%](https://newsroom.churchofjesuschrist.org/facts-and-statistics/state/utah) of Utah's population identifies with the Church of Jesus Christ of Latter-Day Saints. Mitt Romney, a Mormon, ran as the Republican candidate in 2012 and likely energized this base of voters. In 2016, Evan McMullin, a Mormon conservative, received [21.5%](https://www.270towin.com/states/Utah) of the vote as a third-party candidate. While Donald Trump did win Utah in 2016, but he failed to energize the Mormon base as effectively as Romney in 2012 and McMullin in 2016.
+
+[^1]: While this analysis focuses solely on the 2012 and 2016 elections, the dataset contains state-by-state data on the presidential popular vote from 1948 to 2016.
+[^bignote]: The magnitude of the Democratic shift in Utah likely owes itself to the individual candidates running for office in 2012 and 2016 rather than partisan shifts across the state. Approximately [69%](https://newsroom.churchofjesuschrist.org/facts-and-statistics/state/utah) of Utah's population identifies with the Church of Jesus Christ of Latter-Day Saints. Mitt Romney, a Mormon, ran as the Republican candidate in 2012 and likely energized this base of voters. In 2016, Evan McMullin, a Mormon conservative, received [21.5%](https://www.270towin.com/states/Utah) of the vote as a third-party candidate. While Donald Trump did win Utah in 2016, he failed to energize the Mormon base as effectively as Romney in 2012 and McMullin in 2016.
