@@ -1,9 +1,9 @@
 # Introduction: Past Presidential Election Results
-## September 11, 2020
+## September 12, 2020
 
 #### Defining Electoral Swing and Battleground States
 
-The US Electoral College system places presidential elections in the hands of voters in a select few states, often referred to as swing states. The notion of electoral swing takes on several definitions that vary by context. For example, a state with electoral volatility experiences *swings* in voting patterns between elections. Conversely, a state that consistently posts close races could *swing* either way on Election Day. 
+Since the Electoral College ultimately decides the outcome of US presidential elections, "swing" or "battleground" states play a pivotal role in electing presidents. The notion of electoral swing takes on several definitions that vary by context. For example, a state with electoral volatility experiences *swings* in voting patterns between elections. Conversely, a state that consistently posts close races could *swing* either way on Election Day. 
 
 For the purpose of this analysis, **electoral swing** focuses on the magnitude of changes in vote share between elections. More specifically, this analysis quantifies electoral swing by the change in the Democratic share of the two-party vote from 2012 to 2016:[^1]
 
@@ -17,15 +17,15 @@ By this definition, a state with a large swing may not have a close election. To
 
 #### Electoral Swing in Recent Years
 
-States have followed similar voting patterns in elections over the course of the past two decades. However, Donald Trump "[blew up](https://www.politico.com/news/magazine/2020/02/07/election-2020-new-electoral-map-110496)" the Electoral Map in his 2016 victory when many reliably blue states flipped to red. The below graphic displays shifts in the two-party vote across the country between the 2012 and 2016 presidential elections: 
+States have voted relatively predictably in elections over the course of the past two decades. However, Donald Trump "[blew up](https://www.politico.com/news/magazine/2020/02/07/election-2020-new-electoral-map-110496)" the Electoral Map in his 2016 victory when many reliably blue states flipped to red. The below graphic displays shifts in the two-party vote across the country between the 2012 and 2016 presidential elections: 
 
 ![](../figures/swing_map.jpg)
 
-Positive values indicate blue-trending states, while negative values indicated red-trending states. In the above map, there are far more red-trending states than blue, indicating that Republican vote share increased in the 2016 presidential race relative to the 2012 race, as expected given the outcomes of the two elections.[^bignote]
+Positive values indicate blue-trending states, while negative values indicate red-trending states. The above map has far more red-trending states than blue, indicating that Republican vote share increased in the 2016 presidential race relative to the 2012 race, as expected given the outcomes of the two elections.[^bignote]
 
 #### Electoral Swing in Battleground States
 
-To identify potentially meaningful trends for 2020, it is helpful to focus on electoral swing in battleground states between 2012 and 2016. The plot below displays battleground states and their respective changes in two-party vote share (see this  [table](../figures/swing_table.html) for a closer look at the numbers):
+To identify potentially meaningful trends for 2020, it is helpful to focus on electoral swing in battleground states from 2012 to 2016. The plot below displays battleground states and their respective changes in two-party vote share (see this  [table](../figures/swing_table.html) for a closer look at the numbers):
 
 ![](../figures/swing_point_line.jpg)
 
@@ -37,7 +37,7 @@ The vast majority of red-trending battleground states voted for Barack Obama in 
 
 #### Looking Forward
 
-With the 2020 election on the horizon, electoral swing is becoming increasingly important. Research on past elections by [Gallup](https://news.gallup.com/poll/313079/mood-doesn-bright-incumbents-win.aspx) reveals that incumbents can still win re-election in spite of public dissatisfaction. For the Democratic Party to stand a chance in the 2020 election, red states from 2016 must vote for Joe Biden in November. This interactive tool by the [New York Times](https://www.nytimes.com/interactive/2020/us/elections/election-states-biden-trump.html) supports the notion that voters in a dozen competitive states will decide the 2020 presidential race.
+With the 2020 election on the horizon, electoral swing is becoming increasingly important. Research on past elections by [Gallup](https://news.gallup.com/poll/313079/mood-doesn-bright-incumbents-win.aspx) reveals that incumbents can still win re-election in spite of public dissatisfaction. For the Democratic Party to stand a chance in the 2020 election, Joe Biden must win the popular vote in a subset of red states from 2016. This interactive tool by the [New York Times](https://www.nytimes.com/interactive/2020/us/elections/election-states-biden-trump.html) supports the notion that voters in a dozen competitive states will decide the 2020 presidential race.
 
 Of course, the additional context of COVID-19, racial protests, and economic turmoil add additional noise not captured in the trends observed between 2012 and 2016. However, patterns of the past lay the groundwork for the future, and studying recent partisan trends in states will prove worthwhile when anticipating the results in November.
 
