@@ -15,7 +15,7 @@ swing_margin = dem_2016 / (dem_2016 + rep_2016) -
 
 By this definition, a state with a large swing may not have a close election. To address close elections, this analysis defines **battleground states** as those with two-party vote shares between 45% and 55% for one or both of the 2012 and 2016 presidential elections.
 
-#### Electoral Swing in Recent Years
+#### Electoral Swing in 2016
 
 States have voted relatively predictably in elections over the course of the past two decades. However, Donald Trump "[blew up](https://www.politico.com/news/magazine/2020/02/07/election-2020-new-electoral-map-110496)" the Electoral Map in his 2016 victory when many reliably blue states flipped to red. The below graphic displays shifts in the two-party vote across the country between the 2012 and 2016 presidential elections: 
 
@@ -23,7 +23,7 @@ States have voted relatively predictably in elections over the course of the pas
 
 Positive values indicate blue-trending states, while negative values indicate red-trending states. The above map has far more red-trending states than blue, indicating that Republican vote share increased in the 2016 presidential race relative to the 2012 race, as expected given the outcomes of the two elections.[^bignote]
 
-#### Electoral Swing in Battleground States
+#### Electoral Swing in Battleground States from 2012 to 2016
 
 To identify potentially meaningful trends for 2020, it is helpful to focus on electoral swing in battleground states from 2012 to 2016. The plot below displays battleground states and their respective changes in two-party vote share (see this  [table](../figures/swing_table.html) for a closer look at the numbers):
 
@@ -35,7 +35,7 @@ The vast majority of red-trending battleground states voted for Barack Obama in 
 
 ![](../figures/swing_bars.jpg)
 
-#### Looking Forward
+#### Looking Ahead to 2020
 
 With the 2020 election on the horizon, electoral swing is becoming increasingly important. Research on past elections by [Gallup](https://news.gallup.com/poll/313079/mood-doesn-bright-incumbents-win.aspx) reveals that incumbents can still win re-election in spite of public dissatisfaction. For the Democratic Party to stand a chance in the 2020 election, Joe Biden must win the popular vote in a subset of red states from 2016. This interactive tool by the [New York Times](https://www.nytimes.com/interactive/2020/us/elections/election-states-biden-trump.html) supports the notion that voters in a dozen competitive states will decide the 2020 presidential race.
 

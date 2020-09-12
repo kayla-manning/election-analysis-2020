@@ -154,8 +154,8 @@ pv_swing_2016 %>%
   coord_flip() +
   scale_fill_manual(values = c("blue", "red")) +
   theme_classic() + 
-  labs(title = "Magnitude of Electoral Swing in Battleground \nStates from 2012 to 2016",
-       y = "Change in Democratic Percentage of Two-Party Vote",
+  labs(title = "Magnitude of Electoral Swing in Battleground States",
+       y = "Change in Democratic Percentage of Two-Party Vote from 2012 to 2016",
        x = "State") +
   scale_y_continuous(limits = c(-8.5, 8.5), breaks = seq(-8, 8, 2)) +
   theme(legend.position = "none")
