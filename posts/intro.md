@@ -31,7 +31,7 @@ To identify potentially meaningful trends for 2020, it is helpful to focus on el
 
 Of the pre-defined battleground states, three out of four of the blue-trending battleground states voted Republican in both elections, and none of the blue-trending states flipped parties. Texas exhibited the largest Democratic shift, followed by Arizona and Georgia. If the trends in these states continue over time, they could reasonably flip to blue in the next few election cycles. 
 
-The vast majority of red-trending battleground states voted for Barack Obama in 2012. In the 2016 election, Florida, Pennsylvania, Wisconsin, Michigan, Ohio, and Iowa flipped from blue to red, with Iowa doing so by the largest margin. While Maine narrowly failed to flip to red in 2016, the state could plausibly vote Republican in 2020 if the trend continues. In general, red-trending battleground states saw greater electoral swing than blue-trending states:
+The vast majority of red-trending battleground states voted for Barack Obama in 2012. In the 2016 election, Florida, Pennsylvania, Wisconsin, Michigan, Ohio, and Iowa flipped from blue to red, with Iowa doing so by the largest margin. In general, red-trending battleground states saw greater electoral swing than blue-trending states:
 
 ![](../figures/swing_bars.jpg)
 
