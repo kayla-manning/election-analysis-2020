@@ -122,7 +122,7 @@ pv_swing_2016 %>%
   geom_vline(xintercept = 50) +
   scale_color_manual(values = c("red", "blue"),
                      labels = c("Republican", "Democrat"),
-                     name = "Majority Vote") +
+                     name = "Popular Vote Winner") +
   scale_shape_manual(values = c(1, 16),
                      name = "Year") +
   theme_classic() +
