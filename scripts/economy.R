@@ -118,7 +118,6 @@ predict(int_gdp_q2_mod, tibble(gdp_growth_qt = q2_2020_gdp,
 
 leave_out_one_nat <- function(x) {
   
-
 outsamp_inc_mod <- national %>% 
   filter(quarter == 2,
          year != x,
@@ -187,6 +186,46 @@ national %>%
   labs(title = "Residuals of Modeling Incumbency and Q2 GDP Growth with Two-Party Vote Share",
        x = "Two-Party Popular Vote Share",
        y = "Residuals")
+
+#############################################################################################################
+
+# going to create a model with more long-term models to get a more realistic prediction for 2020
+# want to calculate percent change in GDP from four years prior
+
+test <- national  %>%
+  filter(incumbent_party == TRUE) %>% 
+  group_by(year, incumbent, pv2p) %>% 
+  summarise(average_gdp = mean(gdp)) %>%
+  ungroup() %>% 
+  mutate(term_gdp_change = average_gdp - lag(average_gdp, default = first(average_gdp), order_by = year))
+
+test %>% 
+  lm(pv2p ~ term_gdp_change * incumbent, data = .) %>% 
+  tidy()
+
+test_mod <- national %>% 
+  filter(quarter == 2,
+         incumbent_party == TRUE) %>% 
+  left_join(test, by = c("year", "incumbent", "pv2p")) %>% 
+  lm(pv2p ~ (gdp_growth_qt + term_gdp_change) * incumbent, data = .)
+
+trump_term_gdp_change <- national %>% 
+  filter(year == 2020 | year == 2016) %>% 
+  group_by(year) %>% 
+  summarise(average_gdp = mean(gdp, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  mutate(term_gdp_change = average_gdp - lag(average_gdp, default = first(average_gdp), order_by = year)) %>% 
+  filter(year == 2020) %>% 
+  pull(term_gdp_change)
+
+# model with q2 numbers is still pretty awful
+
+predict(test_mod, tibble(gdp_growth_qt = national %>% filter(year == 2020, quarter == 2) %>% 
+                           pull(gdp_growth_qt), 
+                         term_gdp_change = trump_term_gdp_change,
+                         incumbent = TRUE))
+
+# removing q2 numbers gives Trump a favorable victory, but at the expense of precision other elections
 
 #############################################################################################################
 
