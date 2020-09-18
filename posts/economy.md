@@ -15,7 +15,7 @@ An [exploratory analysis](../figures/economy.ggpairs.jpeg) of the economic varia
 
 To test the out-of-sample fit for this model, I wrote a function that built a model excluding a single election year and found the residual by finding the difference between the actual two-party vote share and the two-party vote share predicted by the model. After repeating this for all election years in the data, the residual plot displays no clear pattern in the residuals, with the model predicting most elections within 5 percentage points:
 
-![Figure 2](figures/inc_gdp_resid.jpg)
+![Figure 2](../figures/inc_gdp_resid.jpg)
 
 After building the model and assessing the out-of-sample fit, I put the model to the test with 2020 data. While Q2 numbers typically serve as a good indicator for voting patterns in election years, the COVID-19 pandemic brought historic lows for the US economy. While incumbency status typically boosts vote share, this simple model based on the economy did do much in the way of helping out Trump and predicted that he would only win approximately **18.4%** of the popular vote.
 
@@ -28,7 +28,7 @@ While some people feel frustrated about Donald Trump's performance, no one reali
 
 By mid-March, COVID-19 had reached all [50 states](https://www.cdc.gov/mmwr/volumes/69/wr/mm6915e4.htm). While Q2 economic numbers ordinarily serve as good predictors for presidential elections, real GDP decreased at an annual rate of [32.9%](https://www.bea.gov/news/2020/gross-domestic-product-2nd-quarter-2020-advance-estimate-and-annual-update) in the second quarter. Q3 numbers might lend themselves to slightly more realistic models, but those numbers are not available yet. The below visualization, which replicates a similar graphic from the [New York Times](https://www.nytimes.com/2020/07/30/business/economy/q2-gdp-coronavirus-economy.html), displays GDP growth in Q2 relative to the previous quarter, beginning in 1947:
 
-![Figure 2](figures/economy/q2gdp.jpg)
+![Figure 2](../figures/economy/q2gdp.jpg)
 
 The unprecedented economic situation brought by COVID-19 makes economic data less reliable when predicting this 2020 election. On top of the unusual circumstances of 2020, forecasters must work with a limited sample size in less unusual election years as well. While the US has only held 58 presidential elections in its history, the GDP data dates back to 1947 and only accounts for 18 elections. Exploring individual subcategories, such as incumbency status in Model 1, only exacerbates this issue.
 
