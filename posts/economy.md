@@ -15,7 +15,7 @@ An [exploratory analysis](../figures/economy.ggpairs.jpeg) of the economic varia
 
 To test the out-of-sample fit for this model, I wrote a function that built a model excluding a single election year and found the residual by finding the difference between the actual two-party vote share and the two-party vote share predicted by the model. After repeating this for all election years in the data, the residual plot displays no clear pattern in the residuals, with the model predicting most elections within 5 percentage points:
 
-![Figure 2](../figures/inc_gdp_resid.jpg)
+![Figure 2](../figures/economy/inc_gdp_resid.jpg)
 
 After building the model and assessing the out-of-sample fit, I put the model to the test with 2020 data. While Q2 numbers typically serve as a good indicator for voting patterns in election years, the COVID-19 pandemic brought historic lows for the US economy. While incumbency status typically boosts vote share, this simple model based on the economy did do much in the way of helping out Trump and predicted that he would only win approximately **18.4%** of the popular vote.
 
