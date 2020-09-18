@@ -1,3 +1,6 @@
+
+# setup
+
 # loading packages that I need for this model
 
 library(tidyverse)
@@ -7,6 +10,9 @@ library(GGally)
 library(broom)
 library(purrr)
 library(gt)
+library(googlesheets4)
+library(lubridate)
+library(magrittr)
 
 # uploading data from Canvas
 
@@ -18,10 +24,46 @@ popvote <- read_csv("data/popvote_1948-2016.csv")
 popvote_state <- read_csv("data/popvote_bystate_1948-2016.csv") %>% 
   clean_names()
 
+# getting google sheets data on presidential job approval. beginning by creating an
+# empty dataframe
+
+approval <- tibble(start_date = as_datetime(1/1/1000), end_date = as_datetime(1/1/1000), 
+                   approving = as.double(1), disapproving = as.double(1), 
+                   unsure_no_data = as.double(1))
+
+# writing a function to read each sheet and add onto the empty sheet
+
+for (i in 1:13) {
+  
+  president <- read_sheet("https://docs.google.com/spreadsheets/d/1iEl565M1mICTubTtoxXMdxzaHzAcPTnb3kpRndsrfyY/edit?ts=5bd7f609#gid=1067240630",
+                          sheet = i,
+                          col_types = "TTddd") %>% 
+    clean_names()
+  approval <- rbind(approval, president)
+  
+}
+
+approval <- approval %>% 
+  slice(-1)
+
+# filtering for and taking average of Q3 in election years because marks end of
+# Q3 and numbers closest to current election
+
+approval <- approval %>% 
+  arrange(desc(start_date)) %>% 
+  mutate(year = year(end_date),
+         month = month(end_date)) %>% 
+  filter(month %in% 7:9,
+         year %in% seq(1948, 2020, by = 4)) %>% 
+  group_by(year) %>% 
+  summarise(q3_job_approval = mean(approving))
+  
+
 # joining national data together & state data together
 
 national <- economy %>% 
-  left_join(popvote, by = "year")
+  left_join(popvote, by = "year") %>% 
+  left_join(approval, by = "year")
 
 incumbents <- national %>% 
   select(year, party, incumbent, incumbent_party, gdp_growth_qt, quarter)
@@ -41,80 +83,55 @@ state <- local %>%
   drop_na(state)
 
 
-# creating a linear model with Q1 and Q2 RDI and GDP
-# adjusted r-squared of 0.5 and all predictors have p-value ~0.3
-
-national %>% 
-  drop_na(candidate) %>% 
-  select(year, quarter, candidate, incumbent, incumbent_party, gdp_growth_qt, gdp_growth_yr, rdi_growth, unemployment, pv2p, ) %>% 
-  mutate(quarter = paste("q", quarter, sep = "")) %>% 
-  pivot_wider(names_from = quarter, values_from = 6:9) %>% 
-  group_by(year, candidate) %>% 
-  summarise_all(., ~ mean(., na.rm = TRUE)) %>% 
-  filter(incumbent_party == TRUE,
-         incumbent == TRUE) %>% 
-  lm(pv2p ~ gdp_growth_qt_q2 + rdi_growth_q2 + unemployment_q2, data = .) %>% 
-  glance()
-
-
-
-# exploring variables that might be good predictors
-# Q2 gdp_growth_qt, gdp_growth_yr, and rdi_growth have the strongest correlation with incumbent vote share
+# exploring variables that might be good predictors Q2 gdp_growth_qt,
+# gdp_growth_yr, rdi_growth, and q3 job approval have the strongest correlation
+# with incumbent vote share
 
 national %>% 
   filter(incumbent_party == TRUE,
          quarter == 2) %>% 
-  select(pv2p, gdp_growth_qt, gdp_growth_yr, rdi_growth, inflation, unemployment) %>% 
+  select(pv2p, gdp_growth_qt, gdp_growth_yr, rdi_growth, inflation, unemployment, q3_job_approval) %>% 
   ggpairs()
 
 
-# making a model mapping incumbent vote share by Q2 gdp_growth_yr and rdi_growth, has adjusted r-squared of 0.506
-# but none of the predictors are significant?
-
-national %>% 
-  filter(quarter == 2,
-         incumbent == TRUE) %>% 
-  lm(pv2p ~ gdp_growth_qt + rdi_growth, data = .) %>% 
-  glance()
-
-national %>% 
-  filter(quarter == 2,
-         incumbent == TRUE) %>% 
-  ggplot(aes(rdi_growth, pv2p)) +
-  geom_point() +
-  theme_classic()
-
 #############################################################################################################
 
-# example from lab only has an adjusted r-squared of 28.4% but at least it's
-# significant. adding incumbent and incumbent party to the mix shows that
+###### MODEL 1 ######
+
+# adding incumbent and incumbent party to the example from lab shows that
 # sitting presidents do better
 
 # adjusted r-squared of 0.383
 
-int_gdp_q2_mod <- national %>% 
+model1 <- national %>% 
   filter(quarter == 2,
          incumbent_party == TRUE) %>% 
   lm(pv2p ~ gdp_growth_qt * incumbent, data = .)
 
+model1_arsq <- model1 %>% 
+  glance() %>% 
+  pull(adj.r.squared)
+
 # want to save this regression table to link to in the blog post
 
-int_gdp_q2_mod %>% 
+model1 %>% 
   tidy() %>% 
   gt() %>% 
   tab_header("Linear Regression Relating Incumbency and Q2 GDP Growth Rate with Incumbent Party Two-Party Vote Share") %>% 
-  gtsave("../figures/economy/int_gdp_reg.html")
+  gtsave("../figures/economy/inc_gdp_reg.html")
 
+# predicting Trump's vote share using this model.... only 18.4% so not very realistic
 
 q2_2020_gdp <- national %>% 
   filter(year == 2020,
          quarter == 2) %>% 
   pull(gdp_growth_qt)
 
-predict(int_gdp_q2_mod, tibble(gdp_growth_qt = q2_2020_gdp,
+model1_prediction <- predict(model1, tibble(gdp_growth_qt = q2_2020_gdp,
                                incumbent = TRUE))
 
-# going to make a model excluding a single year and then test the fit
+# going to make a model excluding a single year and then test the fit using
+# leave-one-out cross validation
 
 leave_out_one_nat <- function(x) {
   
@@ -142,7 +159,7 @@ ggplot(residuals, aes(year, residuals)) +
   geom_hline(yintercept = 0, color = "red3") +
   labs(title = "Out-of-Sample Residuals for Model 1", x = "Year", y = "Residuals")
 
-ggsave("figures/economy/inc_gdp_resid.jpg")
+ggsave("figures/economy/inc_gdp_resid.jpg", width = 7, height = 4)
 
 # graphing pv2p ~ gdp_growth_qt, faceting by incumbent and incumbent party
 
@@ -172,124 +189,172 @@ national %>%
 
 ggsave("figures/economy/inc_gdp_q2.jpg")
 
-# plotting the residuals of the model.. clear pattern in the plot indicates that
-# this model is not a good fit
 
-national %>% 
-  filter(quarter == 2) %>% 
-  lm(pv2p ~ gdp_growth_qt * (incumbent + incumbent_party), data = .) %>% 
-  augment() %>% 
-  ggplot(aes(pv2p, .resid)) +
-  geom_point() +
-  geom_hline(yintercept = 0, color = "red") +
-  theme_classic() +
-  labs(title = "Residuals of Modeling Incumbency and Q2 GDP Growth with Two-Party Vote Share",
-       x = "Two-Party Popular Vote Share",
-       y = "Residuals")
 
 #############################################################################################################
 
-# going to create a model with more long-term models to get a more realistic prediction for 2020
-# want to calculate percent change in GDP from four years prior
+###### MODEL 2 ######
 
-test <- national  %>%
-  filter(incumbent_party == TRUE) %>% 
-  group_by(year, incumbent, pv2p) %>% 
-  summarise(average_gdp = mean(gdp)) %>%
-  ungroup() %>% 
-  mutate(term_gdp_change = average_gdp - lag(average_gdp, default = first(average_gdp), order_by = year))
+# adding presidential approval to the above model.. adjusted r-squared of 74!
 
-test %>% 
-  lm(pv2p ~ term_gdp_change * incumbent, data = .) %>% 
-  tidy()
-
-test_mod <- national %>% 
+model2 <- national %>% 
   filter(quarter == 2,
          incumbent_party == TRUE) %>% 
-  left_join(test, by = c("year", "incumbent", "pv2p")) %>% 
-  lm(pv2p ~ (gdp_growth_qt + term_gdp_change) * incumbent, data = .)
+  lm(pv2p ~ (gdp_growth_qt + q3_job_approval) * incumbent, data = .)
 
-trump_term_gdp_change <- national %>% 
-  filter(year == 2020 | year == 2016) %>% 
-  group_by(year) %>% 
-  summarise(average_gdp = mean(gdp, na.rm = TRUE)) %>% 
-  ungroup() %>% 
-  mutate(term_gdp_change = average_gdp - lag(average_gdp, default = first(average_gdp), order_by = year)) %>% 
+model2_arsq <- model2 %>% 
+  glance() %>% 
+  pull(adj.r.squared)
+
+# saving regression table for reference in blog post
+
+model2 %>% 
+  tidy() %>% 
+  gt() %>% 
+  tab_header("Linear Regression Relating Incumbency, Q2 GDP Growth Rate, and Job Approval with Incumbent Party Two-Party Vote Share") %>% 
+  gtsave("../figures/economy/inc_gdp_approval.html")
+
+# predicting Trump's numbers
+
+q2_2020_gdp <- national %>% 
+  filter(year == 2020,
+         quarter == 2) %>% 
+  pull(gdp_growth_qt)
+
+trump_approval <- national %>% 
   filter(year == 2020) %>% 
-  pull(term_gdp_change)
+  pull(q3_job_approval)
 
-# model with q2 numbers is still pretty awful
+# still predicts Trump only getting 38.476% of vote share
 
-predict(test_mod, tibble(gdp_growth_qt = national %>% filter(year == 2020, quarter == 2) %>% 
-                           pull(gdp_growth_qt), 
-                         term_gdp_change = trump_term_gdp_change,
-                         incumbent = TRUE))
+model2_prediction <- predict(model2, tibble(gdp_growth_qt = q2_2020_gdp,
+                               q3_job_approval = trump_approval,
+                               incumbent = TRUE)) %>% 
+  extract(1)
 
-# removing q2 numbers gives Trump a favorable victory, but at the expense of precision other elections
+
+# going to make a model excluding a single year and then test the fit using
+# leave-one-out cross validation
+
+leave_out_one_nat <- function(x) {
+  
+  outsamp_inc_mod <- national %>% 
+    filter(quarter == 2,
+           year != x,
+           incumbent_party == TRUE) %>% 
+    lm(pv2p ~ (gdp_growth_qt + q3_job_approval) * incumbent, data = .)
+  
+  
+  outsamp_inc_pred <- predict(outsamp_inc_mod, national %>% 
+                                filter(quarter == 2,
+                                       year == x,
+                                       incumbent_party == TRUE))
+  
+  (national %>% filter(year == x, quarter == 2, incumbent_party == TRUE) %>% pull(pv2p)) - outsamp_inc_pred
+  
+}
+
+residuals <- tibble(year = seq(1948, 2016, by = 4), residuals = sapply(year, leave_out_one_nat))
+
+ggplot(residuals, aes(year, residuals)) +
+  geom_point() +
+  theme_classic() +
+  geom_hline(yintercept = 0, color = "red3") +
+  labs(title = "Out-of-Sample Residuals for Model 2", x = "Year", y = "Residuals")
+
+ggsave("figures/economy/inc_gdp_approval_resid.jpg", width = 7, height = 4)
 
 #############################################################################################################
 
-# trying to do a state-by-state regression
+###### MODEL 3 ######
+
+# going to recreate model 2 but with q1 economic numbers instead. adjusted
+# r-squared of 84.2!
+
+model3 <- national %>% 
+  filter(quarter == 1,
+         incumbent_party == TRUE) %>% 
+  lm(pv2p ~ (gdp_growth_qt + q3_job_approval) * incumbent, data = .)
+
+model3_arsq <- model3 %>% 
+  glance() %>% 
+  pull(adj.r.squared)
+
+# saving regression table for reference in blog post
+
+model3 %>% 
+  tidy() %>% 
+  gt() %>% 
+  tab_header("Linear Regression Relating Incumbency, Q1 GDP Growth Rate, and Job Approval with Incumbent Party Two-Party Vote Share") %>% 
+  gtsave("../figures/economy/inc_q1_gdp_approval.html")
+
+# predicting Trump's numbers
+
+q1_2020_gdp <- national %>% 
+  filter(year == 2020,
+         quarter == 1) %>% 
+  pull(gdp_growth_qt)
+
+trump_approval <- national %>% 
+  filter(year == 2020) %>% 
+  pull(q3_job_approval)
+
+# predicts Trump only getting 42.497% of vote share
+
+model3_prediction <- predict(model3, tibble(gdp_growth_qt = q1_2020_gdp,
+                                     q3_job_approval = trump_approval,
+                                     incumbent = TRUE)) %>% 
+  extract(1)
 
 
+# going to make a model excluding a single year and then test the fit using
+# leave-one-out cross validation
 
-# wrote a function to leave out whichever year is input
-
-leave_out_one_state <- function(x) {
-
-# building model without a year
-
-state_mod <- state %>% 
-  filter(year != x,
-         incumbent_party == TRUE,
-         quarter == 2) %>% 
-  group_by(state) %>% 
-  nest(.) %>% 
-  mutate(mod = map(data, ~lm(pv2p ~ unemployed_prce + incumbent + gdp_growth_qt, data = .)),
-         reg_results = map(mod, ~tidy(.))) %>% 
-  unnest(reg_results) %>% 
-  pivot_wider(names_from = term, values_from = estimate) %>% 
-  group_by(state) %>% 
-  summarise(intercept = mean(`(Intercept)`, na.rm = TRUE),
-            unemployed_prce = mean(unemployed_prce, na.rm = TRUE),
-            incumbentTRUE = mean(incumbentTRUE, na.rm = TRUE),
-            gdp_growth_qt = mean(gdp_growth_qt, na.rm = TRUE))
-
-# getting just that year's data so I can predict with model
-
-state_votes <- state %>% 
-  filter(year == x,
-         incumbent_party == TRUE,
-         quarter == 2) %>% 
-  group_by(state) %>% 
-  summarise(pv2p = mean(pv2p)) %>% 
-  select(state, pv2p)
-
-outsamp_state <- state %>% 
-  filter(year == x,
-         incumbent_party == TRUE,
-         quarter == 2) %>% 
-  group_by(state) %>% 
-  summarise(unemployed_prce = mean(unemployed_prce),
-            incumbent = mean(incumbent),
-            gdp_growth_qt = mean(gdp_growth_qt)) %>% 
-  inner_join(state_mod, by = "state", suffix = c("_16", "_mod")) %>% 
-  mutate(predict_pv2p = intercept + unemployed_prce_16 * unemployed_prce_mod + 
-           incumbent * incumbentTRUE + gdp_growth_qt_16 * gdp_growth_qt_mod) %>% 
-  inner_join(state_votes, by = "state") %>% 
-  mutate(residual = pv2p - predict_pv2p)
-
-outsamp_state %>% 
-  ggplot(aes(pv2p, residual)) +
-  geom_point() +
-  theme_classic() +
-  labs(title = "Residuals of Out-of-Sample Predictions",
-       x = "Two-Party Incumbent Vote Share",
-       y = "Residual")
-
-
+leave_out_one_nat <- function(x) {
+  
+  outsamp_inc_mod <- national %>% 
+    filter(quarter == 1,
+           year != x,
+           incumbent_party == TRUE) %>% 
+    lm(pv2p ~ (gdp_growth_qt + q3_job_approval) * incumbent, data = .)
+  
+  
+  outsamp_inc_pred <- predict(outsamp_inc_mod, national %>% 
+                                filter(quarter == 1,
+                                       year == x,
+                                       incumbent_party == TRUE))
+  
+  (national %>% filter(year == x, quarter == 1, incumbent_party == TRUE) %>% pull(pv2p)) - outsamp_inc_pred
+  
 }
 
+residuals <- tibble(year = seq(1948, 2016, by = 4), residuals = sapply(year, leave_out_one_nat))
+
+ggplot(residuals, aes(year, residuals)) +
+  geom_point() +
+  theme_classic() +
+  geom_hline(yintercept = 0, color = "red3") +
+  labs(title = "Out-of-Sample Residuals for Model 3", x = "Year", y = "Residuals")
+
+ggsave("figures/economy/inc_q1_gdp_approval_resid.jpg", width = 7, height = 4)
+
+#############################################################################################################
+
+# creating a table to compare the models
+
+tibble(model = c("Model 1", "Model 2", "Model 3"),
+       predictors = c("Q2 GDP Growth * Incumbency",
+                      "(Q2 GDP Growth + Job Approval) * Incumbency",
+                      "(Q1 GDP Growth + Job Approval) * Incumbency"),
+       adj_r_squared = c(model1_arsq, model2_arsq, model3_arsq),
+       prediction = c(model1_prediction, model2_prediction, model3_prediction)
+       ) %>% 
+  gt() %>% 
+  tab_header("Model Comparison") %>% 
+  cols_label(model = "Model",
+           predictors = "Predictors",
+           adj_r_squared = "Adj. R-Squared",
+           prediction = "Predicted Vote Share")
 
 #############################################################################################################
 
