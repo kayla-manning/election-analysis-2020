@@ -1,10 +1,12 @@
 # loading packages that I need for this model
 
 library(tidyverse)
+library(ggplot2)
 library(janitor)
 library(GGally)
 library(broom)
 library(purrr)
+library(gt)
 
 # uploading data from Canvas
 
@@ -95,6 +97,15 @@ int_gdp_q2_mod <- national %>%
          incumbent_party == TRUE) %>% 
   lm(pv2p ~ gdp_growth_qt * incumbent, data = .)
 
+# want to save this regression table to link to in the blog post
+
+int_gdp_q2_mod %>% 
+  tidy() %>% 
+  gt() %>% 
+  tab_header("Linear Regression Relating Incumbency and Q2 GDP Growth Rate with Incumbent Party Two-Party Vote Share") %>% 
+  gtsave("../figures/economy/int_gdp_reg.html")
+
+
 q2_2020_gdp <- national %>% 
   filter(year == 2020,
          quarter == 2) %>% 
@@ -103,19 +114,36 @@ q2_2020_gdp <- national %>%
 predict(int_gdp_q2_mod, tibble(gdp_growth_qt = q2_2020_gdp,
                                incumbent = TRUE))
 
-# going to make a model excluding 2016 and then test the fit
+# going to make a model excluding a single year and then test the fit
+
+leave_out_one_nat <- function(x) {
+  
 
 outsamp_inc_mod <- national %>% 
   filter(quarter == 2,
-         year != 2016) %>% 
-  lm(pv2p ~ gdp_growth_qt * (incumbent + incumbent_party), data = .)
+         year != x,
+         incumbent_party == TRUE) %>% 
+  lm(pv2p ~ gdp_growth_qt * incumbent, data = .)
 
 
 outsamp_inc_pred <- predict(outsamp_inc_mod, national %>% 
                               filter(quarter == 2,
-                                     year == 2016))
+                                     year == x,
+                                     incumbent_party == TRUE))
 
-outsamp_inc_pred - national %>% filter(year == 2016, quarter == 2) %>% pull(pv2p)
+(national %>% filter(year == x, quarter == 2, incumbent_party == TRUE) %>% pull(pv2p)) - outsamp_inc_pred
+
+}
+
+residuals <- tibble(year = seq(1948, 2016, by = 4), residuals = sapply(year, leave_out_one_nat))
+
+ggplot(residuals, aes(year, residuals)) +
+  geom_point() +
+  theme_classic() +
+  geom_hline(yintercept = 0, color = "red3") +
+  labs(title = "Out-of-Sample Residuals for Model 1", x = "Year", y = "Residuals")
+
+ggsave("figures/economy/inc_gdp_resid.jpg")
 
 # graphing pv2p ~ gdp_growth_qt, faceting by incumbent and incumbent party
 
@@ -168,7 +196,7 @@ national %>%
 
 # wrote a function to leave out whichever year is input
 
-leave_out_one <- function(x) {
+leave_out_one_state <- function(x) {
 
 # building model without a year
 
