@@ -3,13 +3,13 @@
 
 #### Overview
 
-Research suggests that voters tend to reward incumbents for short-term economic conditions, typically within 6 months to 1 year from election day.[^1] 
-
-### Model 1 : Incumbency Status and Q2 GDP Growth
-
-While the literature suggests that voters reward the incumbent party for short-term economic conditions, how does this vary among sitting presidents seeking re-election and same-party heirs seeking the office? The below plot indicates that the relationship between Q2 GDP Growth and two-party vote share does differ depending on incumbency status:
+Research suggests that voters tend to reward incumbents for short-term economic conditions, typically within 6 months to 1 year from election day.[^1] While the literature suggests that voters reward the incumbent party for short-term economic conditions, how does this vary among sitting presidents seeking re-election and same-party heirs seeking the office? The below plot indicates that the relationship between Q2 GDP Growth and two-party vote share does differ depending on incumbency status:
 
 ![Figure 1](../figures/economy/inc_gdp_q2.jpg)
+
+While recent economic conditions certainly do not work in Donald Trump's favor, I built three models in an attempt to not only quantify Donald Trump's expected vote share based on economic indicators, but to also observe the how the relationship between economic conditions and vote share varies by incumbency status.
+
+#### Model 1 : Incumbency Status and Q2 GDP Growth
 
 An [exploratory analysis](../figures/economy.ggpairs.jpeg) of the economic variables in the [data](../data/econ.csv)[^2] revealed that Q2 GDP growth has the highest correlation with two-party vote share for the incumbent party. After testing numerous variables with an interaction term for incumbency status, the strongest model that observed the interaction between incumbency and an economic variable examined the interaction between election-year Q2 GDP growth and incumbency status of candidates in the incumbent party. While the [regression](../figures/inc_gdp_reg.html) does not reveal a significant relationship between the interaction of incumbency status with GDP growth, it does detect that on average, an incumbent candidate's two-party vote share increases by approximately 2.2 percentage points for every percentage increase in Q2 GDP growth.
 
