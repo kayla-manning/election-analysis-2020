@@ -342,10 +342,15 @@ ggsave("figures/economy/inc_q1_gdp_approval_resid.jpg", width = 7, height = 4)
 
 # creating a table to compare the models
 
-tibble(model = c("Model 1", "Model 2", "Model 3"),
+tibble(model = c("1", "2", "3"),
        predictors = c("Q2 GDP Growth * Incumbency",
                       "(Q2 GDP Growth + Job Approval) * Incumbency",
                       "(Q1 GDP Growth + Job Approval) * Incumbency"),
+       incumbency_interaction = c("2.188", 
+                                  "0.154 (Q2 GDP Growth) & 0.149 (Q3 Job Approval)",
+                                  "3.337 (Q1 GDP Growth) & 0.259 (Q3 Job Approval)"),
+       incumbency_significance = c("Insignificant (p = 0.350)", "Insignificant (p = 0.915 & p = 0.242)",
+                                   "Significant (p = 0.032 & p = 0.016)"),
        adj_r_squared = c(model1_arsq, model2_arsq, model3_arsq),
        prediction = c(model1_prediction, model2_prediction, model3_prediction)
        ) %>% 
@@ -355,6 +360,8 @@ tibble(model = c("Model 1", "Model 2", "Model 3"),
   tab_header("Model Comparison") %>% 
   cols_label(model = "Model",
            predictors = "Predictors",
+           incumbency_interaction = "Interaction with Incumbency",
+           incumbency_significance = "Significance of Interaction Term(s)",
            adj_r_squared = "Adjusted R-Squared",
            prediction = "Predicted Vote Share")
 
