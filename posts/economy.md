@@ -9,7 +9,7 @@ While the research suggests that voters reward the incumbent party for short-ter
 
 While recent economic conditions do not work in Donald Trump's favor, I built three models that quantify Donald Trump's expected vote share based on economic indicators and observe the interaction of incumbency status with these economic variables.
 
-#### Model 1 : Incumbency Status and Q2 GDP Growth
+### Model 1 : Incumbency Status and Q2 GDP Growth
 
 An [exploratory analysis](../figures/economy.ggpairs.jpeg) of the economic variables in the [data](../data/econ.csv)[^2] revealed that Q2 GDP growth has the highest correlation with two-party vote share for the incumbent party. After testing the interaction between incumbency status with numerous variables, the strongest model examined the interaction between election-year Q2 GDP growth and incumbency status of candidates in the incumbent party. Since [parsimonious](https://projects.economist.com/us-2020-forecast/president/how-this-works) models tend to predict the future better than more convoluted equations, I limited Model 1 to one economic variable with the intent to potentially add on in future models.
 
@@ -37,12 +37,15 @@ The [regression](../figures/economy/inc_q1_gdp_approval.html) for Model 3 yields
 
 Model 3's leave-one-out cross validation shows uniformly scattered [residuals](../figures/economy/inc_q1_gdp_approval_resid.jpg) and the full model predicts that Donald Trump will earn approximately **42.5%** of the two-party popular vote.
 
-### Model Comparison
+### Model Comparison and Conclusion
 
-The literature suggests that voters subconsciously assign greater weight to more recent economic conditions closer, but Model 3, which used Q1 GDP growth, actually yielded a greater adjusted r-squared value than Model 2, which used Q2 data. Model 3 accounts for approximately 84% of the variation in the incumbent party's two-party vote share in post-WWII elections, compared to only 74% in Model 2. Not only did Model 3 account for the most variation with the historical data, but it also gave the highest estimate for Donald Trump's predicted vote share in 2020. While the prediction is the highest among the three, it still has him losing to Biden by a sizable margin.
+The literature suggests that voters subconsciously assign greater weight to more recent economic conditions closer, but Model 3, which used Q1 GDP growth, actually yielded a greater adjusted r-squared value than Model 2, which used Q2 data.
 
 ![Figure 3](../figures/economy/model_comparison.jpeg)
 
+Model 3 accounts for approximately 84% of the variation in the incumbent party's two-party vote share in post-WWII elections, compared to only 74% in Model 2. Not only did Model 3 account for the most variation with the historical data, but it also gave the highest estimate for Donald Trump's predicted vote share in 2020. While the prediction is the highest among the three, it still has him losing to Biden by a sizable margin.
+
+Also notable, Model 3 reveals that incumbent candidates tend to experience a significant boost in the two-party vote share for increases in Q1 GDP growth and Q3 job approval ratings relative to non-incumbent candidates from the incumbent party. Since Model 3 is the strongest model, it supports the notion that, on average, **voters do reward incumbent candidates for economic conditions more than new candidates from the incumbent party**.
 
 ### Limitations with Economic Data
 
