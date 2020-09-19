@@ -37,7 +37,9 @@ Model 3's leave-out-one cross validation shows uniformly scattered [residuals](.
 
 ### Model Comparison
 
+The literature suggests that voters give greater weight to economic conditions closer to the election, but Model 3, which used Q1 GDP growth, actually yielded a greater adjusted r-squared value than Model 2, which used Q2 data. Model 3 accounts for approximately 84% of the variation in the incumbent party's two-party vote share in post-WWII elections. Not only did Model 3 account for the most variation on the historical data, but it also gave the highest estimate for Donald Trump's predicted vote share in 2020. While the prediction is the highest among the three, it still has him losing by a large margin.
 
+![Figure 3](../figures/economy/model_comparison.jpeg)
 
 
 ### Limitations
@@ -48,7 +50,7 @@ By mid-March, COVID-19 had reached all [50 states](https://www.cdc.gov/mmwr/volu
 
 The unprecedented economic situation brought by COVID-19 makes economic data less reliable when predicting this 2020 election. On top of the unusual circumstances of 2020, forecasters must work with a limited sample size in less unusual election years as well. While the US has only held 58 presidential elections in its history, the GDP data dates back to 1947 and only accounts for 18 elections. Exploring individual subcategories, such as incumbency status in Model 1, only exacerbates this issue.
 
-It is not reasonable to wish for a larger sample size to improve the models presented. However, adding non-economic variables to the model in future weeks will lead to a more realistic look at the outcome of the 2020 election. Even in years without such economic volatility, most election forecasters incorporated a mixture of political and economic indicators in their models.[^3] 
+It is not reasonable to wish for a larger sample size to improve the models presented. However, adding non-economic variables to the model in future weeks will lead to a more realistic look at the outcome of the 2020 election. Even in years without such economic volatility, most election forecasts incorporate a mixture of political and economic indicators in their models.[^3] 
 
 
 

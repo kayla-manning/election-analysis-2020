@@ -349,11 +349,13 @@ tibble(model = c("Model 1", "Model 2", "Model 3"),
        adj_r_squared = c(model1_arsq, model2_arsq, model3_arsq),
        prediction = c(model1_prediction, model2_prediction, model3_prediction)
        ) %>% 
+  mutate(adj_r_squared = round(adj_r_squared, 3),
+         prediction = round(prediction, 3)) %>% 
   gt() %>% 
   tab_header("Model Comparison") %>% 
   cols_label(model = "Model",
            predictors = "Predictors",
-           adj_r_squared = "Adj. R-Squared",
+           adj_r_squared = "Adjusted R-Squared",
            prediction = "Predicted Vote Share")
 
 #############################################################################################################
