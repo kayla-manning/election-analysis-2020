@@ -45,7 +45,7 @@ The literature suggests that voters subconsciously assign greater weight to more
 
 Model 3 accounts for approximately 84% of the variation in the incumbent party's two-party vote share in post-WWII elections, compared to only 74% in Model 2. Not only did Model 3 account for the most variation with the historical data, but it also gave the highest estimate for Donald Trump's predicted vote share in 2020. While the prediction is the highest among the three, it still has him losing to Biden by a sizable margin.
 
-Also notable, Model 3 reveals that incumbent candidates tend to experience a significant boost in the two-party vote share for increases in Q1 GDP growth and Q3 job approval ratings relative to non-incumbent candidates from the incumbent party. Since Model 3 is the strongest model, it supports the notion that, on average, **voters do reward incumbent candidates for economic conditions more than new candidates from the incumbent party**.
+Also worth noting is that Model 3 reveals that incumbent candidates tend to experience a significant boost in the two-party vote share for increases in Q1 GDP growth and Q3 job approval ratings relative to non-incumbent candidates from the incumbent party. Since Model 3 is the strongest model, it supports the notion that, **on average, incumbent candidates reap greater rewards for economic conditions than new candidates from the incumbent party**.
 
 ### Limitations with Economic Data
 
