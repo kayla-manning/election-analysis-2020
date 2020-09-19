@@ -29,7 +29,7 @@ The [regression](../figures/economy/inc_gdp_approval.html) mapping the incumbent
 
 After performing leave-one-out cross-validation for every post-WWII election, the out-of-sample residuals for the popular vote estimates mostly lie within 3 percentage points and do not show any distinct pattern in the [residual plot](../figures/economy/inc_gdp_approval_resid.jpg). When predicting Donald Trump's two-party popular vote share for 2020 using his incumbency status, Q2 GDP growth, and Q3 job approval ratings, Model 2 estimates that he will receive approximately **38.5%** of the popular vote.
 
-### Model 3
+### Model 3: Incumbency Status, Q1 GDP Growth, and Job Approval
 
 While Model 2 yields a slightly more realistic prediction, it still seems overly optimistic about Biden's chances, largely due to the massive drop in Q2 GDP. To amend that, I revised Model 3 to replace Q2 GDP with Q1 GDP. This substitution still accounts for the impact of COVID-19 on Trump's presidential bid, but it does not restrict the model to the worst economic quarter of Trump's presidency and recent history.
 
