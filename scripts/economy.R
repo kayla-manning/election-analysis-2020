@@ -232,6 +232,12 @@ model2_prediction <- predict(model2, tibble(gdp_growth_qt = q2_2020_gdp,
                                incumbent = TRUE)) %>% 
   extract(1)
 
+# plugging in economic approval numbers to see; predicts 41.411%
+
+predict(model2, tibble(gdp_growth_qt = q2_2020_gdp,
+                       q3_job_approval = 50.5,
+                       incumbent = TRUE)) %>% 
+  extract(1)
 
 # going to make a model excluding a single year and then test the fit using
 # leave-one-out cross validation
@@ -306,6 +312,12 @@ model3_prediction <- predict(model3, tibble(gdp_growth_qt = q1_2020_gdp,
                                      incumbent = TRUE)) %>% 
   extract(1)
 
+# plugging in economic approval numbers to see; predicts 46.494%
+
+predict(model3, tibble(gdp_growth_qt = q1_2020_gdp,
+                       q3_job_approval = 50.5,
+                       incumbent = TRUE)) %>% 
+  extract(1)
 
 # going to make a model excluding a single year and then test the fit using
 # leave-one-out cross validation
