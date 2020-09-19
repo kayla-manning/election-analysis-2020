@@ -50,9 +50,9 @@ By mid-March, COVID-19 had reached all [50 states](https://www.cdc.gov/mmwr/volu
 
 ![Figure 2](../figures/economy/q2gdp.jpg)
 
-The unprecedented economic situation brought by COVID-19 makes economic data less reliable when predicting the 2020 election, especially given the limited sample size. While the US has only held 58 presidential elections in its history, the GDP data only dates back to post-WWII elections, bringing the tally down to 18.
+History provides no guide for the economic extremes resulting from COVID-19. The unprecedented nature of this economic situation forces models to extrapolate from economic data of an already limited sample size, making predictions unreliable. While the US has only held 58 presidential elections in its history, the GDP data only dates back to post-WWII elections, bringing the tally down to 18.
 
-It is not reasonable to wish for a larger sample size of presidential elections to improve the forecast models. Most election forecasts incorporate a mixture of political and economic indicators in their models,[^3] and adding non-economic variables to the model in future weeks will lead to closer predictions for the outcome of the 2020 election.
+Forecaster cannot simply acquire a larger sample size of presidential elections or more historic economic extremes to improve the forecast models; instead, models must look beyond basic economic data. Most election forecasts incorporate a mixture of political and economic indicators in their models,[^3] and adding non-economic variables to the model in future weeks will lead to closer predictions for the outcome of the 2020 election.
 
 
 
