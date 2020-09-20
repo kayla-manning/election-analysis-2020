@@ -185,7 +185,8 @@ national %>%
   theme_classic() +
   labs(title = "Relationship Between Incumbency and Q2 GDP Growth with Two-Party Vote Share",
        x = "Q2 GDP Growth",
-       y = "Two-Party Popular Vote Share")
+       y = "Two-Party Popular Vote Share") +
+  theme(strip.text.x = element_text(size = 12))
 
 ggsave("figures/economy/inc_gdp_q2.jpg")
 
@@ -362,6 +363,18 @@ ggplot(residuals, aes(year, residuals)) +
 
 ggsave("figures/economy/inc_q1_gdp_approval_resid.jpg", width = 7, height = 4)
 
+# making plot showing relationship between q1 numbers and vote share
+
+national %>% 
+  filter(incumbent_party == TRUE,
+         quarter == 2) %>% 
+  ggplot(aes(gdp_growth_qt, pv2p)) +
+  geom_point() +
+  theme_classic() +
+  geom_smooth(method = "lm", se = 0, color = "red3") +
+  labs(title = "Relationship Between Q2 GDP Growth and Two-Party Vote Share",
+       x = "Q3 Job Approval", y = "Two-Party Popular Vote Share") 
+
 #############################################################################################################
 
 # creating a table to compare the models
@@ -387,7 +400,10 @@ tibble(model = c("1", "2", "3"),
            incumbency_interaction = "Interaction with Incumbency",
            incumbency_significance = "Significance of Interaction Term(s)",
            adj_r_squared = "Adjusted R-Squared",
-           prediction = "Predicted Vote Share")
+           prediction = "Predicted Vote Share") %>% 
+  tab_options(table.font.size = 20,
+              heading.title.font.size = 30,
+              column_labels.font.size = 25)
 
 #############################################################################################################
 
