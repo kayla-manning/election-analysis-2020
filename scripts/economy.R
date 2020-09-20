@@ -279,7 +279,7 @@ national %>%
   theme_classic() +
   geom_smooth(method = "lm", se = 0, color = "red3") +
   labs(title = "Relationship Between Job Approval and Two-Party Vote Share",
-       x = "Q3 Job Approval", y = "Two-Party Popular Vote Share") 
+       x = "Q3 Job Approval", y = "Two-Party Popular Vote Share")
 
 ggsave("figures/economy/approval_plot.jpg")
 
@@ -420,7 +420,8 @@ national %>%
   labs(title = "Q2 2020 Marks a Historic Drop in GDP",
        x = "Year",
        y = "Q2 GDP Growth from Previous Quarter") +
-  theme(legend.position = "none")
+  theme(legend.position = "none",
+        text = element_text(size = 15))
 
 ggsave("figures/economy/q2gdp.jpg")
 
