@@ -23,7 +23,9 @@ After building the model and assessing the out-of-sample fit, I predicted Donald
 
 While some people feel frustrated about Donald Trump's performance, no one realistically expects him to only win 18% of the popular vote. Restricting the scope of a model to recent economic metrics gives undue weight to the economic disaster of 2020. However, incorporating long-term numbers weakens the in-sample strength of the model since short-term numbers have a much stronger association with the two-party popular vote share of the incumbent party.
 
-Through the economic storm in the past few months, however, President Trump's economic approval rating has remained relatively [stable](https://www.nytimes.com/2020/08/24/us/politics/trump-economy.html). To account for this gap between public opinion and economic data, I added Q3 job approval as an additional variable for Model 2.[^jobapproval] I chose to focus specifically on Q3 election-year approval ratings because voters assign greater weight to performance at the end of the president's term,[^1] and the [job approval dataset](https://www.presidency.ucsb.edu/statistics/data/presidential-job-approval) had up-to-date approval numbers for Donald Trump.
+Through the economic storm in the past few months, however, President Trump's economic approval rating has remained relatively [stable](https://www.nytimes.com/2020/08/24/us/politics/trump-economy.html). To account for this gap between public opinion and economic data, I added Q3 job approval as an additional variable for Model 2.[^jobapproval] I chose to focus specifically on Q3 election-year approval ratings because voters assign greater weight to performance at the end of the president's term,[^1] and the [job approval dataset](https://www.presidency.ucsb.edu/statistics/data/presidential-job-approval) had up-to-date approval numbers for Donald Trump. The below plot shows a positive association between Q3 job approval numbers and incumbent party vote share with historical data:
+
+![Figure 2](../figures/economy/approval_plot.jpg)
 
 The [regression](../figures/economy/inc_gdp_approval.html) mapping the incumbent party's popular vote by the interaction between Q2 GDP growth and Q3 job approval does not reveal a significant relationship between vote share and the interactions between incumbency status and GDP or approval. For every single point increase in Q2 GDP growth, incumbent candidates experience an additional insignificant boost of 0.15 in the popular vote relative to non-incumbent candidates. Similarly, incumbents also experience an average insignificant boost of 0.15 points in the two-party vote share relative to non-incumbent candidates for every point increase in Q3 job approval ratings. Q3 job approval on its own, however, does have a statistically significant relationship with two-party vote share. On average, every single point increase in job approval accompanies an approximate increase of 0.183 percent in the popular vote.
 
@@ -41,7 +43,7 @@ Model 3's leave-one-out cross validation shows uniformly scattered [residuals](.
 
 The literature suggests that voters subconsciously assign greater weight to more recent economic conditions, but Model 3, which used Q1 GDP growth, actually yielded a greater adjusted r-squared value than Model 2, which used Q2 data.
 
-![Figure 3](../figures/economy/model_comparison.jpeg)
+![Figure 4](../figures/economy/model_comparison.jpeg)
 
 Model 3 accounts for approximately 84% of the variation in the incumbent party's two-party vote share in post-WWII elections, compared to only 74% in Model 2. Not only did Model 3 account for the most variation with the historical data, but it also gave the highest estimate for Donald Trump's predicted vote share in 2020. While the prediction is the highest among the three, it still has him losing to Biden by a sizable margin.
 
@@ -51,7 +53,7 @@ Also worth noting is that Model 3 reveals that incumbent candidates tend to expe
 
 By mid-March, COVID-19 had reached all [50 states](https://www.cdc.gov/mmwr/volumes/69/wr/mm6915e4.htm). While Q2 economic numbers ordinarily serve as good predictors for presidential elections, real GDP decreased at an annual rate of [32.9%](https://www.bea.gov/news/2020/gross-domestic-product-2nd-quarter-2020-advance-estimate-and-annual-update) in the second quarter. The below visualization, which replicates a similar graphic from the [New York Times](https://www.nytimes.com/2020/07/30/business/economy/q2-gdp-coronavirus-economy.html), displays GDP growth in Q2 relative to the previous quarter, beginning in 1947:
 
-![Figure 2](../figures/economy/q2gdp.jpg)
+![Figure 5](../figures/economy/q2gdp.jpg)
 
 History provides no guide for the economic extremes resulting from COVID-19. The unprecedented nature of this economic situation forces models to extrapolate from economic data of an already limited sample size, making predictions unreliable. While the US has only held 58 presidential elections in its history, the GDP data only dates back to post-WWII elections, bringing the tally down to 18.
 

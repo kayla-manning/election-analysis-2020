@@ -270,6 +270,18 @@ ggplot(residuals, aes(year, residuals)) +
 
 ggsave("figures/economy/inc_gdp_approval_resid.jpg", width = 7, height = 4)
 
+national %>% 
+  filter(incumbent_party == TRUE,
+         quarter == 1) %>% 
+  ggplot(aes(q3_job_approval, pv2p)) +
+  geom_point() +
+  theme_classic() +
+  geom_smooth(method = "lm", se = 0, color = "red3") +
+  labs(title = "Relationship Between Job Approval and Two-Party Vote Share",
+       x = "Q3 Job Approval", y = "Two-Party Popular Vote Share") 
+
+ggsave("figures/economy/approval_plot.jpg")
+
 #############################################################################################################
 
 ###### MODEL 3 ######
