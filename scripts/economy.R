@@ -88,9 +88,9 @@ state <- local %>%
 # with incumbent vote share
 
 national %>% 
-  filter(incumbent_party == TRUE,
+  filter(incumbent_party = TRUE,
          quarter == 2) %>% 
-  select(pv2p, gdp_growth_qt, gdp_growth_yr, rdi_growth, inflation, unemployment, q3_job_approval) %>% 
+  select(pv2p, gdp_growth_qt, gdp_growth_yr, rdi_growth, inflation, unemployment) %>% 
   ggpairs()
 
 
