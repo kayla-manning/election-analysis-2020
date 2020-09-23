@@ -33,14 +33,13 @@ approval <- tibble(start_date = as_datetime(1/1/1000), end_date = as_datetime(1/
 
 # writing a function to read each sheet and add onto the empty sheet
 
-for (i in 1:13) {
-  
+for (i in 1:13) 
+{
   president <- read_sheet("https://docs.google.com/spreadsheets/d/1iEl565M1mICTubTtoxXMdxzaHzAcPTnb3kpRndsrfyY/edit?ts=5bd7f609#gid=1067240630",
                           sheet = i,
                           col_types = "TTddd") %>% 
     clean_names()
   approval <- rbind(approval, president)
-  
 }
 
 approval <- approval %>% 
@@ -57,6 +56,10 @@ approval <- approval %>%
          year %in% seq(1948, 2020, by = 4)) %>% 
   group_by(year) %>% 
   summarise(q3_job_approval = mean(approving))
+
+# writing this into a csv for future reference
+
+write_csv(approval, "data/q3_approval.csv")
   
 
 # joining national data together & state data together
