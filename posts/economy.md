@@ -1,4 +1,4 @@
-# Introduction: The Economy's Role in Elections
+# The Economy's Role in Elections
 ## September 19, 2020
 
 ### Overview

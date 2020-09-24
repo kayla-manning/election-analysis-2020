@@ -2,6 +2,7 @@ library(RCurl)
 library(tidyverse)
 library(janitor)
 library(lubridate)
+library(gt)
 
 x <- getURL("https://raw.githubusercontent.com/fivethirtyeight/data/master/pollster-ratings/pollster-ratings.csv")
 poll_ratings <- read.csv(text = x) %>% 
@@ -26,9 +27,8 @@ vote_econ <- popvote %>%
               summarise(avg_support=mean(avg_support)))
 
 #######################################################
+# VISUALIZING POLLS
 #######################################################
-
-# exploring pollster quality data
 
 
 # visualizing 2016 polls
@@ -37,36 +37,66 @@ all_polls %>%
   filter(year == 2016) %>% 
   ggplot(aes(poll_date, avg_support, color = party)) +
   geom_line() +
-  theme_classic()
+  theme_classic() +
+  scale_y_continuous(limits = c(25, 60))
 
 # visualizing 2020 polls
+
+polls_2020 %>% 
+  mutate(end_year = year(end_date),
+         end_week = week(end_date),
+         end_month = month(end_date)) %>% 
+  filter(end_year == 2020,
+         answer %in% c("Biden", "Trump")) %>% 
+  group_by(end_week, answer, end_month, end_date) %>% 
+  summarise(avg_pct = mean(pct)) %>% 
+  ggplot(aes(end_date, avg_pct, color = answer)) +
+  geom_point() +
+  geom_line() +
+  scale_x_date()
+  
+# creating lineplot starting in May 2020 because at that point Trump and Biden
+# were the only 2 candidates
 
 polls_2020 %>% 
   filter(answer %in% c("Trump", "Biden")) %>%
   group_by(end_date, answer) %>% 
   summarise(avg_pct = mean(pct), .groups = "drop") %>% 
-  mutate(end_year = year(end_date)) %>% 
-  filter(end_year == 2020) %>% 
+  mutate(end_year = year(end_date),
+         end_month = month(end_date)) %>% 
+  filter(end_year == 2020,
+         end_month > 4) %>% 
   ggplot(aes(end_date, avg_pct, color = answer)) +
+  geom_point() +
   geom_line() +
   theme_classic() +
   scale_x_date(date_breaks = "1 month",
-               date_labels = "%B")
+               date_labels = "%B") +
+  scale_color_manual(values = c("blue", "red3"),
+                     name = "Candidate") +
+  labs(title = "Presidential Polls Since May 2020",
+       x = "",
+       y = "Poll Averages")
+
+ggsave("figures/polling/polls_2020.jpg")
 
 #######################################################
-# TRUMP MODEL
+# INCUMBENT PARTY MODEL
 #######################################################
 
 # building off of model 3 from last week, replacing q3_job_approval with
-# avg_support brings adjusted r-squared up to 96.6%...... is that a bad thing?
+# avg_support brings adjusted r-squared up to 96.6%...... got rid of interaction
+# between incumbent and gdp growth, bring adj-r-sq down to .91 but made OOS fit
+# better
 
 inc_mod <- vote_econ %>% 
   filter(quarter == 1,
          incumbent_party == TRUE) %>% 
-  lm(pv2p ~ (gdp_growth_qt + avg_support) * incumbent, data = .)
+  lm(pv2p ~ gdp_growth_qt + avg_support * incumbent, data = .)
 
 inc_mod %>% 
   summary()
+
 
 # check with out-of-sample & classification accuracy
 
@@ -76,7 +106,7 @@ inc_leave_one_out <- function(x)
     filter(quarter == 1,
            year != x,
            incumbent_party == TRUE) %>% 
-    lm(pv2p ~ (gdp_growth_qt + avg_support) * incumbent, data = .)
+    lm(pv2p ~ gdp_growth_qt + avg_support * incumbent, data = .)
   
   
   outsamp_pred <- predict(outsamp_mod, vote_econ %>% 
@@ -102,9 +132,22 @@ inc_validation <- tibble(year = seq(1948, 2016, by = 4),
           actual_classification = ifelse(actual_pv2p > 50, 1, 0),
          right_class = ifelse(predicted_classification == actual_classification, 1, 0))
 
-inc_validation
+inc_validation %>% 
+  drop_na(predicted_classification) %>% 
+  gt() %>% 
+  tab_header(title = "Leave-One-Out Classification for the Incumbent Party Model",
+             subtitle = "") %>% 
+  cols_label(year = "Year",
+             predicted_pv2p = "Predicted Two-Party Vote Share",
+             actual_pv2p = "Actual Two-Party Vote Share",
+             predicted_classification = "Predicted Classification",
+             actual_classification = "Actual Classification",
+             right_class = "Correct Classification") %>% 
+  tab_footnote(locations = cells_column_labels(columns = vars(right_class)),
+               footnote = "Correctly predicted the two-party popular vote winner of 84.6% of the elections") %>% 
+  gtsave("figures/inc_model_classification.html")
 
-# Trump model correctly classified past pv2p victories 77% of the time
+# Trump model correctly classified past pv2p victories 84.6% of the time
 
 mean(inc_validation$right_class, na.rm = TRUE)
 
@@ -139,6 +182,7 @@ chal_leave_one_out <- function(x)
                             filter(quarter == 2,
                                    year == x,
                                    incumbent_party == FALSE))
+  outsamp_pred
 }
 
 # getting list of actual pv2p to compare to OOS predicted
@@ -212,16 +256,99 @@ predict(inc_mod, tibble(incumbent = TRUE,
 
 # now onto Biden... predicts 58.179%
 
+trump_q2_gdp <- vote_econ %>% 
+  filter(quarter == 2,
+         year == 2020) %>% 
+  pull(gdp_growth_qt)
+
 biden_poll <- poll_2020_df %>% 
   filter(weeks_left == 6,
          party == "democrat") %>% 
   pull(avg_support) %>% 
   mean()
 
-predict(chal_mod, tibble(gdp_growth_qt = trump_q1_gdp,
+predict(chal_mod, tibble(gdp_growth_qt = trump_q2_gdp,
                          avg_support = biden_poll))
 
 
+#######################################################
+# USING SAME MODEL FOR TRUMP AND BIDEN
+#######################################################
+
+# creating model. using q2 gdp growth has higher adj-r-sq (0.7394) than q1 (0.7242)
+# using pv since that's what the polling numbers indicate (and higher adj-r-sq).
+# removed insignificant interaction term between q2 gdp growth and incumbent
+
+both_mod <- vote_econ %>% 
+  filter(quarter == 2) %>% 
+  lm(pv ~ gdp_growth_qt + avg_support * incumbent, data = .)
+
+both_mod %>% 
+  summary()
+
+predict(both_mod, trump_q2_gdp)
+
+# testing OOS
+
+both_leave_one_out <- function(x, y) 
+{
+  outsamp_mod <- vote_econ %>% 
+    filter(quarter == 2,
+           year != x,
+           incumbent == y) %>% 
+    lm(pv ~ gdp_growth_qt + avg_support * incumbent, data = .)
+  
+  
+  outsamp_pred <- predict(outsamp_mod, vote_econ %>% 
+                            filter(quarter == 2,
+                                   year == x,
+                                   incumbent == y))
+  outsamp_pred
+}
+
+# getting list of actual pv to compare to OOS predicted
+
+both_pv <- vote_econ %>%  
+  group_by(year, incumbent, party) %>% 
+  summarise(actual_pv = mean(pv)) %>% 
+  drop_na(actual_pv)
+
+# making tibble comparing actual vs predicted pv and classification
+
+both_validation <- both_pv %>% 
+  mutate(predicted_pv = both_leave_one_out(year, incumbent)) %>%
+  drop_na(predicted_pv) %>% 
+  mutate(predicted_classification = ifelse(predicted_pv > 50, 1, 0),
+         actual_classification = ifelse(actual_pv > 50, 1, 0),
+         right_class = ifelse(predicted_classification == actual_classification, 1, 0))
+
+both_validation %>% 
+  ungroup() %>% 
+  gt()
+
+# this model correctly classified past pv victories 85% of the time when tested
+# OOS
+
+mean(both_validation$right_class, na.rm = TRUE)
+
+# making predictions with the both model
+
+biden_predict <- predict(both_mod, tibble(gdp_growth_qt = trump_q2_gdp,
+                                          avg_support = biden_poll,
+                                          incumbent = FALSE))
+biden_predict
+
+
+trump_predict <- predict(both_mod, tibble(gdp_growth_qt = trump_q2_gdp,
+                                          avg_support = trump_poll,
+                                          incumbent = TRUE))
+trump_predict
+
+# normalizing the predictions since they add up to over 100%. put Biden at
+# receiving ~52% and Trump ~48%
+
+std_biden_predict <- biden_predict / (biden_predict + trump_predict) * 100
+std_trump_predict <- trump_predict / (biden_predict + trump_predict) * 100
 
 #######################################################
 # WEIGHTED POLL MODEL
@@ -253,27 +380,116 @@ sept_errors <- polls_2016 %>%
   summarise(clinton = mean(adj_error_clinton),
             trump = mean(adj_error_trump)) %>%
   pivot_longer(2:3, names_to = "candidate") %>% 
-  mutate(pollster = as_factor(pollster) %>% fct_reorder(value))
+  mutate(pollster = as_factor(pollster) %>% fct_reorder(value)) %>% 
+  mutate(abs_error = abs(value)) %>% 
+  arrange(abs_error)
 
-sept_errors %>% 
-  mutate(positive = ifelse(value > 0, 1, 0) %>% as_factor()) %>% 
-  ggplot(aes(pollster, value, fill = positive)) +
-  geom_col() +
+# finding which polls had the lowest errors for both candidates
+
+abs_sept_errors <- sept_errors %>% 
+  select(pollster, candidate, abs_error) %>% 
+  pivot_wider(names_from = candidate,
+              values_from = abs_error) %>% 
+  mutate(total_error = clinton + trump,
+         pollster = fct_reorder(pollster, total_error)) %>% 
+  arrange(total_error) 
+
+abs_sept_errors %>% 
+  ggplot(aes(pollster, total_error)) +
+  geom_col(fill = "red3") +
   coord_flip() +
-  scale_y_continuous(limits = c(-6, 6)) +
-  facet_wrap(~ candidate) +
-  geom_hline(yintercept = 0) +
-  theme_classic() +
-  scale_fill_manual(values = c("red3", "blue")) +
-  theme(legend.position = "none") +
-  labs(title = "Error in September 2016 Polls",
-       x = "Pollster",
-       y = "Average Error (Predicted - Actual)")
-  
+  theme_classic()
+
+total_errors <- abs_sept_errors %>% 
+  pull(total_error) %>% 
+  sum()
+
+# weighing the polls accordingly so that the weights sum to 1
+
+sept_error_weights <- abs_sept_errors %>% 
+  mutate(sum_errors = total_errors,
+         weight = 1 / (total_error / sum_errors)) %>% 
+  select(pollster, weight, sum_errors)
+
+# predicting 2020 pv by applying weights from 2016 polls to 2020 numbers
+
+test <- polls_2020 %>% 
+  filter(is.na(state)) %>% 
+  mutate(pollster = recode(pollster, 
+         "USC Dornside/Los Angeles Times" = "USC Dornsife/LA Times",
+         "Remington Research Group" = "Remington",
+         "Selzer & Co." = "Selzer & Company",
+         "Siena College/The New York Times Upshot" = "Siena College",
+         "NBC News/The Wall Street Journal" = "NBC News/Wall Street Journal",
+         "Global Strategy Group/GBAO/Navigator Research" = "Global Strategy Group",
+         "ABC News/The Washington Post" = "ABC News/Washington Post",
+         "Fox News/Beacon Research/Shaw & Co. Research" = "Fox News/Anderson Robbins Research/Shaw & Company Research",
+         "Susquehanna Polling & Research Inc." = "Susquehanna Polling & Research, Inc.",
+         "Glengariff Group" = "Glengariff Group, Inc.",
+         "Marquette University Law School" = "Marquette University",
+         "GQR Research (GQRR)" = "Greenberg Quinlan Rosner/American Viewpoint",
+         "Research & Polling Inc." = "Research & Polling, Inc.",
+         "Mason-Dixon Polling & Strategy" = "Mason-Dixon Polling & Research, Inc.",
+         "Center for Marketing and Opinion Research/University of Akron" = "University of Akron",
+         "Global Strategy Group/Data for Progress" = "Global Strategy Group",
+         "Cygnal" = "Cygnal Political",
+         "HighGround Inc." = "HighGround",
+         "Keating Research/OnSight Public Affairs/Melanson" = "Keating Research, Inc.",
+         "Montana State University Bozeman" = "Montana State University Billings",
+         "Univision/University of Houston/Latino Decisions" = "University of Houston",
+         "American Viewpoint" = "Greenberg Quinlan Rosner/American Viewpoint",
+         "Univision/University of Houston/Latino Decisions/North Star Opinion Research" = "University of Houston")) %>% 
+  full_join(abs_sept_errors, by = "pollster") %>% 
+  mutate(created_at = word(created_at),
+         created_at = mdy(created_at),
+         month = month(created_at)) %>% 
+  filter(answer %in% c("Biden", "Trump"),
+         month == 9) %>% 
+  select(pollster, answer, pct, total_error) %>% 
+  drop_na(total_error) %>% 
+  group_by(pollster, answer) %>% 
+  summarise(pct = mean(pct),
+            total_error = mean(total_error))
+
+sum_errors <- test %>% 
+  group_by(pollster) %>% 
+  summarise(total_error = mean(total_error)) %>% 
+  pull(total_error) %>% 
+  sum()
+
+# creating weights based off of 2016 to estimate vote share
+
+poll_rating_results <- test %>% 
+  mutate(sum_errors = sum_errors,
+         pct_of_sum = total_error / sum_errors,
+         weighted_poll = pct_of_sum * pct) %>% 
+  group_by(answer) %>% 
+  summarize(estimate = sum(weighted_poll)) %>%
+  pivot_wider(names_from = answer, values_from = estimate)
   
 
-# how do I build a model off of individual polls from 2016 and 2020? don't I
-# want more than a sample size of 1 previous election?
+# weighting polls based on performance in 2016
 
-# think about how you would weight 2020 polls based on their performance in 2016
+
+
+#######################################################
+# COMBINING MODELS
+#######################################################
+
+# want to come up with some sort of weighting scheme to combine the two models
+# as people come across their "enlightened preferences" I feel like more people
+# will gravitate towards Trump, increasing his vote share up from the 42.5%
+# given from the polls currently
+
+
+biden_poll_predict <- poll_rating_results %>% 
+  pull(Biden)
+
+trump_poll_predict <- poll_rating_results %>% 
+  pull(Trump)
+
+0.5 * std_biden_predict + 0.5 * biden_poll_predict
+0.5 * std_trump_predict + 0.5 * trump_poll_predict
+
+
 
