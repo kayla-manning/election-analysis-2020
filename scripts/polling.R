@@ -24,7 +24,7 @@ vote_econ <- popvote %>%
   full_join(all_polls %>% 
               filter(weeks_left == 6) %>% 
               group_by(year,party) %>% 
-              summarise(avg_support=mean(avg_support)))
+              summarise(avg_support = mean(avg_support)))
 
 #######################################################
 # VISUALIZING POLLS
@@ -128,9 +128,9 @@ inc_validation <- tibble(year = seq(1948, 2016, by = 4),
   predicted_pv2p = sapply(year, inc_leave_one_out)) %>%
   left_join(inc_pv2ps, by = "year") %>% 
   rename(actual_pv2p = pv2p) %>% 
-  mutate(predicted_classification = ifelse(predicted_pv2p > 50, 1, 0),
-          actual_classification = ifelse(actual_pv2p > 50, 1, 0),
-         right_class = ifelse(predicted_classification == actual_classification, 1, 0))
+  mutate(predicted_classification = ifelse(predicted_pv2p > 50, TRUE, FALSE),
+          actual_classification = ifelse(actual_pv2p > 50, TRUE, FALSE),
+         right_class = ifelse(predicted_classification == actual_classification, TRUE, FALSE))
 
 inc_validation %>% 
   drop_na(predicted_classification) %>% 
@@ -144,8 +144,7 @@ inc_validation %>%
              actual_classification = "Actual Classification",
              right_class = "Correct Classification") %>% 
   tab_footnote(locations = cells_column_labels(columns = vars(right_class)),
-               footnote = "Correctly predicted the two-party popular vote winner of 84.6% of the elections") %>% 
-  gtsave("figures/inc_model_classification.html")
+               footnote = "Correctly predicted the two-party popular vote winner of 84.6% of the elections")
 
 # Trump model correctly classified past pv2p victories 84.6% of the time
 
@@ -156,12 +155,12 @@ mean(inc_validation$right_class, na.rm = TRUE)
 # BIDEN MODEL
 #######################################################
 
-# creating a model for Biden now
-# q2 GDP growth give strongest adjusted r-squared of .7975
+# creating a model for Biden now q2 GDP growth give strongest adjusted r-squared
+# of .7975. had incumbent_party == FALSE, but performs better OOS when I leave
+# that off
 
 chal_mod <- vote_econ %>% 
-  filter(quarter == 2,
-         incumbent_party == FALSE) %>% 
+  filter(quarter == 2) %>% 
   lm(pv2p ~ gdp_growth_qt + avg_support, data = .) 
 
 chal_mod %>% 
@@ -173,8 +172,7 @@ chal_leave_one_out <- function(x)
 {
   outsamp_mod <- vote_econ %>% 
     filter(quarter == 2,
-           year != x,
-           incumbent_party == FALSE) %>% 
+           year != x) %>% 
     lm(pv2p ~ gdp_growth_qt + avg_support, data = .)
   
   
@@ -198,11 +196,23 @@ chal_validation <- tibble(year = seq(1948, 2016, by = 4),
                            predicted_pv2p = sapply(year, chal_leave_one_out)) %>%
   left_join(chal_pv2ps, by = "year") %>% 
   rename(actual_pv2p = pv2p) %>% 
-  mutate(predicted_classification = ifelse(predicted_pv2p > 50, 1, 0),
-         actual_classification = ifelse(actual_pv2p > 50, 1, 0),
-         right_class = ifelse(predicted_classification == actual_classification, 1, 0))
+  mutate(predicted_classification = ifelse(predicted_pv2p > 50, TRUE, FALSE),
+         actual_classification = ifelse(actual_pv2p > 50, TRUE, FALSE),
+         right_class = ifelse(predicted_classification == actual_classification, TRUE, FALSE))
 
-chal_validation
+chal_validation %>% 
+  drop_na(predicted_classification) %>% 
+  gt() %>% 
+  tab_header(title = "Leave-One-Out Classification for the Challenging Party Model",
+             subtitle = "") %>% 
+  cols_label(year = "Year",
+             predicted_pv2p = "Predicted Two-Party Vote Share",
+             actual_pv2p = "Actual Two-Party Vote Share",
+             predicted_classification = "Predicted Classification",
+             actual_classification = "Actual Classification",
+             right_class = "Correct Classification") %>% 
+  tab_footnote(locations = cells_column_labels(columns = vars(right_class)),
+               footnote = "Correctly predicted the two-party popular vote winner of 76.9% of the elections") 
 
 # Biden model correctly classified past pv2p victories 69% of the time
 
@@ -237,7 +247,7 @@ mean(chal_validation$right_class, na.rm = TRUE)
     filter(state == "National")
 }
 
-# predicting Trump with incumbent model first... predicts 46.122%
+# predicting Trump with incumbent model first... predicts 44.0124%
 
 trump_q1_gdp <- vote_econ %>% 
   filter(quarter == 1,
@@ -250,11 +260,11 @@ trump_poll <- poll_2020_df %>%
   pull(avg_support) %>% 
   mean()
 
-predict(inc_mod, tibble(incumbent = TRUE, 
+inc_mod_predict <- predict(inc_mod, tibble(incumbent = TRUE, 
                         gdp_growth_qt = trump_q1_gdp, 
                         avg_support = trump_poll))
 
-# now onto Biden... predicts 58.179%
+# now onto Biden... predicts 60.7573%
 
 trump_q2_gdp <- vote_econ %>% 
   filter(quarter == 2,
@@ -286,7 +296,6 @@ both_mod <- vote_econ %>%
 both_mod %>% 
   summary()
 
-predict(both_mod, trump_q2_gdp)
 
 # testing OOS
 
@@ -318,13 +327,25 @@ both_pv <- vote_econ %>%
 both_validation <- both_pv %>% 
   mutate(predicted_pv = both_leave_one_out(year, incumbent)) %>%
   drop_na(predicted_pv) %>% 
-  mutate(predicted_classification = ifelse(predicted_pv > 50, 1, 0),
-         actual_classification = ifelse(actual_pv > 50, 1, 0),
-         right_class = ifelse(predicted_classification == actual_classification, 1, 0))
+  mutate(predicted_classification = ifelse(predicted_pv > 50, TRUE, FALSE),
+         actual_classification = ifelse(actual_pv > 50, TRUE, FALSE),
+         right_class = ifelse(predicted_classification == actual_classification, TRUE, FALSE))
 
 both_validation %>% 
   ungroup() %>% 
-  gt()
+  gt() %>% 
+  tab_header(title = "Leave-One-Out Classification for the Regression Model",
+             subtitle = "") %>% 
+  cols_label(year = "Year",
+             incumbent = "Incumbent",
+             party = "Party",
+             predicted_pv = "Predicted Two-Party Vote Share",
+             actual_pv = "Actual Two-Party Vote Share",
+             predicted_classification = "Predicted Classification",
+             actual_classification = "Actual Classification",
+             right_class = "Correct Classification") %>% 
+  tab_footnote(locations = cells_column_labels(columns = vars(right_class)),
+               footnote = "Correctly predicted the two-party popular vote winner of 84.6% of the elections") 
 
 # this model correctly classified past pv victories 85% of the time when tested
 # OOS
@@ -347,8 +368,8 @@ trump_predict
 # normalizing the predictions since they add up to over 100%. put Biden at
 # receiving ~52% and Trump ~48%
 
-std_biden_predict <- biden_predict / (biden_predict + trump_predict) * 100
-std_trump_predict <- trump_predict / (biden_predict + trump_predict) * 100
+std_biden_predict <- biden_predict / (biden_predict + trump_predict) * 100; std_biden_predict
+std_trump_predict <- trump_predict / (biden_predict + trump_predict) * 100; std_trump_predict
 
 #######################################################
 # WEIGHTED POLL MODEL
@@ -391,14 +412,19 @@ abs_sept_errors <- sept_errors %>%
   pivot_wider(names_from = candidate,
               values_from = abs_error) %>% 
   mutate(total_error = clinton + trump,
-         pollster = fct_reorder(pollster, total_error)) %>% 
+         pollster = fct_reorder(pollster, total_error, .desc = TRUE)) %>% 
   arrange(total_error) 
 
 abs_sept_errors %>% 
   ggplot(aes(pollster, total_error)) +
   geom_col(fill = "red3") +
   coord_flip() +
+  theme_classic() %>% 
+  labs(title = "Accuracy of September 2016 Polls Relative to Election Outcome",
+       y = "Sum of the Absolute Value of Errors for Each Candidate",
+       x = "") +
   theme_classic()
+ggsave("figures/polling/pollster_accuracy_sep2016.jpg")
 
 total_errors <- abs_sept_errors %>% 
   pull(total_error) %>% 
@@ -457,16 +483,18 @@ sum_errors <- test %>%
   pull(total_error) %>% 
   sum()
 
-# creating weights based off of 2016 to estimate vote share
+# creating weights based off of 2016 to estimate vote share. predicts 50.7% for
+# Biden and 42.7% for Trump
 
 poll_rating_results <- test %>% 
   mutate(sum_errors = sum_errors,
-         pct_of_sum = total_error / sum_errors,
-         weighted_poll = pct_of_sum * pct) %>% 
-  group_by(answer) %>% 
+         weights = (total_error / sum_errors)^{-1} / 296.8874,
+         weighted_poll = weights * pct) %>%
+  group_by(answer) %>%
   summarize(estimate = sum(weighted_poll)) %>%
   pivot_wider(names_from = answer, values_from = estimate)
-  
+
+poll_rating_results
 
 # weighting polls based on performance in 2016
 
