@@ -511,7 +511,6 @@ poll_rating_results
 # will gravitate towards Trump, increasing his vote share up from the 42.5%
 # given from the polls currently
 
-
 biden_poll_predict <- poll_rating_results %>% 
   pull(Biden)
 
