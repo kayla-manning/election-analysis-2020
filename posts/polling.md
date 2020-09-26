@@ -26,7 +26,7 @@ This new model has an adjusted r-squared of 0.688 and correctly classified 76.9%
 
 As mentioned in the introduction, polls generally serve as a helpful indicator for the electorate's positions on candidates, but some polls make better predictions than others. Five Thirty Eight has compiled data on [pollster ratings](https://github.com/fivethirtyeight/data/tree/master/pollster-ratings) that account for bias and error from various pollsters. Below, Figure 3 displays the sum of the absolute value of errors for Clinton and Trump's vote shares from September 2016 polls:
 
-![Figure 3](../figures/polling/pollster_accuracy_sep2016.jpeg)
+![Figure 3](../figures/polling/pollster_accuracy_sep2016.jpg)
 
 To supplement my regression model, I compiled another set of predictions by assigning weights[^weight-scheme] to September 2020 pollster numbers relative to their accuracy in September 2016. Applying greater weights to more accurate polls from September 2016 yields predicted vote shares of **50.7%** for Joe Biden and **42.7%** for Donald Trump.
 
