@@ -5,3 +5,6 @@ As the 2020 election approaches, this first blog post looks to past elections to
 
 # [2. Economy](posts/economy.md)
 Economic conditions predict elections fairly well, but how does that translate to 2020 in the midst of an economic crisis brought on by a global pandemic? Also, does the relationship between vote share and economic conditions vary between incumbent candidates and new candidates from the incumbent party? This post explores three different models that investigate these questions.
+
+# [3. Polling](posts/polling.md)
+This installment features updated predictions that incorporate poll numbers, an exploration of the accuracy of polls across sources, and an overview of a couple of different approaches by professional forecasters.
