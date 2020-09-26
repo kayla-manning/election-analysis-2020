@@ -33,30 +33,6 @@ vote_econ <- popvote %>%
 # VISUALIZING POLLS
 #######################################################
 
-
-# visualizing 2016 polls
-
-all_polls %>% 
-  filter(year == 2016) %>% 
-  ggplot(aes(poll_date, avg_support, color = party)) +
-  geom_line() +
-  theme_classic() +
-  scale_y_continuous(limits = c(25, 60))
-
-# visualizing 2020 polls
-
-polls_2020 %>% 
-  mutate(end_year = year(end_date),
-         end_week = week(end_date),
-         end_month = month(end_date)) %>% 
-  filter(end_year == 2020,
-         answer %in% c("Biden", "Trump")) %>% 
-  group_by(end_week, answer, end_month, end_date) %>% 
-  summarise(avg_pct = mean(pct)) %>% 
-  ggplot(aes(end_date, avg_pct, color = answer)) +
-  geom_point() +
-  geom_line() +
-  scale_x_date()
   
 # creating lineplot starting in May 2020 because at that point Trump and Biden
 # were the only 2 candidates
@@ -79,7 +55,11 @@ polls_2020 %>%
                      name = "Candidate") +
   labs(title = "Presidential Polls Since May 2020",
        x = "",
-       y = "Poll Averages")
+       y = "Poll Averages") +
+  theme(title = element_text(size = 15),
+        axis.text.y = element_text(size = 10),
+        axis.text.x = element_text(size = 10),
+        legend.text = element_text(size = 10))
 
 ggsave("figures/polling/polls_2020.jpg")
 
@@ -424,10 +404,14 @@ abs_sept_errors %>%
   geom_col(fill = "red3") +
   coord_flip() +
   theme_classic() %>% 
-  labs(title = "Accuracy of September 2016 Polls Relative to Election Outcome",
+  labs(title = "Accuracy of September 2016 Polls Relative \nto Election Outcome",
        y = "Sum of the Absolute Value of Errors for Each Candidate",
        x = "") +
-  theme_classic()
+  theme_classic() +
+  theme(title = element_text(size = 15),
+        axis.text.y = element_text(size = 10),
+        legend.text = element_text(size = 10))
+
 ggsave("figures/polling/pollster_accuracy_sep2016.jpg")
 
 total_errors <- abs_sept_errors %>% 
