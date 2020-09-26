@@ -1,3 +1,7 @@
+#######################################################
+# SETUP
+#######################################################
+
 library(RCurl)
 library(tidyverse)
 library(janitor)
@@ -135,7 +139,7 @@ mean(inc_validation$right_class, na.rm = TRUE)
 
 
 #######################################################
-# BIDEN MODEL
+# CHALLENGER PARTY MODEL
 #######################################################
 
 # creating a model for Biden now q2 GDP growth give strongest adjusted r-squared
@@ -503,51 +507,4 @@ trump_poll_predict <- poll_rating_results %>%
 
 0.5 * biden_predict + 0.5 * biden_poll_predict
 0.5 * trump_predict + 0.5 * trump_poll_predict
-
-
-#######################################################
-# STATE MODEL
-#######################################################
-
-pvstate_2016 <- popvote_state %>% 
-  select(state, year, D_pv2p, R_pv2p) %>% 
-  filter(year == 2016)
-
-state_polls_2016 <- polls_2016 %>% 
-  mutate(createddate = ymd(createddate),
-         createdyear = year(createddate),
-         createdmonth = month(createddate)) %>% 
-  filter(state != "U.S.",
-         createdyear == 2016,
-         createdmonth == 9) %>% 
-  group_by(pollster, state) %>% 
-  summarise(adjpoll_clinton = mean(adjpoll_clinton),
-            adjpoll_trump = mean(adjpoll_trump)) %>% 
-  left_join(pvstate_2016, by = "state") %>% 
-  mutate(dem_error = adjpoll_clinton - D_pv2p,
-         rep_error = adjpoll_trump - R_pv2p) %>% 
-  pivot_longer(cols = 8:9, names_to = "party")
-
-
-  
-total_state_error <- state_polls_2016 %>% 
-  mutate(abs_value = abs(value)) %>% 
-  filter(state == "Texas") %>% 
-  pull(abs_value) %>% 
-  sum(na.rm = TRUE)
-
-weight <- state_polls_2016 %>% 
-  filter(state == "Texas") %>% 
-  mutate(value = abs(value),
-         total_error = total_state_error,
-         weight = 1 / (value / total_error)) %>% 
-  pull(weight) %>% 
-  sum()
-  
-weighted_state_polls <- state_polls_2016 %>% 
-  filter(state == "Texas") %>% 
-  mutate(value = abs(value),
-         total_error = total_state_error,
-         weight = 1 / (value / total_error) / (weight * 0.5)) 
-
 
