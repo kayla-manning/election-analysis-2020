@@ -24,11 +24,11 @@ This new model has an adjusted r-squared of 0.688 and correctly classified 76.9%
 
 ### Predictions from 2020 Polls Based on 2016 Performance
 
-As mentioned in the introduction, polls generally serve as a helpful indicator for the electorate's positions on candidates, but some polls make better predictions than others. FiveThirtyEight has compiled data on [pollster ratings](https://github.com/fivethirtyeight/data/tree/master/pollster-ratings) that account for bias and error from various pollsters. Below, Figure 3 displays the sum of the absolute value of errors for Clinton and Trump's vote shares from September 2016 polls:
+As mentioned in the introduction, polls generally serve as a helpful indicator for the electorate's positions on candidates, but some polls make better predictions than others. FiveThirtyEight has compiled data on [pollster ratings](https://github.com/fivethirtyeight/data/tree/master/pollster-ratings) that account for bias and error from various pollsters. Below, Figure 3 displays the sums of the absolute value of errors[^sum-abs] for Clinton and Trump's vote shares from various September 2016 polls:
 
 ![Figure 3](../figures/polling/pollster_accuracy_sep2016.jpg)
 
-To supplement my regression model, I compiled another set of predictions by weighting[^weight-scheme] September 2020 pollster numbers relative to their accuracy in September 2016. Applying greater weights to more accurate polls from September 2016 yields predicted vote shares of approximately **50.7%** for Joe Biden and **42.7%** for Donald Trump.
+To supplement my regression model, I compiled another set of predictions by weighing[^weight-scheme] September 2020 pollster numbers relative to their accuracy in September 2016. Applying greater weights to more accurate polls from September 2016 yields predicted vote shares of approximately **50.7%** for Joe Biden and **42.7%** for Donald Trump.
 
 These numbers only account for just under 94% of voters, which parallels relatively well to the 94% of voters to contributed to the [2016 vote shares](https://www.pewresearch.org/politics/2018/08/09/an-examination-of-the-2016-electorate-based-on-validated-voters/) of 48% and 46% for Hillary Clinton and Donald Trump, respectively. So, while it seems realistic that the remaining 6% of voters will vote for third-party candidates, more voters could possibly stumble upon their "enlightened preferences"[^Gelman-and-King] as the election nears and the sum of the popular vote share from the two major parties will get closer to 100%.
 
@@ -54,6 +54,8 @@ FiveThirtyEight clearly has more historical experience in forecasting elections,
 
 
 [^Gelman-and-King]: [Gelman and King, 1993] Gelman, A. and King, G. (1993).Why are American presidential election campaign polls so variable when votes are so predictable? British Journal of Political Science, 23(4):409–451.
+
+[^sum-abs]: To get the values on the x-axis, found the average poll numbers for each candidate from each pollster in September of 2016. Then, I subtracted the poll numbers from the popular vote share for each candidate. After that, I took the absolute value of each of these differences and summed them for each poll. Smaller sums indicate that the respective pollsters numbers in September 2016 were closer to the election outcome, whereas larger numbers represent polls less indicative of the future election results.
 
 [^weight-scheme]: In my approach weigh polls proportionately to their accuracy in predicting the 2016 election, I first summed the absolute value of errors for all off of the polls and then calculated each poll's proportion of that error. Polls with smaller proportions more closely resembled with 2016 outcome. In order to ascribe greater weight to more accurate polls, I took the inverse of each proportion and then divided by 296.8874 so that the weights would sum to 1. 
 

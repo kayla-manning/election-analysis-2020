@@ -405,7 +405,7 @@ abs_sept_errors %>%
   coord_flip() +
   theme_classic() %>% 
   labs(title = "Accuracy of September 2016 Polls Relative \nto Election Outcome",
-       y = "Sum of the Absolute Value of Errors for Each Candidate",
+       y = "Sum of the Absolute Value of Errors",
        x = "") +
   theme_classic() +
   theme(title = element_text(size = 15),
