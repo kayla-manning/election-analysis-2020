@@ -3,6 +3,7 @@ library(tidyverse)
 library(janitor)
 library(lubridate)
 library(gt)
+library(broom)
 
 x <- getURL("https://raw.githubusercontent.com/fivethirtyeight/data/master/pollster-ratings/pollster-ratings.csv")
 poll_ratings <- read.csv(text = x) %>% 
@@ -15,6 +16,7 @@ economy <- read_csv("data/econ.csv") %>%
   clean_names()
 approval <- read_csv("data/q3_approval.csv")
 all_polls <- read_csv("data/pollavg_1968-2016.csv")
+popvote_state <- read_csv("data/popvote_bystate_1948-2016.csv")
 
 # joining data
 
@@ -25,6 +27,7 @@ vote_econ <- popvote %>%
               filter(weeks_left == 6) %>% 
               group_by(year,party) %>% 
               summarise(avg_support = mean(avg_support)))
+
 
 #######################################################
 # VISUALIZING POLLS
@@ -290,19 +293,23 @@ predict(chal_mod, tibble(gdp_growth_qt = trump_q2_gdp,
 # removed insignificant interaction term between q2 gdp growth and incumbent
 
 both_mod <- vote_econ %>% 
-  filter(quarter == 2) %>% 
+  filter(quarter == 1) %>% 
   lm(pv ~ gdp_growth_qt + avg_support * incumbent, data = .)
 
 both_mod %>% 
   summary()
 
+both_mod %>% 
+  tidy() %>%
+  gt() %>% 
+  tab_header("Regression Model for Both Candidates")
 
 # testing OOS
 
 both_leave_one_out <- function(x, y) 
 {
   outsamp_mod <- vote_econ %>% 
-    filter(quarter == 2,
+    filter(quarter == 1,
            year != x,
            incumbent == y) %>% 
     lm(pv ~ gdp_growth_qt + avg_support * incumbent, data = .)
@@ -345,31 +352,28 @@ both_validation %>%
              actual_classification = "Actual Classification",
              right_class = "Correct Classification") %>% 
   tab_footnote(locations = cells_column_labels(columns = vars(right_class)),
-               footnote = "Correctly predicted the two-party popular vote winner of 84.6% of the elections") 
+               footnote = "Correctly predicted the two-party popular vote winner of 76.9% of the elections") 
 
-# this model correctly classified past pv victories 85% of the time when tested
+# this model correctly classified past pv victories 77% of the time when tested
 # OOS
 
 mean(both_validation$right_class, na.rm = TRUE)
 
 # making predictions with the both model
+# put Biden at receiving ~51.2% and Trump ~47.6%
 
-biden_predict <- predict(both_mod, tibble(gdp_growth_qt = trump_q2_gdp,
+biden_predict <- predict(both_mod, tibble(gdp_growth_qt = trump_q1_gdp,
                                           avg_support = biden_poll,
                                           incumbent = FALSE))
 biden_predict
 
 
-trump_predict <- predict(both_mod, tibble(gdp_growth_qt = trump_q2_gdp,
+trump_predict <- predict(both_mod, tibble(gdp_growth_qt = trump_q1_gdp,
                                           avg_support = trump_poll,
                                           incumbent = TRUE))
 trump_predict
 
-# normalizing the predictions since they add up to over 100%. put Biden at
-# receiving ~52% and Trump ~48%
 
-std_biden_predict <- biden_predict / (biden_predict + trump_predict) * 100; std_biden_predict
-std_trump_predict <- trump_predict / (biden_predict + trump_predict) * 100; std_trump_predict
 
 #######################################################
 # WEIGHTED POLL MODEL
@@ -496,8 +500,6 @@ poll_rating_results <- test %>%
 
 poll_rating_results
 
-# weighting polls based on performance in 2016
-
 
 
 #######################################################
@@ -516,8 +518,53 @@ biden_poll_predict <- poll_rating_results %>%
 trump_poll_predict <- poll_rating_results %>% 
   pull(Trump)
 
-0.5 * std_biden_predict + 0.5 * biden_poll_predict
-0.5 * std_trump_predict + 0.5 * trump_poll_predict
+0.5 * biden_predict + 0.5 * biden_poll_predict
+0.5 * trump_predict + 0.5 * trump_poll_predict
 
+
+#######################################################
+# STATE MODEL
+#######################################################
+
+pvstate_2016 <- popvote_state %>% 
+  select(state, year, D_pv2p, R_pv2p) %>% 
+  filter(year == 2016)
+
+state_polls_2016 <- polls_2016 %>% 
+  mutate(createddate = ymd(createddate),
+         createdyear = year(createddate),
+         createdmonth = month(createddate)) %>% 
+  filter(state != "U.S.",
+         createdyear == 2016,
+         createdmonth == 9) %>% 
+  group_by(pollster, state) %>% 
+  summarise(adjpoll_clinton = mean(adjpoll_clinton),
+            adjpoll_trump = mean(adjpoll_trump)) %>% 
+  left_join(pvstate_2016, by = "state") %>% 
+  mutate(dem_error = adjpoll_clinton - D_pv2p,
+         rep_error = adjpoll_trump - R_pv2p) %>% 
+  pivot_longer(cols = 8:9, names_to = "party")
+
+
+  
+total_state_error <- state_polls_2016 %>% 
+  mutate(abs_value = abs(value)) %>% 
+  filter(state == "Texas") %>% 
+  pull(abs_value) %>% 
+  sum(na.rm = TRUE)
+
+weight <- state_polls_2016 %>% 
+  filter(state == "Texas") %>% 
+  mutate(value = abs(value),
+         total_error = total_state_error,
+         weight = 1 / (value / total_error)) %>% 
+  pull(weight) %>% 
+  sum()
+  
+weighted_state_polls <- state_polls_2016 %>% 
+  filter(state == "Texas") %>% 
+  mutate(value = abs(value),
+         total_error = total_state_error,
+         weight = 1 / (value / total_error) / (weight * 0.5)) 
 
 
