@@ -80,6 +80,84 @@ pollstate_df <- read_csv("data/pollavg_bystate_1968-2016.csv")
 fedgrants_df <- read_csv("data/fedgrants_bystate_1988-2008.csv")
 
 #######################################################
+# VISUALIZING FEDERAL SPENDING
+#######################################################
+
+# replicating plot from lab
+
+fedgrants_state_df %>%
+  filter(!is.na(state_year_type)) %>%
+  group_by(state_year_type) %>%
+  summarise(mean=mean(grant_mil, na.rm=T), se=sd(grant_mil, na.rm=T)/sqrt(n())) %>%
+  mutate(state_year_type = case_when(state_year_type == "swing + nonelection" ~ "Swing and Nonelection",
+                                     state_year_type == "swing + election year" ~ "Swing and Election",
+                                     state_year_type == "core + nonelection" ~ "Core and Nonelection",
+                                     state_year_type == "core + election" ~ "Core and Election")) %>% 
+  ggplot(aes(x = state_year_type, y = mean, ymin = mean - 1.96 * se, ymax = mean + 1.96 * se)) +
+  geom_col(fill = "red3") +
+  geom_errorbar(width = 0.2) +
+  coord_flip() +
+  xlab("Type of State and Year") + 
+  ylab("Federal Grant Spending (millions of dollars)") +
+  theme_minimal() +
+  theme(axis.title = element_text(size = 15), 
+        axis.text = element_text(size = 12),
+        title = element_text(size = 17)) +
+  labs(title = "Federal Grant Spending by Type of State and Year")
+
+ggsave("figures/incumbency/grant_spend_type.jpg")
+
+# replicating, but this time with per capita spending
+
+fedgrants_state_df %>%
+  inner_join(state_populations, by = c("state_abb" = "state", "year")) %>% 
+  filter(!is.na(state_year_type)) %>%
+  group_by(state_year_type) %>%
+  summarise(mean = mean(grant_mil / population, na.rm=T), 
+            se = sd(grant_mil / population, na.rm=T) / sqrt(n())) %>%
+  mutate(state_year_type = case_when(state_year_type == "swing + nonelection" ~ "Swing and Nonelection",
+                                     state_year_type == "swing + election year" ~ "Swing and Election",
+                                     state_year_type == "core + nonelection" ~ "Core and Nonelection",
+                                     state_year_type == "core + election" ~ "Core and Election")) %>% 
+  ggplot(aes(x = state_year_type, y = mean, ymin = mean - 1.96 * se, ymax = mean + 1.96 * se)) +
+  geom_col(fill = "red3") +
+  geom_errorbar(width = 0.2) +
+  coord_flip() +
+  xlab("Type of State and Year") + 
+  ylab("Per Capita Federal Grant Spending (millions of dollars)") +
+  labs(title = "Per Capita Federal Grant Spending by Type of State and Year") +
+  theme_minimal() +
+  theme(axis.title = element_text(size = 15), 
+        axis.text = element_text(size = 12),
+        title = element_text(size = 17))
+
+ggsave("figures/incumbency/pc_grant_spend_type.jpg")
+
+# exploring state populations
+
+fedgrants_state_df %>% 
+  inner_join(state_populations, by = c("state_abb" = "state", "year")) %>% 
+  drop_na(state_year_type) %>% 
+  mutate(swing_core = case_when(
+    str_detect(state_year_type, "core") ~ "Core",
+    str_detect(state_year_type, "swing") ~ "Swing")) %>% 
+  group_by(swing_core) %>% 
+  summarize(mean = mean(population), se = sd(population) / sqrt(n())) %>% 
+  ggplot(aes(swing_core, mean, ymin = mean - 1.96 * se, ymax = mean + 1.96 * se)) +
+  geom_col(fill = "red3") +
+  geom_errorbar() +
+  coord_flip() +
+  labs(title = "Comparing Average Populations in Swing and Core States",
+       y = "Average State Population",
+       x = "Type of State") +
+  theme_minimal() +
+  theme(axis.title = element_text(size = 15), 
+        axis.text = element_text(size = 12),
+        title = element_text(size = 17))
+
+ggsave("figures/incumbency/state_type_populations.jpg")
+
+#######################################################
 # VISUALIZING COVID-19 SPENDING
 #######################################################
 
@@ -105,9 +183,10 @@ x <- grants_state %>%
 x %>% 
   drop_na(swing_core) %>% 
   mutate(pc_spending = grant_mil / population * 10^6) %>% 
-  group_by(swing_core, term_year) %>% 
-  summarise(avg_pc_spending = mean(pc_spending, na.rm = TRUE), .groups = "drop") %>% 
-  ggplot(aes(swing_core, avg_pc_spending, fill = term_year)) +
+#   group_by(swing_core, term_year)
+# %>% 
+#   summarise(avg_pc_spending = mean(pc_spending, na.rm = TRUE), .groups = "drop") %>% 
+  ggplot(aes(swing_core, grant_mil, fill = term_year)) +
   geom_col(position = "dodge") +
   theme_classic() +
   scale_fill_brewer(palette = "Reds") +
@@ -338,5 +417,23 @@ tfc_validation %>%
 # this model works for incumbent party only
 
 mean(tfc_validation$right_class)
+
+fedgrants_state_df %>%
+  filter(!is.na(state_year_type)) %>%
+  group_by(state_year_type) %>%
+  summarise(mean=mean(grant_mil, na.rm=T), se=sd(grant_mil, na.rm=T)/sqrt(n())) %>%
+  mutate(state_year_type = case_when(state_year_type == "swing + nonelection" ~ "Swing and Nonelection",
+                                     state_year_type == "swing + election year" ~ "Swing and Election",
+                                     state_year_type == "core + nonelection" ~ "Core and Nonelection",
+                                     state_year_type == "core + election" ~ "Core and Election")) %>% 
+  ggplot(aes(x = state_year_type, y = mean, ymin = mean - 1.96 * se, ymax = mean + 1.96 * se)) +
+  geom_col(fill = "red3") +
+  geom_errorbar(width = 0.2) +
+  coord_flip() +
+  xlab("Type of State and Year") + 
+  ylab("Federal Grant Spending (millions of dollars)") +
+  theme_minimal() +
+  theme(axis.title = element_text(size=20), 
+        axis.text = element_text(size=15))
 
 

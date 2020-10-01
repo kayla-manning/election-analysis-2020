@@ -8,6 +8,24 @@
 - campaign finance
 - "pork"
 
+### Visualizing Federal Grant Aid, COVID-19 Relif Aid
+
+Overall, it appears that incumbents and the incumbent party focus their federal dollars on swing states relative to states core to their base, and moreso during election years:
+
+![Figure 1](../figures/incumbency/grant_spend_type.jpg)
+
+However, the states classified as "swing" states have much larger populations relative to the "core" states:
+
+![Figure 2](../figures/incumbency/state_type_populations.jpg)
+
+What happens when we control for this? It turns out that per capita federal grant spending is greatest during core states in election years, then in core states in nonelection years, then followed by swing states:
+
+![Figure 3](../figures/incumbency/pc_grant_spend_type.jpg)
+
+- Visualize federal aid allocated at the state level towards COVID-19 relief
+- per capita corona funding?
+- compare with federal spending overall in non-covid years
+
 ### Trump and Incumbency
 
 Does the incumbency advantage apply to Trump? Explain why or why not
@@ -15,12 +33,6 @@ Does the incumbency advantage apply to Trump? Explain why or why not
 - Harvard Republicans endorse Trump
 - familiarity with the name is especially true
 - media coverage fires up Trump's base
-
-### Visualizing COVID-19 and Incumbency
-
-Visualize federal aid allocated at the state level towards COVID-19 relief
-- per capita corona funding?
-- compare with federal spending overall in non-covid years
 
 ### Comparing Last Week's Regression to Time-for-Change
 
