@@ -7,6 +7,8 @@ library(usmap)
 library(janitor)
 library(readxl)
 library(broom)
+library(gridExtra)
+library(ggpubr)
 
 # funding data at state & county level
 
@@ -220,31 +222,34 @@ core_2008 <- states_type_2008 %>%
          state_abb != "AK") %>% 
   pull(state_abb)
 
-plot_usmap(data = state_covid, values = "covid_pc_spending", labels = TRUE,
+covid_swing <- plot_usmap(data = state_covid, values = "covid_pc_spending", labels = TRUE,
            include = swing_2008) +
   scale_fill_gradient(
     high = "red3",
     low = "white",
-    name = "COVID Spending Per Capita",
+    name = "COVID-19 Aid \nPer Capita",
     limits = c(40, 170)
   ) +
   theme_void() +
-  labs(title = "COVID-19 Grants Per Capita in Swing States")
+  labs(title = "Swing States")
 
-ggsave("figures/incumbency/covid_swing_funds.jpg")
-
-plot_usmap(data = state_covid, values = "covid_pc_spending", labels = TRUE,
+covid_core <- plot_usmap(data = state_covid, values = "covid_pc_spending", labels = TRUE,
            include = core_2008) +
   scale_fill_gradient(
     high = "red3",
     low = "white",
-    name = "COVID Spending Per Capita",
+    name = "COVID-19 Aid \nPer Capita",
     limits = c(40, 170)
   ) +
   theme_void() +
-  labs(title = "COVID-19 Grants Per Capita in Core States")
+  labs(title = "Core States")
 
-ggsave("figures/incumbency/covid_core_funds.jpg")
+ggarrange(covid_swing, covid_core, common.legend = TRUE, legend = "right")
+
+ggsave("figures/incumbency/covid_type_aid.jpg")
+
+grid.arrange(arrangeGrob(covid_swing + theme(legend.position = "none"), 
+             covid_core + theme(legend.position = "none")), mylegend, ncol = 2, heights = c(10, 1))
 
 # per capita spending for swing/core states
 

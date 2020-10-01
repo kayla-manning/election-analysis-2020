@@ -15,11 +15,11 @@ A vast body of political literates explores the influence of federal spending on
 
 However, the states classified as "swing" states have much larger [populations](../figures/incumbency/state_type_populations.jpg) relative to the "core" states. What happens when we control for this? It turns out that per capita federal grant spending is greatest during core states in election years, then in core states in nonelection years, then followed by swing states:
 
-![Figure 3](../figures/incumbency/pc_grant_spend_type.jpg)
+![Figure 2](../figures/incumbency/pc_grant_spend_type.jpg)
 
 How does this pattern hold for COVID-19 relief funding? The below plots display per capita COVID-19 grant money for core and swing states:
 
-![Figure 4](../figures/incumbency/covid_swing_funds.jpg) ![Figure 5](../figures/incumbency/covid_core_funds.jpg)
+![Figure 3](../figures/incumbency/covid_type_aid.jpg)
 
 ### Trump and Incumbency
 
