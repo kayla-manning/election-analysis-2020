@@ -295,7 +295,7 @@ both_leave_one_out <- function(x, y)
   outsamp_mod <- vote_econ %>% 
     filter(quarter == 1,
            year != x,
-           incumbent == y) %>% 
+           incumbent != y) %>% 
     lm(pv ~ gdp_growth_qt + avg_support * incumbent, data = .)
   
   
@@ -330,15 +330,16 @@ both_validation %>%
   cols_label(year = "Year",
              incumbent = "Incumbent",
              party = "Party",
-             predicted_pv = "Predicted Two-Party Vote Share",
-             actual_pv = "Actual Two-Party Vote Share",
+             predicted_pv = "Predicted Popular Vote Share",
+             actual_pv = "Actual Popular Vote Share",
              predicted_classification = "Predicted Classification",
              actual_classification = "Actual Classification",
              right_class = "Correct Classification") %>% 
-  tab_footnote(locations = cells_column_labels(columns = vars(right_class)),
-               footnote = "Correctly predicted the two-party popular vote winner of 76.9% of the elections") 
+  tab_footnote(locations = cells_column_labels(columns = vars(right_class, predicted_classification)),
+               footnote = c("Correctly predicted the two-party popular vote winner of 80.1% of the elections", 
+                            "Classified as TRUE if the predicted popular vote is greater than 50% and FALSE otherwise"))
 
-# this model correctly classified past pv victories 77% of the time when tested
+# this model correctly classified past pv victories 80.1% of the time when tested
 # OOS
 
 mean(both_validation$right_class, na.rm = TRUE)

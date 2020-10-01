@@ -6,6 +6,9 @@ library(tidyverse)
 library(usmap)
 library(janitor)
 library(readxl)
+library(broom)
+
+# funding data at state & county level
 
 grants_state <- read_csv("data/fedgrants_bystate_1988-2008.csv")
 grants_county <- read_csv("data/fedgrants_bycounty_1988-2008.csv")
@@ -37,6 +40,7 @@ state_populations <- read_excel("data/state_populations.xlsx", skip = 3) %>%
   select(state, year, population) %>% 
   bind_rows(state_pops_2000s)
 
+# covid funding from HHS
 
 covid_funding <- read_csv("data/covid_funding.csv", skip = 1) %>% 
   clean_names() %>% 
@@ -50,7 +54,30 @@ covid_funding <- read_csv("data/covid_funding.csv", skip = 1) %>%
   rename(covid_award = award_amount,
          pop_2019 = population)
 
+# data for last week's "both model"
 
+economy <- read_csv("data/econ.csv") %>% 
+  clean_names()
+approval <- read_csv("data/q3_approval.csv")
+all_polls <- read_csv("data/pollavg_1968-2016.csv")
+popvote_state <- read_csv("data/popvote_bystate_1948-2016.csv")
+
+vote_econ <- popvote %>% 
+  full_join(economy, by = "year") %>% 
+  full_join(approval, by = "year") %>% 
+  full_join(all_polls %>% 
+              filter(weeks_left == 6) %>% 
+              group_by(year,party) %>% 
+              summarise(avg_support = mean(avg_support)))
+
+# data for time-for-change model (from lab)
+
+popvote_df <- read_csv("data/popvote_1948-2016.csv")
+pvstate_df <- read_csv("data/popvote_bystate_1948-2016.csv")
+economy_df <- read_csv("data/econ.csv")
+approval_df <- read_csv("data/approval_gallup_1941-2020.csv")
+pollstate_df <- read_csv("data/pollavg_bystate_1968-2016.csv")
+fedgrants_df <- read_csv("data/fedgrants_bystate_1988-2008.csv")
 
 #######################################################
 # VISUALIZING COVID-19 SPENDING
@@ -160,8 +187,7 @@ plot_usmap(data = state_covid, values = "covid_pc_spending", labels = TRUE,
     high = "red3",
     low = "white",
     name = "COVID Spending Per Capita",
-    breaks = c(60, 80, 100, 120, 140, 160),
-    labels = c(60, 80, 100, 120, 140, 160)
+    limits = c(40, 170)
   ) +
   theme_void() +
   labs(title = "COVID-19 Grants Per Capita in Swing States")
@@ -171,7 +197,8 @@ plot_usmap(data = state_covid, values = "covid_pc_spending", labels = TRUE,
   scale_fill_gradient(
     high = "red3",
     low = "white",
-    name = "COVID Spending Per Capita"
+    name = "COVID Spending Per Capita",
+    limits = c(40, 170)
   ) +
   theme_void() +
   labs(title = "COVID-19 Grants Per Capita in Core States")
@@ -180,15 +207,136 @@ plot_usmap(data = state_covid, values = "covid_pc_spending", labels = TRUE,
 
 x %>% 
   inner_join(state_covid, by = c("state_abb" = "state")) %>% 
-  group_by(swing_core, term_year) %>% 
-  summarise(avg_covid_pc_spending = mean(covid_pc_spending)) %>% 
+  group_by(swing_core) %>% 
+  summarise(avg_covid_pc_spending = mean(covid_pc_spending),
+            se = sd(covid_pc_spending) / sqrt(n()),
+            conf_low = avg_covid_pc_spending - 1.96 * se,
+            conf_high = avg_covid_pc_spending + 1.96 * se) %>% 
   drop_na(swing_core) %>% 
-  ggplot(aes(term_year, avg_covid_pc_spending)) +
-  geom_col(fill = "red3") +
-  facet_wrap(~ swing_core)
+  ggplot(aes(swing_core, avg_covid_pc_spending)) +
+  geom_col(position = "dodge", fill = "red3") +
+  geom_errorbar(aes(ymin = conf_low, ymax = conf_high), width = 0.2) +
+  theme_classic() +
+  labs(title = "Comparing COVID-19 Grants in Core and Swing States",
+       x = "Type of State",
+       y = "Average Per Capita Federal Grant Spending ($)",
+       fill = "Year of Term") +
+  scale_x_discrete(labels = c("Core", "Swing")) +
+  coord_flip()
+  
 
 
 #######################################################
-# VUPDATING MODEL
+# COMPARING MODELS, BOTH_MOD VS TIME-FOR-CHANGE
 #######################################################
+
+# last week's model
+
+both_mod <- vote_econ %>% 
+  filter(quarter == 1) %>% 
+  lm(pv ~ gdp_growth_qt + avg_support * incumbent, data = .)
+
+both_mod %>% 
+  summary()
+
+# OOS validation was at 80.1% proper classification last week
+
+# making predictions with the both model
+# put Biden at receiving ~51.2% and Trump ~47.6%
+
+biden_predict <- predict(both_mod, tibble(gdp_growth_qt = trump_q1_gdp,
+                                          avg_support = biden_poll,
+                                          incumbent = FALSE))
+biden_predict
+
+
+trump_predict <- predict(both_mod, tibble(gdp_growth_qt = trump_q1_gdp,
+                                          avg_support = trump_poll,
+                                          incumbent = TRUE))
+trump_predict
+
+#######################################################
+
+# time-for-change model... getting data ready
+
+tfc_df <- popvote_df %>%
+  filter(incumbent_party) %>%
+  select(year, candidate, party, pv, pv2p, incumbent) %>%
+  inner_join(
+    approval_df %>% 
+      group_by(year, president) %>% 
+      slice(1) %>% 
+      mutate(net_approve=approve-disapprove) %>%
+      select(year, incumbent_pres=president, net_approve, poll_enddate),
+    by="year"
+  ) %>%
+  inner_join(
+    economy_df %>%
+      filter(quarter == 2) %>%
+      select(GDP_growth_qt, year),
+    by="year"
+  )
+
+# fitting model, has adj. r-squared of 61.7%
+
+tfc_mod <- tfc_df %>% 
+  lm(pv2p ~ GDP_growth_qt + net_approve + incumbent, data = .)
+tfc_mod %>% 
+  summary()
+
+tfc_mod %>% 
+  tidy() %>% 
+  gt() %>% 
+  tab_header(title = "Time for Change Regression Output")
+
+# evaluating OOS fit
+
+tfc_leave_one_out <- function(x, y)
+{
+  outsamp_mod <- tfc_df %>% 
+    filter(year != x,
+           incumbent != y) %>% 
+    lm(pv2p ~ GDP_growth_qt + net_approve + incumbent, data = .)
+  
+  outsamp_pred <- predict(outsamp_mod, tfc_df %>% 
+                            filter(year == x,
+                                   incumbent == y))
+  outsamp_pred
+}
+
+tfc_pv2p <- tfc_df %>%  
+  group_by(year, incumbent, party) %>% 
+  summarise(actual_pv2p = mean(pv2p)) %>% 
+  drop_na(actual_pv2p)
+
+# making tibble comparing actual vs predicted pv and classification
+
+tfc_validation <- tfc_pv2p %>% 
+  mutate(predicted_pv2p = tfc_leave_one_out(year, incumbent)) %>%
+  drop_na(predicted_pv2p) %>% 
+  mutate(predicted_classification = ifelse(predicted_pv2p > 50, TRUE, FALSE),
+         actual_classification = ifelse(actual_pv2p > 50, TRUE, FALSE),
+         right_class = ifelse(predicted_classification == actual_classification, TRUE, FALSE))
+tfc_validation %>% 
+  ungroup() %>% 
+  gt() %>% 
+  tab_header(title = "Leave-One-Out Classification for Time-for-Change Model",
+             subtitle = "") %>% 
+  cols_label(year = "Year",
+             incumbent = "Incumbent",
+             party = "Party",
+             predicted_pv2p = "Predicted Two-Party Vote Share",
+             actual_pv2p = "Actual Two-Party Vote Share",
+             predicted_classification = "Predicted Classification",
+             actual_classification = "Actual Classification",
+             right_class = "Correct Classification") %>% 
+  tab_footnote(locations = cells_column_labels(columns = vars(right_class, predicted_classification)),
+               footnote = c("Correctly predicted the two-party popular vote winner of 66.6% of the elections",
+                            "Classified as TRUE if the predicted two-party popular vote is greater than 50% and FALSE otherwise")) 
+
+# correctly classified 66.7% (2/3) of past elections -- important to note that
+# this model works for incumbent party only
+
+mean(tfc_validation$right_class)
+
 
