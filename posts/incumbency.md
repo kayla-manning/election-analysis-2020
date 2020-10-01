@@ -9,17 +9,15 @@ Since 1948, 72.7% of sitting presidents have won re-election, with only 3 incumb
 
 ### Visualizing Federal Grant Aid, COVID-19 Relief Aid
 
-A vast body of political literates explores the influence of federal spending on elections.[^Kriner-and-Reeves] Overall, it appears that incumbents and the incumbent party focus their federal dollars on swing states relative to states core to their base, with a greater emphasis on election years:
-
-![Figure 1](../figures/incumbency/grant_spend_type.jpg)
+A vast body of political literates explores the influence of federal spending on elections.[^Kriner-and-Reeves] Overall, it appears that incumbents and the incumbent party focus their federal dollars on swing states relative to states core to their base, with a greater emphasis on election years.
 
 However, the states classified as "swing" states have much larger [populations](../figures/incumbency/state_type_populations.jpg) relative to the "core" states. What happens when we control for this? It turns out that per capita federal grant spending is greatest during core states in election years, then in core states in nonelection years, then followed by swing states:
 
-![Figure 2](../figures/incumbency/pc_grant_spend_type.jpg)
+![Figure 1](../figures/incumbency/grant_spend_type.jpg)
 
 How does this pattern hold for COVID-19 relief funding? The below plots display per capita COVID-19 grant money for core and swing states:
 
-![Figure 3](../figures/incumbency/covid_type_aid.jpg)
+![Figure 2](../figures/incumbency/covid_type_aid.jpg)
 
 ### Trump and Incumbency
 

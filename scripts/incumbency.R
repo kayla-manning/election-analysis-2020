@@ -87,7 +87,7 @@ fedgrants_df <- read_csv("data/fedgrants_bystate_1988-2008.csv")
 
 # replicating plot from lab
 
-fedgrants_state_df %>%
+grant_state_type <- fedgrants_state_df %>%
   filter(!is.na(state_year_type)) %>%
   group_by(state_year_type) %>%
   summarise(mean=mean(grant_mil, na.rm=T), se=sd(grant_mil, na.rm=T)/sqrt(n())) %>%
@@ -100,23 +100,22 @@ fedgrants_state_df %>%
   geom_errorbar(width = 0.2) +
   coord_flip() +
   xlab("Type of State and Year") + 
-  ylab("Federal Grant Spending (millions of dollars)") +
+  ylab("Federal Grant Spending ($MM)") +
   theme_minimal() +
   theme(axis.title = element_text(size = 15), 
         axis.text = element_text(size = 12),
         title = element_text(size = 17)) +
-  labs(title = "Federal Grant Spending by Type of State and Year")
+  labs(title = "Federal Grant Spending")
 
-ggsave("figures/incumbency/grant_spend_type.jpg")
 
 # replicating, but this time with per capita spending
 
-fedgrants_state_df %>%
+pc_grant_state_type <- fedgrants_state_df %>%
   inner_join(state_populations, by = c("state_abb" = "state", "year")) %>% 
   filter(!is.na(state_year_type)) %>%
   group_by(state_year_type) %>%
-  summarise(mean = mean(grant_mil / population, na.rm=T), 
-            se = sd(grant_mil / population, na.rm=T) / sqrt(n())) %>%
+  summarise(mean = mean(grant_mil / population * 10^6, na.rm=T), 
+            se = sd(grant_mil / population * 10^6, na.rm=T) / sqrt(n())) %>%
   mutate(state_year_type = case_when(state_year_type == "swing + nonelection" ~ "Swing and Nonelection",
                                      state_year_type == "swing + election year" ~ "Swing and Election",
                                      state_year_type == "core + nonelection" ~ "Core and Nonelection",
@@ -126,14 +125,16 @@ fedgrants_state_df %>%
   geom_errorbar(width = 0.2) +
   coord_flip() +
   xlab("Type of State and Year") + 
-  ylab("Per Capita Federal Grant Spending (millions of dollars)") +
-  labs(title = "Per Capita Federal Grant Spending by Type of State and Year") +
+  ylab("Per Capita Federal Grant Spending ($)") +
+  labs(title = "Per Capita Federal Grant Spending") +
   theme_minimal() +
   theme(axis.title = element_text(size = 15), 
         axis.text = element_text(size = 12),
         title = element_text(size = 17))
 
-ggsave("figures/incumbency/pc_grant_spend_type.jpg")
+ggarrange(grant_state_type, pc_grant_state_type + xlab(""))
+
+ggsave("figures/incumbency/grant_spend_type.jpg")
 
 # exploring state populations
 
