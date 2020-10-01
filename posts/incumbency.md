@@ -1,6 +1,8 @@
 # Incumbency and Elections
 ## October 3, 2020
 
+#### **CITE DATA SOURCES**
+
 ### Background on Incumbency Advantage
 
 - media coverage
@@ -14,11 +16,7 @@ Overall, it appears that incumbents and the incumbent party focus their federal 
 
 ![Figure 1](../figures/incumbency/grant_spend_type.jpg)
 
-However, the states classified as "swing" states have much larger populations relative to the "core" states:
-
-![Figure 2](../figures/incumbency/state_type_populations.jpg)
-
-What happens when we control for this? It turns out that per capita federal grant spending is greatest during core states in election years, then in core states in nonelection years, then followed by swing states:
+However, the states classified as "swing" states have much larger [populations](../figures/incumbency/state_type_populations.jpg) relative to the "core" states. What happens when we control for this? It turns out that per capita federal grant spending is greatest during core states in election years, then in core states in nonelection years, then followed by swing states:
 
 ![Figure 3](../figures/incumbency/pc_grant_spend_type.jpg)
 
