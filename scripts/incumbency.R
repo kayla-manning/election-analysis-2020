@@ -176,33 +176,6 @@ x <- grants_state %>%
       str_detect(state_year_type, "swing") ~ "swing")) %>% 
   left_join(state_populations, by = c("state_abb" = "state", "year"))
 
-# barplot with the average overall spending for each term year for swing/core
-# states... federal spending in 4th year of term is through the roof for core
-# states
-
-x %>% 
-  drop_na(swing_core) %>% 
-  mutate(pc_spending = grant_mil / population * 10^6) %>% 
-#   group_by(swing_core, term_year)
-# %>% 
-#   summarise(avg_pc_spending = mean(pc_spending, na.rm = TRUE), .groups = "drop") %>% 
-  ggplot(aes(swing_core, grant_mil, fill = term_year)) +
-  geom_col(position = "dodge") +
-  theme_classic() +
-  scale_fill_brewer(palette = "Reds") +
-  labs(title = "Comparing Federal Grant Spending in Core and Swing States",
-       x = "Type of State",
-       y = "Average Per Capita Federal Grant Spending ($)",
-       fill = "Year of Term") +
-  scale_x_discrete(labels = c("Core", "Swing")) 
-
-x %>% 
-  drop_na(swing_core) %>% 
-  mutate(pc_spending = grant_mil / population) %>% 
-  arrange(desc(pc_spending)) %>% 
-  select(state_abb, year, elxn_year, swing_core, pc_spending, population, grant_mil, term_year)
-
-
 # want to make a heat map of spending in states
 
 spending_2008 <- x %>% 
@@ -212,19 +185,6 @@ spending_2008 <- x %>%
   ungroup() %>%  
   select(state_abb, avg_spending) %>% 
   rename(state = state_abb)
-
-plot_usmap(spending_2008, regions = "states",
-           values = "avg_spending", labels = TRUE) +
-  scale_fill_gradient2(
-    high = "blue", 
-    mid = "white",
-    low = "red",
-    breaks = c(-0.1,-0.05,0.05,0.1), 
-    limits = c(-0.15,0.15),
-    name = "Change in Proportion \nof Democratic Votes"
-  ) +
-  theme_void() +
-  labs(title = "Electoral Swing from 2012 to 2016")
 
 # heat map of covid spending... load in correct data
 
@@ -271,6 +231,8 @@ plot_usmap(data = state_covid, values = "covid_pc_spending", labels = TRUE,
   theme_void() +
   labs(title = "COVID-19 Grants Per Capita in Swing States")
 
+ggsave("figures/incumbency/covid_swing_funds.jpg")
+
 plot_usmap(data = state_covid, values = "covid_pc_spending", labels = TRUE,
            include = core_2008) +
   scale_fill_gradient(
@@ -281,6 +243,8 @@ plot_usmap(data = state_covid, values = "covid_pc_spending", labels = TRUE,
   ) +
   theme_void() +
   labs(title = "COVID-19 Grants Per Capita in Core States")
+
+ggsave("figures/incumbency/covid_core_funds.jpg")
 
 # per capita spending for swing/core states
 
