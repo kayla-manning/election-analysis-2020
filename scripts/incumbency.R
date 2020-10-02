@@ -341,14 +341,15 @@ tfc_df <- popvote_df %>%
   inner_join(
     economy_df %>%
       filter(quarter == 2) %>%
-      select(GDP_growth_qt, year),
+      select(gdp_growth_qt, year),
     by="year"
-  )
+  ) %>% 
+  clean_names()
 
 # fitting model, has adj. r-squared of 61.7%
 
 tfc_mod <- tfc_df %>% 
-  lm(pv2p ~ GDP_growth_qt + net_approve + incumbent, data = .)
+  lm(pv2p ~ gdp_growth_qt + net_approve + incumbent, data = .)
 tfc_mod %>% 
   summary()
 
@@ -364,7 +365,7 @@ tfc_leave_one_out <- function(x, y)
   outsamp_mod <- tfc_df %>% 
     filter(year != x,
            incumbent != y) %>% 
-    lm(pv2p ~ GDP_growth_qt + net_approve + incumbent, data = .)
+    lm(pv2p ~ gdp_growth_qt + net_approve + incumbent, data = .)
   
   outsamp_pred <- predict(outsamp_mod, tfc_df %>% 
                             filter(year == x,
@@ -419,7 +420,7 @@ trump_net_approval <- approval_df %>%
   mutate(net_approval = approve - disapprove) %>% 
   pull(net_approval)
 
-tfc_prediction <- predict(tfc_mod, tibble(GDP_growth_qt = q2_gdp_growth, 
+tfc_prediction <- predict(tfc_mod, tibble(gdp_growth_qt = q2_gdp_growth, 
                         net_approve = trump_net_approval,
                         incumbent = TRUE))
 
@@ -427,9 +428,9 @@ tfc_prediction <- predict(tfc_mod, tibble(GDP_growth_qt = q2_gdp_growth,
 
 # comparing the models
 
-model_names <- c("My Regression", "Time for Change")
+model_names <- c("Regresson from Blog Post #3", "Time for Change")
 variables <- c("pv ~ gdp_growth_qt + avg_support * incumbent", 
-               "pv2p ~ GDP_growth_qt + net_approve + incumbent")
+               "pv2p ~ gdp_growth_qt + net_approve + incumbent")
 cross_val <- c(both_cross_val %>% round(3), tfc_cross_val %>% round(3))
 adj_r_sq <- c(summary(both_mod)$adj.r.squared %>% round(3), 
               summary(tfc_mod)$adj.r.squared %>% round(3))
@@ -443,5 +444,10 @@ tibble(Model = model_names,
        "Trump's Predicted Two-Party Vote Share" = predictions) %>%
   gt() %>% 
   tab_header("Model Comparison") %>% 
-  tab_footnote(footnote = "Correctly classified the ")
+  tab_footnote(footnote = "Correctly classified the winner of the two-party vote share",
+               locations = cells_column_labels(columns = 
+                                                 vars("Out-of-Sample Performance"))) %>% 
+  tab_footnote(footnote = "Recalculated Trump's two-party vote share from both candidates' overall popular vote predictions",
+               locations = cells_column_labels(columns = vars("Trump's Predicted Two-Party Vote Share")))
+  
 
