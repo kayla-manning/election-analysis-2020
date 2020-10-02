@@ -29,9 +29,16 @@ On the other hand, incumbents may also face backlash for factors outside of thei
 
 With all that to say, I believe the incumbency advantage will still benefit Trump.
 
-### Comparing Last Week's Regression to Time-for-Change
+### Comparing Last Week's Regression to PollyVote's *Time for Change* Model
 
-Based on this week's analyses of federal grants and incumbency advantage, update your most recent prediction of Trump's 2020 popular vote share (you may rely on previous models, the model in section, and the readings)
+On the topic of incumbency, PollyVote's [Time for Change](https://pollyvote.com/en/components/models/retrospective/fundamentals-plus-models/time-for-change-model/) model incorporates incumbency into its election predictions. As one of the few major polls that predicted at 2016 victory, it has earned the respect of forecasters around the country. The model predicts the two-party popular vote of the incumbent party from Q2 GDP growth, Gallup approval ratings, and incumbency status. The model has an adjusted r-squared of 61.7% and correctly classified the popular vote winner in 66.7% of post-WWII elections in a [leave-one-out cross-validation](../figures/incumbency_tfc_leave_one_out.html). In the end, it predicts that Trump will win 31.8% of the two-party popular vote.
+
+
+Last week's regression mapped popular vote share from Q1 GDP growth, polling numbers from 6 weeks out, and the interaction between incumbency and poll numbers. It had an adjusted r-squared of 0.688 and correctly classified 76.9% of the past elections in [leave-one-out cross validation](../figures/polling/both_model_classification.html). The model predicted that Joe Biden would receive approximately 51.2% of the overall popular vote and Trump would earn 47.6% of the popular vote, which amounts to a two-party vote share of 48.2% for Donald Trump. 
+
+![Regression](../figures/polling/both_regression.jpeg)
+
+
 
 - T4C model maps two-party vote share for the incumbent party from Q2 GDP growth, Gallup job approval, and whether or not it's a sitting president
 - have OOS fit and regression output for both models, can include in this to compare... also calculated adj-r-sq for both

@@ -21,7 +21,7 @@ To construct a model for both candidates, I removed the incumbent party filter f
 
 ![Figure 2](../figures/polling/both_regression.jpeg)
 
-This new model has an adjusted r-squared of 0.688 and correctly classified 76.9% of the past elections in [leave-one-out cross validation](../figures/polling/both_model_classification.html). When put to the test with 2020 numbers for the respective candidates, the model predicted that Biden would win approximately **51.2%** of the popular vote and Trump would earn **47.6%** of the popular vote.
+This new model has an adjusted r-squared of 0.688 and correctly classified 84.6% of the past elections in [leave-one-out cross validation](../figures/polling/both_model_classification.html). When put to the test with 2020 numbers for the respective candidates, the model predicted that Biden would win approximately **51.2%** of the popular vote and Trump would earn **47.6%** of the popular vote.
 
 
 ### Predictions from 2020 Polls Based on 2016 Performance

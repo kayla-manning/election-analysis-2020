@@ -336,13 +336,30 @@ both_validation %>%
              actual_classification = "Actual Classification",
              right_class = "Correct Classification") %>% 
   tab_footnote(locations = cells_column_labels(columns = vars(right_class, predicted_classification)),
-               footnote = c("Correctly predicted the two-party popular vote winner of 80.1% of the elections", 
+               footnote = c("Correctly predicted the two-party popular vote winner of 84.6% of the elections", 
                             "Classified as TRUE if the predicted popular vote is greater than 50% and FALSE otherwise"))
 
-# this model correctly classified past pv victories 80.1% of the time when tested
+# this model correctly classified past pv victories 84.6% of the time when tested
 # OOS
 
-mean(both_validation$right_class, na.rm = TRUE)
+both_oos <- both_pv %>% 
+  mutate(predicted_pv = both_leave_one_out(year, incumbent)) %>%
+  drop_na(predicted_pv) %>% 
+  pivot_wider(names_from = party, values_from = c(actual_pv, predicted_pv)) %>% 
+  group_by(year) %>% 
+  summarise(actual_pv_democrat = mean(actual_pv_democrat, na.rm = T),
+            actual_pv_republican = mean(actual_pv_republican, na.rm = T),
+            predicted_pv_democrat = mean(predicted_pv_democrat, na.rm = T),
+            predicted_pv_republican = mean(predicted_pv_republican, na.rm = T)) %>% 
+  mutate(predict_dem_win = ifelse(predicted_pv_democrat > predicted_pv_republican, T, F),
+         actual_dem_win = ifelse(actual_pv_democrat > actual_pv_republican, T, F),
+         correct_class = ifelse(predict_dem_win == actual_dem_win, T, F))
+both_oos %>% 
+  gt() %>% 
+  tab_header("Leave-One-Out Classification for the Regression Model")
+both_oos %>% 
+  pull(correct_class) %>% 
+  mean()
 
 # making predictions with the both model
 # put Biden at receiving ~51.2% and Trump ~47.6%

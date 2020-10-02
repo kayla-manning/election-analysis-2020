@@ -9,6 +9,7 @@ library(readxl)
 library(broom)
 library(gridExtra)
 library(ggpubr)
+library(gt)
 
 # funding data at state & county level
 
@@ -288,7 +289,23 @@ both_mod <- vote_econ %>%
 both_mod %>% 
   summary()
 
-# OOS validation was at 80.1% proper classification last week
+# OOS validation was at 84.6% proper classification last week
+
+both_oos <- both_pv %>% 
+  mutate(predicted_pv = both_leave_one_out(year, incumbent)) %>%
+  drop_na(predicted_pv) %>% 
+  pivot_wider(names_from = party, values_from = c(actual_pv, predicted_pv)) %>% 
+  group_by(year) %>% 
+  summarise(actual_pv_democrat = mean(actual_pv_democrat, na.rm = T),
+            actual_pv_republican = mean(actual_pv_republican, na.rm = T),
+            predicted_pv_democrat = mean(predicted_pv_democrat, na.rm = T),
+            predicted_pv_republican = mean(predicted_pv_republican, na.rm = T)) %>% 
+  mutate(predict_dem_win = ifelse(predicted_pv_democrat > predicted_pv_republican, T, F),
+         actual_dem_win = ifelse(actual_pv_democrat > actual_pv_republican, T, F),
+         correct_class = ifelse(predict_dem_win == actual_dem_win, T, F)) %>% 
+  pull(correct_class) %>% 
+  mean()
+both_cross_val <- both_oos
 
 # making predictions with the both model
 # put Biden at receiving ~51.2% and Trump ~47.6%
@@ -304,6 +321,8 @@ trump_predict <- predict(both_mod, tibble(gdp_growth_qt = trump_q1_gdp,
                                           incumbent = TRUE))
 trump_predict
 
+both_prediction <- trump_predict / (trump_predict + biden_predict)
+
 #######################################################
 
 # time-for-change model... getting data ready
@@ -315,8 +334,8 @@ tfc_df <- popvote_df %>%
     approval_df %>% 
       group_by(year, president) %>% 
       slice(1) %>% 
-      mutate(net_approve=approve-disapprove) %>%
-      select(year, incumbent_pres=president, net_approve, poll_enddate),
+      mutate(net_approve = approve - disapprove) %>%
+      select(year, incumbent_pres = president, net_approve, poll_enddate),
     by="year"
   ) %>%
   inner_join(
@@ -369,7 +388,7 @@ tfc_validation <- tfc_pv2p %>%
 tfc_validation %>% 
   ungroup() %>% 
   gt() %>% 
-  tab_header(title = "Leave-One-Out Classification for Time-for-Change Model",
+  tab_header(title = "Leave-One-Out Classification for Time for Change Model",
              subtitle = "") %>% 
   cols_label(year = "Year",
              incumbent = "Incumbent",
@@ -386,24 +405,43 @@ tfc_validation %>%
 # correctly classified 66.7% (2/3) of past elections -- important to note that
 # this model works for incumbent party only
 
-mean(tfc_validation$right_class)
+tfc_cross_val <- mean(tfc_validation$right_class)
 
-fedgrants_state_df %>%
-  filter(!is.na(state_year_type)) %>%
-  group_by(state_year_type) %>%
-  summarise(mean=mean(grant_mil, na.rm=T), se=sd(grant_mil, na.rm=T)/sqrt(n())) %>%
-  mutate(state_year_type = case_when(state_year_type == "swing + nonelection" ~ "Swing and Nonelection",
-                                     state_year_type == "swing + election year" ~ "Swing and Election",
-                                     state_year_type == "core + nonelection" ~ "Core and Nonelection",
-                                     state_year_type == "core + election" ~ "Core and Election")) %>% 
-  ggplot(aes(x = state_year_type, y = mean, ymin = mean - 1.96 * se, ymax = mean + 1.96 * se)) +
-  geom_col(fill = "red3") +
-  geom_errorbar(width = 0.2) +
-  coord_flip() +
-  xlab("Type of State and Year") + 
-  ylab("Federal Grant Spending (millions of dollars)") +
-  theme_minimal() +
-  theme(axis.title = element_text(size=20), 
-        axis.text = element_text(size=15))
+q2_gdp_growth <- vote_econ %>% 
+  filter(year == 2020,
+         quarter == 2) %>% 
+  pull(gdp_growth_qt)
 
+trump_net_approval <- approval_df %>%
+  filter(president == "Donald Trump", year == 2020) %>% 
+  group_by(year, president) %>% 
+  slice(1) %>% 
+  mutate(net_approval = approve - disapprove) %>% 
+  pull(net_approval)
+
+tfc_prediction <- predict(tfc_mod, tibble(GDP_growth_qt = q2_gdp_growth, 
+                        net_approve = trump_net_approval,
+                        incumbent = TRUE))
+
+#######################################################
+
+# comparing the models
+
+model_names <- c("My Regression", "Time for Change")
+variables <- c("pv ~ gdp_growth_qt + avg_support * incumbent", 
+               "pv2p ~ GDP_growth_qt + net_approve + incumbent")
+cross_val <- c(both_cross_val %>% round(3), tfc_cross_val %>% round(3))
+adj_r_sq <- c(summary(both_mod)$adj.r.squared %>% round(3), 
+              summary(tfc_mod)$adj.r.squared %>% round(3))
+predictions <- c(round(both_prediction * 100, 3), 
+                 tfc_prediction %>% round(3))
+
+tibble(Model = model_names, 
+       Predictors = variables, 
+       "Out-of-Sample Performance" = cross_val,
+       "Adjusted R-Squared" = adj_r_sq,
+       "Trump's Predicted Two-Party Vote Share" = predictions) %>%
+  gt() %>% 
+  tab_header("Model Comparison") %>% 
+  tab_footnote(footnote = "Correctly classified the ")
 
