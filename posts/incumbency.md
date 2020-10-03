@@ -51,6 +51,6 @@ While the models predict that Trump's incumbency status may not be enough to car
 
 [^covid-correlation]: This look at federal spending only scratches the surface in terms of the impact of COVID-19 on the election. While I posit that Trump's spending patterns will likely have minimal unique effects on the 2020 outcome, there are some interesting implications of how COVID-19 deaths and numbers could impact the races of individual states. In his discussion of FiveThirtyEight's forecast model, [Nate Silver](https://fivethirtyeight.com/features/how-fivethirtyeights-2020-presidential-forecast-works-and-whats-different-because-of-covid-19/) mentions the possiblity of covariance between states such as New York and Arizona that have faced similar difficulties with COVID-19 but are otherwise very different. This level of thinking is beyond the scope of these maps of COVID-19 relief aid, but it is interesting to consider in an abstract sense.
 
-[^shark-attacks]: [Achen and Bartels, 2017] Achen, C. H. and Bartels, L. M. (2017). Democracy for realists:Why elections do not produce responsive government, volume 4.  Princeton University
+[^shark-attacks]: [Achen and Bartels, 2017] Achen, C. H. and Bartels, L. M. (2017). Democracy for realists: Why elections do not produce responsive government, volume 4. Princeton University
 
 
