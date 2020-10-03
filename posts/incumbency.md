@@ -10,7 +10,7 @@ Since 1948, 72.7% of sitting presidents have won re-election, with only 3 incumb
 
 Incumbents run their re-election campaigns on their track records, and voters may feel more inclined to support candidates that direct federal dollars to their localities. A vast body of political literates explores the influence of federal spending on elections.[^Kriner-and-Reeves] Because of this pattern, incumbent candidates would reasonably desire to direct more funds toward [battleground states](../posts/intro.md) in comparison to states unlikely to swing in one direction or another. Overall, it appears that the incumbent party does focus a greater volume of federal dollars on swing states[^swing] relative to states core to their base, with a greater emphasis on election years.
 
-However, the states classified as "swing" states have much larger [populations](https://www.census.gov/data/datasets/time-series/demo/popest/2010s-state-total.html) relative to the "core" states.[^population-comparison] What happens when we control for this? It turns out that per capita federal grant spending is greatest in core states during election years, then in core states in non-election years, then followed by swing states:
+However, the states classified as "swing" states have much larger [populations](https://www.census.gov/data/datasets/time-series/demo/popest/2010s-state-total.html) relative to the "core" states.[^population-comparison] What happens when we control for this? It turns out that per capita federal grant spending is greatest in core states during election years and followed by core states in non-election years:
 
 ![Figure 1](../figures/incumbency/grant_spend_type.jpg)
 
