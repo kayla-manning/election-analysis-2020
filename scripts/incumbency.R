@@ -106,7 +106,7 @@ grant_state_type <- fedgrants_state_df %>%
   theme(axis.title = element_text(size = 15), 
         axis.text = element_text(size = 12),
         title = element_text(size = 17)) +
-  labs(title = "Federal Grant Spending")
+  labs(title = "Overall Federal Grant Spending")
 
 
 # replicating, but this time with per capita spending
@@ -434,8 +434,8 @@ variables <- c("pv ~ gdp_growth_qt + avg_support * incumbent",
 cross_val <- c(both_cross_val %>% round(3), tfc_cross_val %>% round(3))
 adj_r_sq <- c(summary(both_mod)$adj.r.squared %>% round(3), 
               summary(tfc_mod)$adj.r.squared %>% round(3))
-predictions <- c(round(both_prediction * 100, 3), 
-                 tfc_prediction %>% round(3))
+predictions <- c(paste0(round(both_prediction * 100, 3), "%"), 
+                 paste0(tfc_prediction %>% round(3), "%"))
 
 tibble(Model = model_names, 
        Predictors = variables, 
@@ -448,6 +448,7 @@ tibble(Model = model_names,
                locations = cells_column_labels(columns = 
                                                  vars("Out-of-Sample Performance"))) %>% 
   tab_footnote(footnote = "Recalculated Trump's two-party vote share from both candidates' overall popular vote predictions",
-               locations = cells_column_labels(columns = vars("Trump's Predicted Two-Party Vote Share")))
+               locations = cells_column_labels(columns = vars("Trump's Predicted Two-Party Vote Share"))) %>% 
+  cols_align("left")
   
 
