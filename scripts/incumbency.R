@@ -133,7 +133,7 @@ pc_grant_state_type <- fedgrants_state_df %>%
         axis.text = element_text(size = 12),
         title = element_text(size = 17))
 
-ggarrange(grant_state_type, pc_grant_state_type + xlab(""))
+ggarrange(grant_state_type, pc_grant_state_type, ncol = 1)
 
 ggsave("figures/incumbency/grant_spend_type.jpg")
 
