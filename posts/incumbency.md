@@ -2,13 +2,15 @@
 ## October 3, 2020
 
 
-### The Incumbency Advantage
+### The Incumbent Advantage
 
-Since 1948, 72.7% of sitting presidents have won re-election, with only 3 incumbent candidates failing to earn a second term. However, incumbency status alone does not motivate voters to re-elect a sitting president.[^incumbent-advantage] Instead, incumbent candidates reap the benefits of structural factors such as increased media coverage, an early start to campaigning, and the power to influence state- and local-level funding. In this sense, incumbency status serves as a single proxy variable for the many factors that benefit an incumbent candidate. When referring to incumbency status, I refer to the collective body of structural advantages. With the 2020 election just a month away, this blog post considers how incumbency may factor into the 2020 outcome.
+Since 1948, 72.7% of sitting presidents have won re-election, with only 3 incumbent candidates failing to earn a second term. However, incumbency status alone does not motivate voters to re-elect a sitting president.[^incumbent-advantage] Instead, incumbent candidates reap the benefits of structural advantages such as increased media coverage, an early start to campaigning, and the power to influence state- and local-level funding. For the purpose of this blog post, I use individual incumbency status as a proxy for the many variables that may benefit an incumbent candidate. 
+
+With the 2020 election just a month away, this blog post considers how the incumbent advantage may factor into the 2020 outcome.
 
 ### Visualizing Federal Grant Aid and COVID-19 Relief Aid
 
-Incumbents run their re-election campaigns on their track records, and voters may feel more inclined to support candidates that direct federal dollars to their localities. A vast body of political literates explores the influence of federal spending on elections.[^Kriner-and-Reeves] Because of this pattern, incumbent candidates would reasonably desire to direct more funds toward [battleground states](../posts/intro.md) in comparison to states unlikely to swing in one direction or another. Overall, it appears that the incumbent party does focus a greater volume of federal dollars on swing states[^swing] relative to states core to their base, with a greater emphasis on election years.
+Incumbents run their re-election campaigns on their track records, and voters may feel more inclined to support candidates that direct federal dollars to their localities. A vast body of political literature explores the influence of federal spending on elections.[^Kriner-and-Reeves] Because of this pattern, incumbent candidates would reasonably desire to direct more funds toward [battleground states](../posts/intro.md) in comparison to states unlikely to swing in one direction or another. Overall, it appears that the incumbent party does focus a greater volume of federal dollars on swing states[^swing] relative to states core to their base, with a greater emphasis on election years.
 
 However, the states classified as "swing" states have much larger [populations](https://www.census.gov/data/datasets/time-series/demo/popest/2010s-state-total.html) relative to the "core" states.[^population-comparison] What happens when we control for this? It turns out that per capita federal grant spending is greatest in core states during election years and followed by core states in non-election years:
 
