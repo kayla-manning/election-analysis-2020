@@ -2,11 +2,11 @@
 ## October 3, 2020
 
 
-### Background on Incumbency Advantage
+### The Incumbency Advantage
 
 Since 1948, 72.7% of sitting presidents have won re-election, with only 3 incumbent candidates failing to earn a second term. However, incumbency status alone does not motivate voters to re-elect a sitting president.[^incumbent-advantage] Instead, incumbent candidates reap the benefits of structural factors such as increased media coverage, an early start to campaigning, and the power to influence state- and local-level funding. With the 2020 election just a month away, this blog post considers how incumbency may factor into the 2020 outcome.
 
-### Visualizing Federal Grant Aid, COVID-19 Relief Aid
+### Visualizing Federal Grant Aid and COVID-19 Relief Aid
 
 A vast body of political literates explores the influence of federal spending on elections.[^Kriner-and-Reeves] Overall, it appears that incumbents and the incumbent party focus a greater magnitude of federal dollars on swing states relative to states core to their base, with a greater emphasis on election years.
 

@@ -8,3 +8,6 @@ Economic conditions predict elections fairly well, but how does that translate t
 
 # [3. Polling](posts/polling.md)
 This installment incorporates poll numbers in updated predictions, explores the accuracy of polls across sources, and compares two approaches taken by professional forecasters.
+
+# [4. Incumbency](posts/incumbency.md)
+More often than not, incumbent presidents win their re-election bids. Can Trump's status as an incumbent carry him to a victory? 
