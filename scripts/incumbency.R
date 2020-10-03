@@ -246,12 +246,10 @@ covid_core <- plot_usmap(data = state_covid, values = "covid_pc_spending", label
   theme_void() +
   labs(title = "Core States")
 
-ggarrange(covid_swing, covid_core, common.legend = TRUE, legend = "right")
+ggarrange(covid_swing, covid_core, common.legend = TRUE, legend = "right", ncol = 1)
 
 ggsave("figures/incumbency/covid_type_aid.jpg")
 
-grid.arrange(arrangeGrob(covid_swing + theme(legend.position = "none"), 
-             covid_core + theme(legend.position = "none")), mylegend, ncol = 2, heights = c(10, 1))
 
 # per capita spending for swing/core states
 
