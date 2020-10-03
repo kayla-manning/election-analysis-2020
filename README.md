@@ -10,4 +10,4 @@ Economic conditions predict elections fairly well, but how does that translate t
 This installment incorporates poll numbers in updated predictions, explores the accuracy of polls across sources, and compares two approaches taken by professional forecasters.
 
 # [4. Incumbency](posts/incumbency.md)
-More often than not, incumbent presidents win their re-election bids. Can Trump's status as an incumbent carry him to a victory? 
+More often than not, incumbent presidents win their re-election bids. Incumbent candidates enjoy a large set of structural advantages that collectively form the *incumbency advantage*. Can Trump's status as an incumbent carry him to a victory in 2020? 
