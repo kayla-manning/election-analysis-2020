@@ -203,7 +203,7 @@ plot_usmap(data = state_covid, values = "covid_pc_spending", labels = TRUE) +
   scale_fill_gradient(
     high = "red3",
     low = "white",
-    name = "COVID Spending Per Capita"
+    name = "COVID-19 Aid \nPer Capita ($)"
   ) +
   theme_void() +
   labs(title = "COVID-19 Awards by State")
@@ -229,7 +229,7 @@ covid_swing <- plot_usmap(data = state_covid, values = "covid_pc_spending", labe
   scale_fill_gradient(
     high = "red3",
     low = "white",
-    name = "COVID-19 Aid \nPer Capita",
+    name = "COVID-19 Aid \nPer Capita ($)",
     limits = c(40, 170)
   ) +
   theme_void() +
