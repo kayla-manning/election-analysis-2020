@@ -445,11 +445,13 @@ tibble(Model = model_names,
        "Trump's Predicted Two-Party Vote Share" = predictions) %>%
   gt() %>% 
   tab_header("Model Comparison") %>% 
-  tab_footnote(footnote = "Correctly classified the winner of the two-party vote share",
+  tab_footnote(footnote = "The percentage of times the model correctly classified the winner of the two-party vote share in a leave-one-out cross-validation",
                locations = cells_column_labels(columns = 
                                                  vars("Out-of-Sample Performance"))) %>% 
-  tab_footnote(footnote = "Recalculated Trump's two-party vote share from both candidates' overall popular vote predictions",
+  tab_footnote(footnote = "The regression from blog post #3 predicted the overall vote share for both candidates, so I used this to calculate Trump's two-party vote share",
                locations = cells_column_labels(columns = vars("Trump's Predicted Two-Party Vote Share"))) %>% 
+  tab_footnote(footnote = "My regression from blog post #3 uses Q1 GDP growth, while the Time for Change model uses Q2 GDP growth",
+               locations = cells_column_labels(columns = vars(Predictors))) %>% 
   cols_align("left")
   
 
