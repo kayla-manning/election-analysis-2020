@@ -411,6 +411,9 @@ q2_gdp_growth <- vote_econ %>%
          quarter == 2) %>% 
   pull(gdp_growth_qt)
 
+# getting Trump's net approval by following the same procedure that the model
+# was fit with (grouping by year/president and slicing the top row)
+
 trump_net_approval <- approval_df %>%
   filter(president == "Donald Trump", year == 2020) %>% 
   group_by(year, president) %>% 
