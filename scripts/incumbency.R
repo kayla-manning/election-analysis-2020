@@ -426,7 +426,7 @@ tfc_prediction <- predict(tfc_mod, tibble(gdp_growth_qt = q2_gdp_growth,
 
 # comparing the models
 
-model_names <- c("Regresson from Blog Post #3", "Time for Change")
+model_names <- c("Regression from Blog Post #3", "Time for Change")
 variables <- c("pv ~ gdp_growth_qt + avg_support * incumbent", 
                "pv2p ~ gdp_growth_qt + net_approve + incumbent")
 cross_val <- c(both_cross_val %>% round(3), tfc_cross_val %>% round(3))
