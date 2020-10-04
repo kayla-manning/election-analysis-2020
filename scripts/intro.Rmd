@@ -61,7 +61,7 @@ plot_usmap(data = pv_swing_2016, regions = "states",
 
 # saving to put it in my markdown file
 
-ggsave("../figures/swing_map.jpg", height = 5)
+ggsave("../figures/intro/swing_map.jpg", height = 5)
 
 ```
 
@@ -96,7 +96,7 @@ pv_swing_2016 %>%
     D_pv2p_2016 = "Democratic Vote \nin 2016 (%)",
     swing_margin = "Change in Share \nof Democratic Vote (%)"
   ) %>% 
-  gtsave("../figures/swing_table.html")
+  gtsave("../figures/intro/swing_table.html")
 
 ```
 
@@ -130,7 +130,7 @@ pv_swing_2016 %>%
        x = "Democratic Percentage of Two-Party Vote",
        y = "State")
   
-ggsave("../figures/swing_point_line.jpg")
+ggsave("../figures/intro/swing_point_line.jpg")
 
 
 ```
@@ -160,7 +160,7 @@ pv_swing_2016 %>%
   scale_y_continuous(limits = c(-8.5, 8.5), breaks = seq(-8, 8, 2)) +
   theme(legend.position = "none")
 
-ggsave("../figures/swing_bars.jpg")
+ggsave("../figures/intro/swing_bars.jpg")
 
 ```
 
