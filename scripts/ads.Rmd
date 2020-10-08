@@ -510,7 +510,7 @@ trends_time %>%
 
 ```{r google_ads}
 
-files <- c("updated", "top-keywords-history", "geo-spend", "creative-stats", "campaign-targeting",
+files <- c("updated", "top-keywords-history", "geo-spend", "campaign-targeting",
            "advertiser-weekly-spend", "advertiser-stats", "advertiser-geo-spend", 
            "advertiser-declared-stats")
 
