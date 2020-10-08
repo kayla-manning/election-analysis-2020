@@ -1,0 +1,166 @@
+---
+title: "Blog"
+author: "Kayla Manning"
+date: "9/8/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+# loading necessary packages
+
+library(tidyverse)
+library(janitor)
+library(lubridate)
+library(broom)
+library(scales)
+library(usmap)
+
+# getting data for my model of choice thus far
+
+economy <- read_csv("../data/econ.csv") %>% 
+  clean_names()
+approval <- read_csv("../data/q3_approval.csv")
+all_polls <- read_csv("../data/pollavg_1968-2016.csv")
+popvote_state <- read_csv("../data/popvote_bystate_1948-2016.csv")
+
+vote_econ <- popvote %>% 
+  full_join(economy, by = "year") %>% 
+  full_join(all_polls %>% 
+              filter(weeks_left == 4) %>% 
+              group_by(year, party) %>% 
+              summarise(avg_support = mean(avg_support)))
+
+# reading and joining ads data
+
+creative <- read_csv("../data/ad_creative_2000-2012.csv")
+campaigns <- read_csv("../data/ad_campaigns_2000-2012.csv")
+ads_2020 <- read_csv("../data/ads_2020.csv")
+vep <- read_csv("../data/vep_1980-2016.csv")
+ads <- creative %>% 
+  inner_join(campaigns)
+
+# data for my state-by-state model
+
+voters <- vote_econ %>% 
+  inner_join(vep, by = "year")
+
+# 538 updating polls
+
+{
+  poll_2020_url <- "https://projects.fivethirtyeight.com/2020-general-data/presidential_poll_averages_2020.csv"
+  poll_2020_df <- read_csv(poll_2020_url)
+  
+  elxnday_2020 <- as.Date("11/3/2020", "%m/%d/%Y")
+  dnc_2020 <- as.Date("8/20/2020", "%m/%d/%Y")
+  rnc_2020 <- as.Date("8/27/2020", "%m/%d/%Y")
+  
+  colnames(poll_2020_df) <- c("year","state","poll_date","candidate_name","avg_support","avg_support_adj")
+  
+  poll_2020_df <- poll_2020_df %>%
+    mutate(party = case_when(candidate_name == "Donald Trump" ~ "republican",
+                             candidate_name == "Joseph R. Biden Jr." ~ "democrat"),
+           poll_date = as.Date(poll_date, "%m/%d/%Y"),
+           days_left = round(difftime(elxnday_2020, poll_date, unit="days")),
+           weeks_left = round(difftime(elxnday_2020, poll_date, unit="weeks")),
+           before_convention = case_when(poll_date < dnc_2020 & party == "democrat" ~ TRUE,
+                                         poll_date < rnc_2020 & party == "republican" ~ TRUE,
+                                         TRUE ~ FALSE)) %>%
+    filter(!is.na(party)) %>%
+    filter(state == "National")
+}
+
+```
+
+```{r both_mod_by_state}
+
+library(rvest)
+
+url <- "https://state.1keydata.com/state-electoral-votes.php"
+
+
+ev <- read_html(url, as.data.frame=T, stringsAsFactors = TRUE)
+#We create a function with read_html to read the web page.
+ev %>%  
+        html_nodes("table") %>% 
+        #Here, we indicate that this is the table we want to extract.
+        .[[3]] %>% 
+        #Here we put of which table of the HTML is about, in our example it is the third table of the web.
+        html_table(fill=T) -> ev
+        #We save it in a CSV.
+ev <- ev %>% 
+  row_to_names(row_number = 1)
+
+ev_2half <- ev %>% 
+  select(3:4)
+
+ev <- ev %>% 
+  select(1:2) %>% 
+  bind_rows(ev_2half) %>% 
+  clean_names() %>% 
+  rename(state = us_state)
+
+
+state_votes <- read_csv("../data/popvote_bystate_1948-2016.csv") %>% 
+  clean_names() %>% 
+  pivot_longer(cols = 6:7, names_to = "party") %>% 
+  mutate(party = case_when(party == "r_pv2p" ~ "republican",
+                           party == "d_pv2p" ~ "democrat")) %>% 
+  rename("pv2p" = value) %>% 
+  full_join(economy, by = "year") %>% 
+  full_join(all_polls %>% 
+              filter(weeks_left == 4) %>% 
+              group_by(year, party) %>% 
+              summarise(avg_support = mean(avg_support))) %>% 
+  inner_join(vep, by = c("year", "state")) %>% 
+  full_join(vote_econ %>% select(year, party, incumbent, incumbent_party), by = c("year", "party"))
+
+state_predictions <- state_votes %>% 
+    filter(quarter == 1) %>%
+  group_by(state) %>% 
+  nest() %>% 
+  mutate(mod = map(data, ~lm(pv2p ~ gdp_growth_qt + avg_support * 
+                               incumbent, 
+                       data = .)),
+         tidy = map(mod, ~tidy(.))) %>% 
+  unnest(tidy) %>% 
+  mutate(q1_gdp = vote_econ %>% filter(year == 2020, quarter == 1) %>%
+           pull(gdp_growth_qt),
+         trump_support = trump_poll,
+         biden_support = biden_poll) %>% 
+  select(state, term, estimate, q1_gdp, trump_support, biden_support) %>% 
+  pivot_wider(names_from = term, values_from = estimate) %>% 
+  unnest(`(Intercept)`, gdp_growth_qt, avg_support, incumbentTRUE,
+         `avg_support:incumbentTRUE`) %>% 
+  mutate(trump_predict = `(Intercept)` + q1_gdp * gdp_growth_qt + 
+           trump_support * (avg_support + `avg_support:incumbentTRUE`) + 
+           incumbentTRUE,
+         biden_predict = `(Intercept)` + q1_gdp * gdp_growth_qt + 
+           biden_support * avg_support) %>% 
+  select(state, trump_predict, biden_predict) %>% 
+  mutate(winner = ifelse(trump_predict > biden_predict, "Trump", "Biden")) %>% 
+  inner_join(ev) %>% 
+  mutate(electoral_votes = as.numeric(electoral_votes),
+         trump_ev = case_when(winner == "Trump" ~ electoral_votes,
+                              winner == "Biden" ~ 0),
+         biden_ev = case_when(winner == "Trump" ~ 0,
+                              winner == "Biden" ~ electoral_votes)) %>% 
+  ungroup() 
+
+# plotting projected victories
+
+state_predictions %>% 
+  summarise(trump_ev = sum(trump_ev),
+            biden_ev = sum(biden_ev))
+plot_usmap(data = state_predictions %>% drop_na(winner), regions = "states", values = "winner",
+           labels = TRUE) +
+  scale_fill_manual(values = c("blue", "red3")) +
+  theme_void() +
+  labs(fill = "Winner")
+
+```
+
+
+I want to incorporate some measure of uncertainty in here (with confidence intervals, simulating thousands of elections, and calculating the probability that each candidate will win each state)
+
