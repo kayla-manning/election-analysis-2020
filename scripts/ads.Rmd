@@ -16,6 +16,7 @@ library(lubridate)
 library(broom)
 library(scales)
 library(usmap)
+library(gt)
 
 # getting data for my model of choice thus far
 
@@ -469,16 +470,50 @@ campaigns <- read_csv("../data/ad_campaigns_2000-2012.csv")
 ads_2000s <- creative %>% 
   inner_join(campaigns, by = c("creative", "party", "cycle"))
 
+# Democrats appear to outspend Republicans in the year prior to the election,
+# but Republicans outspend Democrats in election year
+
 ads_2000s %>% 
   mutate(year = year(air_date),
          month = month(air_date)) %>% 
-  # filter(year == 2000) %>% 
-  group_by(air_date, year, party, month) %>% 
+  group_by(year, party) %>% 
   summarise(total_cost = mean(total_cost)) %>% 
-  ggplot(aes(month, total_cost, color = party)) +
+  ggplot(aes(year, total_cost, color = party)) +
   geom_point() +
   geom_line() +
-  facet_wrap(~ year)
+  scale_y_continuous(limits = c(0, 35000)) +
+  theme_minimal() +
+  scale_color_manual(values = c(muted("blue"), muted("red3")),
+                     labels = c("Democrat", "Republican")) +
+  scale_x_continuous(labels = c(2000, 2004, 2008, 2012),
+                     breaks = c(2000, 2004, 2008, 2012)) +
+  labs(title = "Spending on Television Political Advertisements",
+       x = "",
+       y = "Average Spending Per Ad ($)",
+       color = "Party") 
+
+ggsave("../figures/ads/tv_avg_spend.jpg")
+
+# creating a function to view the top issues for each party in each year
+
+top_issues <- function(x, y){
+  
+  title <- paste0("Top 3 ", y %>% str_to_title(), " Issues in ", x)
+  
+  ads_2000s %>% 
+    mutate(year = year(air_date)) %>% 
+    filter(year == x,
+           party == y) %>% 
+    group_by(ad_issue) %>% 
+    summarise(issue = n()) %>% 
+    arrange(desc(issue)) %>% 
+    slice(1:3) %>% 
+    gt() %>% 
+    tab_header(title)
+}
+top_issues(2008, "republican")
+
+
 
 ```
 
