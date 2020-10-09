@@ -11,3 +11,6 @@ This installment incorporates poll numbers in updated predictions, explores the 
 
 # [4. Incumbency](posts/incumbency.md)
 More often than not, incumbent presidents win their re-election bids. Incumbent candidates enjoy a large set of structural advantages that collectively form the *incumbency advantage*. Can Trump's status as an incumbent carry him to a victory in 2020? 
+
+# [5. Advertising]()
+This analysis examines political advertising on various media platforms, and takes a look the relative advertising strategies of candidates in battleground states.

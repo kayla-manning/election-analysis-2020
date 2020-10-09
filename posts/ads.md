@@ -1,5 +1,5 @@
 # Incumbency and Elections
-## October 3, 2020
+## October 10, 2020
 
 
 ### Role of Advertising in Political Campaigns
@@ -46,7 +46,7 @@ The candidates appear to be devoting proportional amounts of attention to the re
 
 ### What does this mean?
 
-While political advertising does little to inform and mobilize voters, they do have persuasive effects.[^huber] What could the candidates in 2020 hope to gain from their advertising initiatives? If Michael Bloomberg's campaign is any example, advertising alone is unlikely to be enough to change the course of an election. 
+While political advertising does little to inform and mobilize voters, they do have persuasive effects.[^huber] What could the candidates in 2020 hope to gain from their advertising initiatives? Hillary Clinton [dominated](https://mediaproject.wesleyan.edu/nov-2016/?utm_source=feedburner&utm_medium=feed&utm_campaign=Feed%3A%20WesleyanMediaProject%20%28Wesleyan%20Media%20Project%29) Donald Trump in the *air war*, but she failed to win the election.[^clinton] If Michael Bloomberg's campaign is any example, advertising alone is unlikely to be enough to change the course of an election. 
 
 Also, most previous studies examine the possible effects of television advertising, and, as we see in the data, many candidates have devoted large sums of money to online advertising in recent years. Do online advertisements have the same effect? Or, perhaps, are they less salient due to the ability to scroll immediately past them?
 
@@ -54,7 +54,7 @@ My most successful model[^model] thus far has not used advertising as a predicto
 
 ![Figure 5](../figures/ads/prediction_map.jpg)
 
-Most states appear to match the color of the maps on relative ad spending in swing states, indicating that candidates may not be aiming to flip states that are out of reach, but instead maintain narrow projected leads.
+Most states appear to match the color of the maps on relative ad spending in swing states, indicating that candidates may not be aiming to flip states that are out of reach, but instead maintain narrow projected leads. While scholars dispute the role of advertising in election outcomes, next week's post will examine the role of field campaigning in elections and how it may differ from advertising. 
 
 
 
@@ -67,6 +67,8 @@ Most states appear to match the color of the maps on relative ad spending in swi
 [^google-data]: Google's data begins on 5/31/2018 and did not have dates as a variable in the dataset, so it is important to consider that the Google map does not isolate how candidates have allocated their advertising efforts in the past month.
 
 [^huber]: [Huber and Arceneaux, 2007] Huber, G. A. and Arceneaux, K. (2007).Identifying the Persuasive Effects of Presidential Advertising.American Journal of Political Science,51(4):957–977.
+
+[^clinton]: While Clinton failed to win the election, she did secure a victory in the popular vote. However, most campaign advertising happens in swing states to help win an Electoral College victory, which Clinton failed to do.
 
 [^model]: Variants of this model are featured as Model 3 in the [Economy](economy.md) post, my regression in the [Polling](polling.md) post, and my regression in the [Incumbency](incumbency.md) post.
 
