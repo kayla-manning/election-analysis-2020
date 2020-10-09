@@ -155,7 +155,8 @@ state_predictions %>%
             biden_ev = sum(biden_ev))
 plot_usmap(data = state_predictions %>% drop_na(winner), regions = "states", values = "winner",
            labels = TRUE) +
-  scale_fill_manual(values = c("blue", "red3")) +
+  scale_fill_manual(values = c(muted("blue"), muted("red3")),
+                    breaks = c("Biden", "Trump")) +
   theme_void() +
   labs(fill = "Winner")
 
@@ -163,4 +164,117 @@ plot_usmap(data = state_predictions %>% drop_na(winner), regions = "states", val
 
 
 I want to incorporate some measure of uncertainty in here (with confidence intervals, simulating thousands of elections, and calculating the probability that each candidate will win each state)
+
+
+```{r ads_extension_1}
+
+# code I ended up not using for advertising extension but wanted to save just in
+# case I wanted it for the future
+
+# fitting model to predict vote share given partial data on 2020 ad spending
+
+# getting ad spend in September for previous elections in the data
+
+ad_spend <- ads %>% 
+  mutate(air_date = ymd(air_date),
+         month = month(air_date),
+         year = year(air_date)) %>% 
+  filter(month == 9,
+         year == cycle) %>% 
+  group_by(party, state, cycle) %>% 
+  summarise(total_spend = sum(total_cost))
+
+# estimating the 2020 spend for both candidates in September
+
+guess_spend <- ads_2020 %>% 
+  mutate(biden_guess = biden_airings / total_airings * total_cost,
+         trump_guess = trump_airings / total_airings * total_cost) %>% 
+  filter(period_startdate == "2020-09-05")
+
+guess_2020_spend <- ads_2020 %>% 
+  mutate(biden_guess = biden_airings / total_airings * total_cost,
+         trump_guess = trump_airings / total_airings * total_cost) %>% 
+  filter(period_startdate == "2020-09-05",
+         state %in% c("TX", "MT", "NATIONAL"))
+
+# ran with interaction terms between spending and state, and the following
+# states were significant: TX, ND, MT, NATIONAL
+
+mod_spend <- vote_econ %>% 
+  inner_join(ad_spend, by = c("year" = "cycle", "party")) %>% 
+  filter(quarter == 1,
+         state %in% c("TX", "MT", "NATIONAL")) %>% 
+  lm(pv ~ gdp_growth_qt + incumbent + total_spend * state, data = .)
+
+# why am I getting two outputs?
+
+predict(mod_spend, tibble(gdp_growth_qt = vote_econ %>% 
+                            filter(year == 2020,
+                                   quarter == 1) %>% 
+                            pull(gdp_growth_qt),
+                          incumbent = TRUE,
+        total_spend = guess_2020_spend %>% 
+          pull(trump_guess),
+        state = guess_2020_spend %>% 
+          pull(state)))
+
+# how does prediction of PA 2020 compare to lab simulation effects?
+
+# what are model limitations?
+
+```
+
+```{r ads_extension_2}
+
+# extend binomial regression-based simulation to all states, using most recent
+# poll numbers. make geofacet map of distribution of predictions. do they make
+# sense?
+
+# more stuff that I didn't use during the advertising week that I may wish to incorporate in the future¿
+
+trump_poll <- poll_2020_df %>% 
+  filter(weeks_left == 4,
+         party == "republican") %>% 
+  pull(avg_support) %>% 
+  mean()
+biden_poll <- poll_2020_df %>% 
+  filter(weeks_left == 4,
+         party == "democrat") %>% 
+  pull(avg_support) %>% 
+  mean()
+
+voters %>% 
+    filter(quarter == 1) %>%
+    mutate(state = state.abb[match(state, state.name)]) %>% 
+    inner_join(ad_spend, 
+               by = c("year" = "cycle", "party", "state")) %>% 
+  group_by(state) %>% 
+  nest() %>% 
+  mutate(mod = map(data, ~lm(pv ~ gdp_growth_qt + avg_support * 
+                               incumbent + total_spend, 
+                       data = .)),
+         tidy = map(mod, ~tidy(.))) %>% 
+  unnest(tidy) %>% 
+  mutate(q1_gdp = vote_econ %>% filter(year == 2020, quarter == 1) %>%
+           pull(gdp_growth_qt),
+         trump_support = trump_poll,
+         biden_support = biden_poll) %>% 
+  select(state, term, estimate, q1_gdp, trump_support, biden_support) %>% 
+  inner_join(guess_spend %>% 
+                select(state, biden_guess, trump_guess), 
+             by = "state") %>% 
+  pivot_wider(names_from = term, values_from = estimate) %>% 
+  unnest(`(Intercept)`, gdp_growth_qt, avg_support, incumbentTRUE, total_spend,
+         `avg_support:incumbentTRUE`) %>% 
+  mutate(trump_predict = `(Intercept)` + q1_gdp * gdp_growth_qt + 
+           trump_support * (avg_support + `avg_support:incumbentTRUE`) + 
+           incumbentTRUE + total_spend * trump_guess,
+         biden_predict = `(Intercept)` + q1_gdp * gdp_growth_qt + 
+           biden_support * avg_support +  total_spend * biden_guess) %>% 
+  select(state, trump_predict, biden_predict) %>% 
+  mutate(winner = ifelse(trump_predict > biden_predict, "Trump", "Biden"))
+
+```
+
+
 
