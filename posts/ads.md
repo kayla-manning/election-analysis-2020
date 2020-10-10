@@ -4,19 +4,7 @@
 
 ### Role of Advertising in Political Campaigns
 
-Political advertisements have powerful but short-lived effects.[^gerber] The time sensitivity of advertising effects makes advertisements closer to the election all the more important. With the 2020 election less than a month away, it may be worthwhile to examine the advertising patterns of the two major-party candidates. The current structure of the Electoral College places the outcome of the election in the hands of a handful of states. Due to the time-sensitive nature of the effects of advertising and the importance of these few states, this analysis will focus on the political advertising in the past month within battleground states.[^battleground]
-
-
-### Overview of Television Ads over the Years
-
-Political [spending](https://mediaproject.wesleyan.edu/dataaccess/) on TV advertising has steadily increased over the years, with the same pattern of Democrats outspending Republicans in the year preceding the election and Republicans outspending Democrats in election years:
-
-![Figure 1](../figures/ads/tv_avg_spend.jpg)
-
-
-- tone
-- sheer number
-- 2020 volume by state
+Political advertisements have powerful but short-lived effects,[^gerber] which means advertisements closer to election day likely have the greatest likelihood of impacting election outcomes. In addition to the time consideration, campaigns must also pay attention to geography since the Electoral College tends to place election outcomes in the hands of a few states. Due to the time considerations and the importance of these few states, this analysis will focus on the political advertising in battleground states[^battleground] over the past month.
 
 ### Social Media and Internet Advertising in Campaigns
 
@@ -42,7 +30,7 @@ Google's [Transparency Report](https://transparencyreport.google.com/political-a
 
 ![Figure 4](../figures/ads/ad_maps.jpg)
 
-The candidates appear to be devoting proportional amounts of attention to the respective states across the platforms, with Ohio, Nevada, and Georgia as the only states that really vary in partisan attention across platforms. Also, Donald Trump appears to be devoting much more attention than Biden to Google advertisements in Texas relative to other platforms. On the other hand, Biden appears to be devoting much more relative attention to TV ads in Florida than on other platforms. 
+The candidates appear to devote proportional amounts of attention to the respective states across the platforms, with Ohio, Nevada, and Georgia as the only states that really vary in partisan attention across platforms. Also, Donald Trump exceeded Biden's number of Google ads in Texas by a much greater margin than he did on other platforms in Texas. On the other hand, beat out Trump in Florida by a much greater margin in TV advertisements than in other mediums in the same state. 
 
 ### What does this mean?
 
