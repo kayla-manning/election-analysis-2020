@@ -160,7 +160,7 @@ person_spending %>%
   geom_col() +
   coord_flip() +
   theme_minimal() +
-  scale_fill_manual(values = c("gray", muted("red2"), "black")) +
+  scale_fill_manual(values = c("gray", "red3", "black")) +
   facet_wrap(~ party, scales = "free_y", nrow = 5, shrink = FALSE) +
   scale_y_continuous(labels = dollar_format(), limits = c(0, 110000000)) +
   geom_text(aes(label = paste0("$",spending)), hjust = -0.1, size = 3) +
@@ -219,7 +219,7 @@ state_totals %>%
   geom_col(position = "dodge") +
   coord_flip() +
   theme_minimal() +
-  scale_fill_manual(values = c(muted("red"), muted("blue"))) +
+  scale_fill_manual(values = c("red3", muted("blue"))) +
   labs(fill = "Candidate",
        x = "",
        y = "",
@@ -242,7 +242,7 @@ fb_map <- plot_usmap(regions = "states", data = biden_swing,
   scale_fill_gradient2(
     high = muted("blue"),
     mid = "white",
-    low = muted("red3"),
+    low = "red3",
     limits = c(-2000000, 2000000)
   ) +
   theme_void() +
@@ -268,7 +268,7 @@ tv_map <- plot_usmap(data = swing_tv, regions = "states", values = "biden_margin
   scale_fill_gradient2(
     high = muted("blue"),
     mid = "white",
-    low = muted("red3"),
+    low = "red3",
     limits = c(-20000, 20000)
   ) +
   theme_void() +
@@ -276,11 +276,6 @@ tv_map <- plot_usmap(data = swing_tv, regions = "states", values = "biden_margin
        fill = "Biden's Margin",
        caption = "Data from 9/5/2020-9/27/2020")
 
-ggarrange(fb_map + theme(legend.position = "none"), 
-          tv_map + theme(legend.position = "none"), ncol = 2) %>% 
-  annotate_figure(top = text_grob("Relative Advertising in Battleground States", size = 20))
-
-ggsave("../figures/ads/fb_tv_maps.jpg")
 
 ```
 
@@ -307,7 +302,7 @@ ads_2000s %>%
   geom_line() +
   scale_y_continuous(limits = c(0, 35000)) +
   theme_minimal() +
-  scale_color_manual(values = c(muted("blue"), muted("red3")),
+  scale_color_manual(values = c(muted("blue"), "red3"),
                      labels = c("Democrat", "Republican")) +
   scale_x_continuous(labels = c(2000, 2004, 2008, 2012),
                      breaks = c(2000, 2004, 2008, 2012)) +
@@ -376,7 +371,7 @@ google_spend_margin <- candidate_google_spend %>%
   pivot_wider(names_from = candidate, values_from = total_spend) %>% 
   mutate(biden_margin = Biden - Trump) %>% 
   plot_usmap(data = ., regions = "states", include = states, values = "biden_margin") +
-  scale_fill_gradient2(low = muted("red"),
+  scale_fill_gradient2(low = "red3",
                       mid = "white",
                       high = muted("blue")) +
   labs(fill = "Biden's Google Spending Margin",
@@ -477,7 +472,7 @@ state_predictions %>%
   summarise(trump_ev = sum(trump_ev),
             biden_ev = sum(biden_ev))
 plot_usmap(data = state_predictions %>% drop_na(winner), regions = "states", values = "winner") +
-  scale_fill_manual(values = c(muted("blue"), muted("red3")), breaks = c("Biden", "Trump")) +
+  scale_fill_manual(values = c(muted("blue"), "red3"), breaks = c("Biden", "Trump")) +
   theme_void() +
   labs(fill = "Winner") +
   labs(title = "Predicted 2020 Election Results",
