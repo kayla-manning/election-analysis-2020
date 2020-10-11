@@ -1,4 +1,4 @@
-# Internet Advertising
+# Internet Advertisements in the 2020 Campaign
 ## October 10, 2020
 
 
