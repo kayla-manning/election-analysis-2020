@@ -476,7 +476,7 @@ plot_usmap(data = state_predictions %>% drop_na(winner), regions = "states", val
   theme_void() +
   labs(fill = "Winner") +
   labs(title = "Predicted 2020 Election Results",
-       caption = "Using a multiple linear regression mapping two-party vote share 
+       caption = "This model uses a multiple linear regression to map two-party vote share 
        from Q1 GDP growth, poll numbers from 4 weeks out, incumbency status, 
        and the interaction between incumbency and poll numbers")
 
