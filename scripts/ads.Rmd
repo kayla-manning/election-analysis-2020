@@ -234,8 +234,8 @@ ggsave("../figures/ads/fb_spend_swing.jpg")
 biden_swing <- state_totals %>% 
   filter(page_name %in% c("Joe Biden", "Donald J. Trump")) %>% 
   pivot_wider(names_from = page_name, values_from = total_spend) %>% 
-  mutate(biden_margin = `Joe Biden` - `Donald J. Trump`) %>% 
-  drop_na()
+  replace(is.na(.), 0) %>% 
+  mutate(biden_margin = `Joe Biden` - `Donald J. Trump`)
 
 fb_map <- plot_usmap(regions = "states", data = biden_swing,
            values = "biden_margin", include = states) +
