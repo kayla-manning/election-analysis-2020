@@ -155,10 +155,48 @@ state_predictions %>%
             biden_ev = sum(biden_ev))
 plot_usmap(data = state_predictions %>% drop_na(winner), regions = "states", values = "winner",
            labels = TRUE) +
-  scale_fill_manual(values = c(muted("blue"), muted("red3")),
+  scale_fill_manual(values = c(muted("blue"), "red3"),
                     breaks = c("Biden", "Trump")) +
   theme_void() +
   labs(fill = "Winner")
+
+```
+```{r prob_model}
+
+# trying to construct a probabilistic binomial logit
+
+state_votes %>% 
+  filter(quarter == 1) %>%
+  mutate(d_pv = d / total) %>% 
+  group_by(state) %>% 
+  nest() %>% 
+  mutate(mod = map(data, ~glm(cbind(d, VEP - d) ~ gdp_growth_qt + avg_support * 
+                               incumbent, 
+                       data = ., family = binomial)),
+         tidy = map(mod, ~tidy(.))) %>% 
+  unnest(tidy) %>% 
+  mutate(q1_gdp = vote_econ %>% filter(year == 2020, quarter == 1) %>%
+           pull(gdp_growth_qt),
+         trump_support = trump_poll,
+         biden_support = biden_poll) %>% 
+  select(state, term, estimate, q1_gdp, trump_support, biden_support) %>% 
+  pivot_wider(names_from = term, values_from = estimate) %>% 
+  unnest(`(Intercept)`, gdp_growth_qt, avg_support, incumbentTRUE,
+         `avg_support:incumbentTRUE`) %>% 
+  mutate(trump_predict = `(Intercept)` + q1_gdp * gdp_growth_qt + 
+           trump_support * (avg_support + `avg_support:incumbentTRUE`) + 
+           incumbentTRUE,
+         biden_predict = `(Intercept)` + q1_gdp * gdp_growth_qt + 
+           biden_support * avg_support) %>% 
+  select(state, trump_predict, biden_predict) %>% 
+  mutate(winner = ifelse(trump_predict > biden_predict, "Trump", "Biden")) %>% 
+  inner_join(ev) %>% 
+  mutate(electoral_votes = as.numeric(electoral_votes),
+         trump_ev = case_when(winner == "Trump" ~ electoral_votes,
+                              winner == "Biden" ~ 0),
+         biden_ev = case_when(winner == "Trump" ~ 0,
+                              winner == "Biden" ~ electoral_votes)) %>% 
+  ungroup() 
 
 ```
 
