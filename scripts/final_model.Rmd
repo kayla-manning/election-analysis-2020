@@ -101,6 +101,7 @@ ev <- ev %>%
   clean_names() %>% 
   rename(state = us_state)
 
+# write_csv(ev, "../data/ev_2020.csv")
 
 state_votes <- read_csv("../data/popvote_bystate_1948-2016.csv") %>% 
   clean_names() %>% 

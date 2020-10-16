@@ -20,16 +20,24 @@ library(usmap)
 
 economy <- read_csv("../data/econ.csv") %>% 
   clean_names()
+ev <- read_csv("../data/ev_2020.csv")
 popvote <- read_csv("../data/popvote_1948-2016.csv")
 approval <- read_csv("../data/q3_approval.csv")
 all_polls <- read_csv("../data/pollavg_1968-2016.csv")
 popvote_state <- read_csv("../data/popvote_bystate_1948-2016.csv")
 demographic <- read_csv("../data/demographic_1990-2018.csv") %>% 
   clean_names()
+vep <- read_csv("../data/vep_1980-2016.csv")
 turnout <- read_csv("../data/turnout_1980-2016.csv") %>% 
   mutate(turnout_pct = str_remove(turnout_pct, "%"),
          turnout_pct = as.numeric(turnout_pct),
          turnout_pct = ifelse(turnout_pct < 1, turnout_pct * 100, turnout_pct))
+vote_econ <- popvote %>% 
+  full_join(economy, by = "year") %>% 
+  full_join(all_polls %>% 
+              filter(weeks_left == 4) %>% 
+              group_by(year, party) %>% 
+              summarise(avg_support = mean(avg_support)))
 
 # joining data with state popular votes
 
@@ -45,7 +53,7 @@ state_votes <- read_csv("../data/popvote_bystate_1948-2016.csv") %>%
               group_by(year, party) %>% 
               summarise(avg_support = mean(avg_support))) %>% 
   inner_join(vep, by = c("year", "state")) %>% 
-  full_join(vote_econ %>% select(year, party, incumbent, incumbent_party), by = c("year", "party")) %>% 
+  full_join(vote_econ %>% select(year, party, incumbent, incumbent_party), by = c("year", "party")) %>%
   mutate(state = state.abb[match(state, state.name)]) %>% 
   inner_join(demographic, by = c("year", "state"), suffix = c("_vote", "_demo")) %>% 
   inner_join(turnout %>% mutate(state = state.abb[match(state, state.name)])) %>% 
@@ -80,6 +88,422 @@ state_votes <- read_csv("../data/popvote_bystate_1948-2016.csv") %>%
 
 ```
 
+```{r primaries_turnout, message=FALSE}
+
+primaries <- read_csv("../data/primaries_2020.csv", skip = 1) %>% 
+  clean_names() %>% 
+  select(1:11) %>% 
+  rename(vep_turnout = vep_total_ballots_counted,
+         vep = voting_eligible_population_vep,
+         vap = voting_age_population_vap,
+         total_ballots = total_ballots_counted) %>% 
+  mutate(state = str_replace(state, " \\(.*\\)", ""),
+         state = case_when(state == "District of Columbia" ~ "DC",
+                           TRUE ~ state.abb[match(state, state.name)]),
+         vep_turnout = str_remove(vep_turnout, "%") %>% as.numeric()) %>% 
+  mutate_at(vars(vep, vap, democrat, republican, minor, total_ballots), ~ as.numeric(gsub(',', '', .)))  %>%
+  drop_na(state) %>% 
+  filter(election_type != "State Primary",
+         election_type != "Convention",
+         state != "State") %>% 
+  select(state, vep_turnout) %>% 
+  rename(primary_turnout_2020 = vep_turnout)
+
+# want to compare 2012 primary vs general turnout
+
+turnout_2012 <- read_csv("../data/general_turnout_2012.csv", skip = 1) %>% 
+  rename(state = X1) %>% 
+  clean_names() %>% 
+  select(state, vep_highest_office) %>% 
+  filter(state != "United States") %>% 
+  mutate(state = case_when(state == "District of Columbia" ~ "DC",
+                           TRUE ~ state.abb[match(state, state.name)]),
+         vep_highest_office = str_remove(vep_highest_office, "%") %>% as.numeric()) %>% 
+  rename(general_turnout = vep_highest_office)
+
+# calculating difference between primary and general turnout, will add
+# difference to 2020 primary turnout
+
+turnout_diff <- read_csv("../data/primary_turnout_2012.csv", skip = 1) %>% 
+  clean_names() %>% 
+  rename(state = state_territory,
+         turnout = vep_total_ballots_counted) %>% 
+  group_by(state) %>% 
+  select(state, turnout) %>% 
+  mutate(state = str_replace(state, " \\(.*\\)", ""),
+         state = case_when(state == "District of Columbia" ~ "DC",
+                           TRUE ~ state.abb[match(state, state.name)]),
+         turnout = str_remove(turnout, "%") %>% as.numeric()) %>% 
+  group_by(state) %>% 
+  summarise(primary_turnout = mean(turnout, na.rm = T)) %>% 
+  drop_na(state) %>% 
+  inner_join(turnout_2012, by = "state") %>% 
+  mutate(diff_turnout_2012 = general_turnout - primary_turnout) %>% 
+  select(state, diff_turnout_2012) %>% 
+  inner_join(primaries) %>% 
+  mutate(pred_2020_turnout = primary_turnout_2020 + 0.75 * diff_turnout_2012) %>% 
+  select(state, pred_2020_turnout)
+
+```
+```{r non_turnout_mod}
+
+# storing values that I will need to make the models
+
+states <- unique(state_votes$state)
+
+q1_gdp <- vote_econ %>% 
+  filter(year == 2020, quarter == 1) %>%
+  pull(gdp_growth_qt)
+trump_poll <- poll_2020_df %>% 
+  filter(weeks_left == 3,
+         party == "republican") %>% 
+  pull(avg_support) %>% 
+  mean()
+biden_poll <- poll_2020_df %>% 
+  filter(weeks_left == 3,
+         party == "democrat") %>% 
+  pull(avg_support) %>% 
+  mean()
+
+# want to find std. deviation for VEP so I can draw a random number from a
+# normal distribution with the 2016 value as the mean and the sd
+
+vep_std <- vep %>% 
+  filter(state != "United States") %>% 
+  group_by(state) %>% 
+  summarise(vep_sd = sd(VEP)) %>% 
+  mutate(state = state.abb[match(state, state.name)])
+
+# will write a function to build models and plot all states, so I am creating
+# this table to store all of the values
+
+mod_table <- tibble(state = rep(states, each = 1000), prob_dvote = 0, prob_rvote = 0,
+       sim_dvotes_2020 = 0, sim_rvotes_2020 = 0) %>% 
+  inner_join(vep %>% 
+               mutate(state = state.abb[match(state, state.name)]) %>% 
+               filter(year == 2016) %>% 
+               select(state, VEP), 
+             by = "state") %>% 
+  inner_join(ev %>% 
+               mutate(state = state.abb[match(state, state.name)]), by = "state") %>% 
+  inner_join(vep_std) %>% 
+  mutate(VEP = map2_dbl(VEP, vep_sd, ~ rnorm(1, .x, 1.25 * .y)))
+
+
+
+for (s in states) {
+  
+
+    # code for the Democrat model
+  
+    dem_mod <- state_votes %>%
+      filter(party == "democrat",
+             state == s,
+             quarter == 1) %>% 
+      mutate(d_pv = d / total_vote) %>% 
+      glm(cbind(d, VEP - d) ~ avg_support * incumbent + gdp_growth_qt,
+          data = ., family = "binomial")
+
+    mod_table[which(prob_table$state == s), 2] <- predict(
+      dem_mod, tibble(avg_support = biden_poll,
+                      incumbent = FALSE,
+                      gdp_growth_qt = q1_gdp),
+      type = "response")
+    
+    # code for the Republican model
+    
+    rep_mod <- state_votes %>%
+      filter(party == "republican",
+             state == s,
+             quarter == 1) %>% 
+      mutate(r_pv = r / total_vote) %>% 
+      glm(cbind(r, VEP - r) ~ avg_support * incumbent + gdp_growth_qt,
+          data = ., family = "binomial")
+    
+    mod_table[which(mod_table$state == s), 3] <- predict(
+      rep_mod, tibble(avg_support = trump_poll,
+                      incumbent = TRUE,
+                      gdp_growth_qt = q1_gdp),
+      type = "response")
+    
+
+    
+}
+
+# now going to run the simulations for each state, accounting for turnout
+
+mod_table <- mod_table %>% 
+  mutate(sim_dvotes_2020 = map2(VEP, prob_dvote, ~ rbinom(n = 1, 
+                                                       size =  round(.x), 
+                                                       prob = .y)),
+         sim_rvotes_2020 = map2(VEP, prob_rvote, ~ rbinom(n = 1, 
+                                                       size = round(.x), 
+                                                       prob = .y)),
+         sim_dvotes_2020 = as.numeric(sim_dvotes_2020),
+         sim_rvotes_2020 = as.numeric(sim_rvotes_2020))
+
+
+# counting predicted winner for each election, not accounting for turnout
+
+mod_table %>% 
+  mutate(biden_wins = ifelse(sim_dvotes_2020 > sim_rvotes_2020, 1, 0)) %>% 
+  group_by(state) %>% 
+  summarise(prob_biden = mean(biden_wins)) %>% 
+  plot_usmap(data = ., regions = "states", values = "prob_biden", labels = TRUE) +
+  scale_fill_continuous(high = muted("blue"), low = "red3") +
+  theme_void()
+
+# counting predicted Electoral College votes
+
+mod_table %>% 
+  mutate(biden_wins = ifelse(sim_dvotes_2020 > sim_rvotes_2020, 1, 0),
+         biden_ev = case_when(biden_wins == 1 ~ electoral_votes,
+                              TRUE ~ 0),
+         trump_ev = case_when(biden_wins == 0 ~ electoral_votes,
+                              TRUE ~ 0)) %>% 
+  group_by(state, biden_ev, trump_ev) %>% 
+  summarise(prob_biden = mean(biden_wins), .groups = "drop") %>% 
+  summarise(biden_ev = sum(biden_ev),
+            trump_ev = sum(trump_ev))
+
+# nationwide pv2p
+
+mod_table %>% 
+  group_by(state) %>% 
+  summarise(avg_dems = mean(sim_dvotes_2020),
+            avg_reps = mean(sim_rvotes_2020), .groups = "drop") %>% 
+  summarise(dems = sum(avg_dems),
+            reps = sum(avg_reps),
+            d_pv2p = dems / (reps + dems),
+            r_pv2p = reps / (dems + reps)) %>% 
+  select(d_pv2p, r_pv2p)
+
+```
+
+
+```{r prob_model, warning=FALSE, message=FALSE}
+
+# storing values that I will need to make the models
+
+states <- unique(state_votes$state)
+
+q1_gdp <- vote_econ %>% 
+  filter(year == 2020, quarter == 1) %>%
+  pull(gdp_growth_qt)
+trump_poll <- poll_2020_df %>% 
+  filter(weeks_left == 3,
+         party == "republican") %>% 
+  pull(avg_support) %>% 
+  mean()
+biden_poll <- poll_2020_df %>% 
+  filter(weeks_left == 3,
+         party == "democrat") %>% 
+  pull(avg_support) %>% 
+  mean()
+
+
+# will write a function to build models and plot all states, so I am creating
+# this table to store all of the values
+
+prob_table <- tibble(state = rep(states, each = 1000), prob_dvote = 0, prob_rvote = 0,
+       sim_dvotes_2020 = 0, sim_rvotes_2020 = 0) %>% 
+  inner_join(vep %>% 
+               mutate(state = state.abb[match(state, state.name)]) %>% 
+               filter(year == 2016) %>% 
+               select(state, VEP), 
+             by = "state") %>% 
+  inner_join(ev %>% 
+               mutate(state = state.abb[match(state, state.name)]), by = "state") %>% 
+  inner_join(turnout_diff, by = "state")
+
+
+
+for (s in states) {
+  
+  # creating a turnout variable for predictions
+  
+  turnout <- prob_table %>% 
+    filter(state == s) %>% 
+    group_by(state) %>% 
+    summarise(pred_2020_turnout = mean(pred_2020_turnout)) %>% 
+    pull(pred_2020_turnout)
+
+    # code for the Democrat model
+  
+    dem_mod <- state_votes %>%
+      filter(party == "democrat",
+             state == s,
+             quarter == 1) %>% 
+      mutate(d_pv = d / total_vote) %>% 
+      glm(cbind(d, VEP - d) ~ avg_support * incumbent + gdp_growth_qt + turnout_pct,
+          data = ., family = "binomial")
+
+    prob_table[which(prob_table$state == s), 2] <- predict(
+      dem_mod, tibble(avg_support = biden_poll,
+                      incumbent = FALSE,
+                      gdp_growth_qt = q1_gdp,
+                      turnout_pct = 66),
+      type = "response")
+    
+    # code for the Republican model
+    
+    rep_mod <- state_votes %>%
+      filter(party == "republican",
+             state == s,
+             quarter == 1) %>% 
+      mutate(r_pv = r / total_vote) %>% 
+      glm(cbind(r, VEP - r) ~ avg_support * incumbent + gdp_growth_qt + turnout_pct,
+          data = ., family = "binomial")
+    
+    prob_table[which(prob_table$state == s), 3] <- predict(
+      rep_mod, tibble(avg_support = trump_poll,
+                      incumbent = TRUE,
+                      gdp_growth_qt = q1_gdp,
+                      turnout_pct = 66),
+      type = "response")
+    
+
+    
+}
+
+# now going to run the simulations for each state, accounting for turnout
+
+prob_table <- prob_table %>% 
+  mutate(sim_dvotes_2020 = map2(VEP, prob_dvote, ~ rbinom(n = 1, 
+                                                       size =  round(.x), 
+                                                       prob = .y)),
+         sim_rvotes_2020 = map2(VEP, prob_rvote, ~ rbinom(n = 1, 
+                                                       size = round(.x), 
+                                                       prob = .y)),
+         sim_dvotes_2020 = as.numeric(sim_dvotes_2020),
+         sim_rvotes_2020 = as.numeric(sim_rvotes_2020))
+
+
+```
+
+```{r prob_findings}
+
+# counting predicted winner for each election, accounting for turnout
+
+prob_table %>% 
+  mutate(biden_wins = ifelse(sim_dvotes_2020 > sim_rvotes_2020, 1, 0)) %>% 
+  group_by(state) %>% 
+  summarise(prob_biden = mean(biden_wins)) %>% 
+  plot_usmap(data = ., regions = "states", values = "prob_biden") +
+  scale_fill_continuous(high = muted("blue"), low = "red3") +
+  theme_void()
+
+# counting predicted Electoral College votes
+
+prob_table %>% 
+  mutate(biden_wins = ifelse(sim_dvotes_2020 > sim_rvotes_2020, 1, 0),
+         biden_ev = case_when(biden_wins == 1 ~ electoral_votes,
+                              TRUE ~ 0),
+         trump_ev = case_when(biden_wins == 0 ~ electoral_votes,
+                              TRUE ~ 0)) %>% 
+  group_by(state, biden_ev, trump_ev) %>% 
+  summarise(prob_biden = mean(biden_wins), .groups = "drop") %>% 
+  summarise(biden_ev = sum(biden_ev),
+            trump_ev = sum(trump_ev))
+
+# nationwide pv2p
+
+prob_table %>% 
+  group_by(state) %>% 
+  summarise(avg_dems = mean(sim_dvotes_2020),
+            avg_reps = mean(sim_rvotes_2020), .groups = "drop") %>% 
+  summarise(dems = sum(avg_dems),
+            reps = sum(avg_reps),
+            d_pv2p = dems / (reps + dems),
+            r_pv2p = reps / (dems + reps)) %>% 
+  select(d_pv2p, r_pv2p)
+
+
+# tibble(biden_turnout = sim_dvotes_pa_2020,
+#        trump_turnout = sim_rvotes_pa_2020) %>% 
+#   ggplot() +
+#   geom_histogram(aes(biden_turnout), bins = 100, fill = muted("blue")) +
+#   geom_histogram(aes(trump_turnout), bins = 100, fill = "red") +
+#   theme_minimal()
+# 
+# # plotting Biden's margin of victory
+# 
+# tibble(biden_margin = sim_dvotes_pa_2020 - sim_rvotes_pa_2020) %>% 
+#   ggplot(aes(biden_margin)) +
+#   geom_histogram(bins = 100) +
+#   theme_minimal()
+
+```
+
+
+```{r turnout_plots}
+
+# visualizing turnout year-to-year with line graph
+
+turnout %>% 
+  filter(state == "United States") %>% 
+  inner_join(popvote) %>% 
+  mutate(dem_win = ifelse(party == "democrat" & winner, 1, 0),
+         dem_win = as.factor(dem_win)) %>%
+  group_by(year, dem_win, VEP) %>% 
+  summarise(avg_turnout = mean(turnout_pct), .groups = "drop") %>%
+  ggplot(aes(year, avg_turnout)) +
+  geom_point(aes(color = dem_win, size = VEP)) +
+  geom_line() +
+  scale_x_continuous(breaks = seq(1980, 2016, by = 4)) +
+  theme_minimal() +
+  labs(x = "",
+       y = "Turnout (%)",
+       color = "Winning Party",
+       title = "Nationwide Voter Turnout in 1980-2016 Elections",
+       size = "Voting-Eligible \nPopulation") +
+  scale_color_manual(values = c(muted("blue"), "red3"),
+                     breaks = c(0, 1),
+                     labels = c("Democrat", "Republican"))
+
+# heat map with average turnout for each state from 1980-2016
+
+turnout %>% 
+  group_by(state) %>% 
+  summarise(avg_turnout = mean(turnout_pct, na.rm = T)) %>% 
+  plot_usmap(regions = "states", values = "avg_turnout", data = .,
+             labels = T) +
+  scale_fill_continuous(low = "white", high = muted("red3")) +
+  theme_void() +
+  labs(title = "Voter Turnout in 1980-2016 Presidential Elections",
+       fill = "Average Voter \nTurnout (%)")
+
+```
+
+
+
+
+```{r 2020_vote_policies}
+
+# creating a tibble based on NYT data about voting policies for different states
+
+vote_policies <- tibble(state = c(state.abb, "DC"),
+       mail_ballot_all = case_when(state %in% c("CA", "DC", "NJ", "NV", "VT", "OR", "WA", 
+                                                "UT", "CO", "HI") ~ TRUE,
+                                   TRUE ~ FALSE),
+       covid_reason = case_when(state %in% c("AL", "AR", "CT", "KY", "NH", "WV") ~ TRUE,
+                                TRUE ~ FALSE),
+       dont_need_reason = case_when(state %in% c("DE", "MA", "MO") ~ TRUE,
+                                    TRUE ~ FALSE),
+       mail_app_all = case_when(state %in% c("CT", "DE", "IL", "IA", "MD", "MA", "NM", "WI", "OH") ~ TRUE,
+                                TRUE ~ FALSE),
+       apply_self = case_when(state %in% c("MT", "ID", "AK", "AZ", "WY", "ND", "SD", "NE", 
+                                           "KS", "OK", "AR","MO", "MN", "MI", "KY", "AL", "FL", 
+                                           "GA", "NC", "VA", "WV", "PA", "RI", "NH", "ME") ~ TRUE,
+                              TRUE ~ FALSE),
+       non_virus_reason = case_when(state %in% c("TX", "LA", "MS", "TN", "SC", "IN", "NY") ~ TRUE,
+                                    TRUE ~ FALSE))
+
+
+```
+
+
+
 ```{r state_demographic_mod}
 
 # want to eventually create a different model for each state
@@ -104,221 +528,11 @@ state_votes %>%
      reg = map(mod, ~ tidy(.))) %>% 
   unnest(reg) %>% 
   pivot_wider(names_from = term, values_from = estimate) %>% 
-  clean_names()
+  clean_names() 
 
-
-lm(pv2p_d ~ gdp_growth_qt + black * party + avg_support * incumbent, data = .) %>% 
-  summary()
-
-```
-
-
-```{r prob_model}
-
-# storing values that I will need to make the models
-
-states <- unique(state_votes$state)
-
-q1_gdp <- vote_econ %>% 
-  filter(year == 2020, quarter == 1) %>%
-  pull(gdp_growth_qt)
-trump_poll <- poll_2020_df %>% 
-  filter(weeks_left == 3,
-         party == "republican") %>% 
-  pull(avg_support) %>% 
-  mean()
-biden_poll <- poll_2020_df %>% 
-  filter(weeks_left == 3,
-         party == "democrat") %>% 
-  pull(avg_support) %>% 
-  mean()
-
-
-# will write a function to build models and plot all states, so I am creating
-# this table to store all of the values
-
-prob_table <- tibble(state = states, prob_dvote = 0, prob_rvote = 0,
-       sim_dvotes_2020 = 0, sim_rvotes_2020 = 0) %>% 
-  inner_join(vep %>% 
-               mutate(state = state.abb[match(state, state.name)]) %>% 
-               filter(year == 2016) %>% 
-               select(state, VEP), 
-             by = "state")
-
-
-
-for (s in states) {
-
-    # code for the Democrat model
-  
-    dem_mod <- state_votes %>%
-      filter(party == "democrat",
-             state == s,
-             quarter == 1) %>% 
-      mutate(d_pv = d / total_vote) %>% 
-      glm(cbind(d, VEP - d) ~ avg_support * incumbent + gdp_growth_qt + turnout_pct,
-          data = ., family = "binomial")
-
-    vep_2016 <- vep %>% 
-      filter(state == s,
-             year == 2016) %>% 
-      pull(VEP)
-    
-    prob_table[which(prob_table$state == s), 2] <- predict(
-      dem_mod, tibble(avg_support = biden_poll,
-                      incumbent = FALSE,
-                      gdp_growth_qt = q1_gdp,
-                      turnout = 66),
-      type = "response")
-    
-    # code for the Republican model
-    
-    rep_mod <- state_votes %>%
-      filter(party == "republican",
-             state == s,
-             quarter == 1) %>% 
-      mutate(d_pv = d / total_vote) %>% 
-      glm(cbind(d, VEP - d) ~ avg_support * incumbent + gdp_growth_qt + turnout_pct,
-          data = ., family = "binomial")
-
-    vep_2016 <- vep %>% 
-      filter(state == s,
-             year == 2016) %>% 
-      pull(VEP)
-    
-    prob_table[which(prob_table$state == s), 3] <- predict(
-      rep_mod, tibble(avg_support = trump_poll,
-                      incumbent = FALSE,
-                      gdp_growth_qt = q1_gdp,
-                      turnout = 66),
-      type = "response")
-    
-    prob_table[which(prob_table$state == s), 4] <- list(
-      rbinom(n = 1000, 
-             size =  prob_table[which(prob_table$state == s), 6], 
-             prob = prob_table[which(prob_table$state == s), 2]))
-    
-}
-
-# now going to run the simulations for each state
-x <- 10
-
-for (s in states) {
-  
-  prob_table <- prob_table %>% 
-                mutate(sim_dvotes_2020 = map2(prob_dvote, VEP, ~ rbinom(n = x, 
-                                                       size =  .y, 
-                                                       prob = .x)),
-         sim_rvotes_2020 = map2(prob_rvote, VEP, ~ rbinom(n = x, 
-                                                       size = .y, 
-                                                       prob = .x))) 
-rbinom(n = 1000, size = 3609447.0, prob = 0.2423070)
-  
-}
-
-prob_table <- prob_table %>% 
-  mutate(sim_dvotes_2020 = map2(prob_dvote, VEP, ~ rbinom(n = x, 
-                                                       size =  .y, 
-                                                       prob = .x)),
-         sim_rvotes_2020 = map2(prob_rvote, VEP, ~ rbinom(n = x, 
-                                                       size = .y, 
-                                                       prob = .x))) 
-rbinom(n = 1000, size = 3609447.0, prob = 0.2423070)
-
-# sim_dvotes_2020 <- rbinom(n = 10000, size = round(vep_2016), 
-#                              prob = prob_dvote)
-# # creating model for Democrats first
-# 
-# dem_mod <- state_votes %>% 
-#   filter(party == "democrat",
-#          state == "PA",
-#          quarter == 1) %>% 
-#   mutate(d_pv = d / total_vote) %>% 
-#   glm(cbind(d, VEP - d) ~ avg_support * incumbent + gdp_growth_qt,
-#       data = ., family = "binomial")
-# vep_pa_2016 <- vep %>% 
-#   filter(state == "Pennsylvania",
-#          year == 2016) %>% 
-#   pull(VEP)
-# 
-# prob_dvote_pa <- predict(dem_mod, tibble(avg_support = biden_poll, incumbent = FALSE,
-#                                      gdp_growth_qt = q1_gdp),
-#                          type = "response")
-# sim_dvotes_pa_2020 <- rbinom(n = 10000, size = round(vep_pa_2016), 
-#                              prob = prob_dvote_pa)
-# 
-# # repeating the same process for Republicans
-# 
-# rep_mod <- state_votes %>% 
-#   filter(party == "republican",
-#          state == "PA",
-#          quarter == 1) %>% 
-#   mutate(r_pv = r / total_vote) %>% 
-#   glm(cbind(r, VEP - r) ~ avg_support * incumbent + gdp_growth_qt,
-#       data = ., family = "binomial")
-# vep_pa_2016 <- vep %>% 
-#   filter(state == "Pennsylvania",
-#          year == 2016) %>% 
-#   pull(VEP)
-# 
-# prob_rvote_pa <- predict(dem_mod, tibble(avg_support = trump_poll, incumbent = FALSE,
-#                                      gdp_growth_qt = q1_gdp),
-#                          type = "response")
-# sim_rvotes_pa_2020 <- rbinom(n = 10000, size = round(vep_pa_2016), 
-#                              prob = prob_rvote_pa)
-# 
-# # comparing the two distributions
-# 
-# tibble(biden_turnout = sim_dvotes_pa_2020,
-#        trump_turnout = sim_rvotes_pa_2020) %>% 
-#   ggplot() +
-#   geom_histogram(aes(biden_turnout), bins = 100, fill = muted("blue")) +
-#   geom_histogram(aes(trump_turnout), bins = 100, fill = "red") +
-#   theme_minimal()
-# 
-# # plotting Biden's margin of victory
-# 
-# tibble(biden_margin = sim_dvotes_pa_2020 - sim_rvotes_pa_2020) %>% 
-#   ggplot(aes(biden_margin)) +
-#   geom_histogram(bins = 100) +
-#   theme_minimal()
+%>% 
+  lm(pv2p_d ~ gdp_growth_qt + black * party + avg_support * incumbent, data = .) %>% 
+    summary()
 
 ```
-
-
-```{r turnout}
-
-turnout %>% 
-  filter(state == "United States") %>% 
-  inner_join(popvote) %>% 
-  mutate(dem_win = ifelse(party == "democrat" & winner, "Democrat", "Republican"),
-         dem_win = as.factor(dem_win)) %>%
-  group_by(year, dem_win, VEP) %>% 
-  summarise(avg_turnout = mean(turnout_pct), .groups = "drop") %>%
-  ggplot(aes(year, avg_turnout)) +
-  geom_point(aes(color = dem_win, size = VEP)) +
-  geom_line() +
-  scale_x_continuous(breaks = seq(1980, 2016, by = 4)) +
-  theme_minimal() +
-  labs(x = "",
-       y = "Turnout (%)",
-       color = "Winning Party",
-       title = "Nationwide Voter Turnout in 1980-2016 Elections",
-       size = "Voting-Eligible \nPopulation") +
-  scale_color_manual(values = c(muted("blue"), "red3"),
-                     breaks = c("Democrat", "Republican"))
-
-turnout %>% 
-  group_by(state) %>% 
-  summarise(avg_turnout = mean(turnout_pct, na.rm = T)) %>% 
-  plot_usmap(regions = "states", values = "avg_turnout", data = .,
-             labels = T) +
-  scale_fill_continuous(low = "white", high = muted("red3")) +
-  theme_void() +
-  labs(title = "Voter Turnout in 1980-2016 Presidential Elections",
-       fill = "Average Voter \nTurnout (%)")
-
-```
-
-
 
