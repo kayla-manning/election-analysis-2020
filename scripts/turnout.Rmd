@@ -412,17 +412,18 @@ nat_prob_table <- nat_prob_table %>%
 
 nat_prob_table %>% 
   select(sim_dem, sim_rep) %>% 
-  pivot_longer(cols = everything(), names_to = "party", values_to = "simulation") %>% 
-  ggplot(aes(simulation, fill = party)) +
-  geom_histogram(bins = 1000) +
-  theme_minimal() +
-  scale_fill_manual(breaks = c("sim_dem", "sim_rep"),
-                    labels = c("Biden", "Trump"),
-                    values = c(muted("blue"), "red3")) +
-  labs(x = "Simulated Vote Counts",
+  mutate(d_pv2p = sim_dem / (sim_dem + sim_rep),
+         r_pv2p = sim_rep / (sim_dem + sim_rep),
+         d_pct_win = d_pv2p - r_pv2p,
+         d_win = ifelse(d_pct_win > 0, TRUE, FALSE)) %>% 
+  select(d_pct_win, d_win) %>% 
+  ggplot(aes(d_pct_win)) +
+  geom_histogram(bins = 1000, fill = muted("blue")) +
+  theme_minimal()  +
+  labs(x = "Simulated Win Margin Counts",
        y = "Number of Occurrences",
        fill = "Candidate",
-       title = "Simulated Nationwide Election Results",
+       title = "Biden's Simulated Nationwide Win Margin",
        caption = "Predicted using polling 3 weeks out, Q2 GDP, incumbency, 
        and the interaction between incumbency and polls")
 

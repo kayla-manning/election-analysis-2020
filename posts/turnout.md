@@ -5,13 +5,13 @@
 
 ### Turnout in 2020
 
-A healthy democracy must have reasonable voter turnout. Many marginalized groups have fought for the right to vote, only for people to take that right for granted a generation later. In recent years, voter turnout has generally increased, with slightly greater turnout when neither party has an incumbent candidate:
+Voter turnout serves key ingredient in a healthy, well-functioning democracy. In recent years, voter turnout has generally increased, with slightly greater turnout when neither party has an incumbent candidate:
 
 ![Figure 1](../figures/turnout/turnout_years.jpg)
 
 How will the 2020 election fit into this picture? In 2019, before the birth of COVID-19, experts predicted [historic](https://www.usnews.com/news/elections/articles/2019-09-20/experts-predict-huge-turnout-in-2020) turnout of approximately 66%[^vep] for the 2020 election. A movement in either direction seems sensible for 2020: either the pandemic (a) stifles turnout on Election Day due to confusion over voting by mail and questions about the safety of in-person voting, or (b) empowers people to vote for the candidate they believe can provide strong leadership in these turbulent times. 
 
-It turns out that experts still a [record-high turnout](https://www.theatlantic.com/politics/archive/2020/10/2020-election-turnout/616640/) in the 2020 election, with the predicted surge strengthened by the pandemic. Similar to the prediction in 2019, estimates still sit at approximately [65%](https://thehill.com/homenews/campaign/520313-experts-predict-record-election-turnout-as-more-than-66-million-ballots).
+It turns out that experts still expect a [record-high turnout](https://www.theatlantic.com/politics/archive/2020/10/2020-election-turnout/616640/) in the 2020 election, with the predicted surge strengthened by the pandemic. Similar to the prediction in 2019, estimates still sit at approximately [65%](https://thehill.com/homenews/campaign/520313-experts-predict-record-election-turnout-as-more-than-66-million-ballots).
 
 With zero previous elections with circumstances resembling 2020, this year's primaries are the best source of information about how voters will behave in the midst of a global pandemic. Turnout in primaries generally pales in comparison to general election turnout, with numbers sitting around 3%-46% and 60% respectively, and this disparity is generally amplified in years with an incumbent candidate. However, the 2020 primary drew far more[ attention](https://www.nytimes.com/2020/07/21/us/politics/biden-2020.html) than expected. While most of the showing came from the Democratic side since that was the only competitive primary (and even that was short lived), this larger-than-expected turnout could be a positive sign that COVID-19 will not drastically decrease, and may even increase, turnout come November.
 
@@ -20,8 +20,6 @@ With zero previous elections with circumstances resembling 2020, this year's pri
 Different states have different [regulations](https://www.nytimes.com/interactive/2020/08/11/us/politics/vote-by-mail-us-states.html) regarding voting by mail. In the presidential primaries, states that encouraged people to vote by mail experienced impressive [success](https://fivethirtyeight.com/features/there-have-been-38-statewide-elections-during-the-pandemic-heres-how-they-went/). Naturally, states that mailed every voter an absentee ballot saw the greatest share of votes cast absentee, and states that did not mail anything and required a non-COVID excuse to vote absentee had the lowest share of absentee voting.
 
 Many Republicans [believe](https://www.nytimes.com/2020/05/25/us/vote-by-mail-coronavirus.html) that widespread absentee voting will benefit Democrats, so people may attempt to manipulate voting by mail measures to stifle the vote of certain subsets of the electorate. Fortunately, most states requiring non-COVID-19 excuses for absentee voting reliably vote Republican, most states mailing ballots to all voters reliably vote Democratic, and most swing states allow absentee voting for all but do not nudge in one way or another. While the concern about attempts to manipulate voter turnout are certainly valid, it appears that policies enacted by states will only serve to reinforce existing voting tendencies.
-
-While voting by mail removed some barriers to voting, states that do not have such policies 
 
 #### How [FiveThirtyEight's Forecast](https://fivethirtyeight.com/features/how-fivethirtyeights-2020-presidential-forecast-works-and-whats-different-because-of-covid-19/) Deals with Unpredictability
 
@@ -64,14 +62,14 @@ Using this method, my forecast yielded a prediction of 321 electoral votes for B
 
 On top of a state-by-state model, I constructed a binomial logit model for the nationwide popular vote following a similar binomial logit procedure. For the nationwide model, I predicted vote counts for each party using polling numbers, incumbency status, the interaction between polling and incumbency, and Q1 GD growth. I simulated fluctuations in turnout by drawing from a normal distributions of possibilities for national VEP, and I ran 100,000 simulations.
 
-A national model predicts that Biden will receive approximately **50.8%** two-party popular vote, with Trump receiving **49.2%**.	In the below histogram, only approximately 24% of Trump's vote counts are greater than Biden's.
+A national model predicts that Biden will receive approximately **50.8%** two-party popular vote, with Trump receiving **49.2%**.	The model estimates that Biden will win the national popular vote by 1-2% points depending on the turnout, as displayed by the below histogram:
 
 ![nation-sim](../figures/turnout/nation_sim.jpg)
 
 
 ### Looking Ahead
 
-- uncertain impact on turnout due to the shock of COVID-19... turnout is only one of the factors impacted by the pandemic. Retrospective voting raises the question of how voters may punish/reward the incumbent for the handling not only of COVID-19, but also of wildfires, hurricanes, racial injustice protests, and more. moving forward to examine shocks next week
+In forecasting the 2020 election, experts must grapple with uncertainty regarding COVID-19's impact on turnout. Retrospective voting raises the question of how voters may punish or reward the incumbent candidate for the handling not only of COVID-19, but also of wildfires, hurricanes, racial injustice protests, and more. Next week's post will examine the historical impact of shocks and unexpected events on presidential elections.
 
 
 
