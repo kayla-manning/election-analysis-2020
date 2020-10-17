@@ -15,5 +15,5 @@ More often than not, incumbent presidents win their re-election bids. Incumbent 
 # [5. Advertising](posts/ads.md)
 This analysis examines political advertising on various media platforms and takes a look the relative advertising strategies of candidates in battleground states.
 
-# [6. Voter Turnout]()
+# [6. Voter Turnout](posts/turnout.md)
 How do experts anticipate COVID-19 affecting voter turnout? This post considers possible effects of COVID-19 on turnout, explores how different forecasters account for the resulting variability, and looks at models that simulate fluctuations in turnout.
