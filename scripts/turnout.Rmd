@@ -40,8 +40,7 @@ vep <- read_csv("../data/vep_1980-2016.csv")
 turnout <- read_csv("../data/turnout_1980-2016.csv") %>% 
   mutate(turnout_pct = str_remove(turnout_pct, "%"),
          turnout_pct = as.numeric(turnout_pct),
-         turnout_pct = ifelse(turnout_pct < 1, turnout_pct * 100, turnout_pct)) %>% 
-               mutate(state = state.abb[match(state, state.name)])
+         turnout_pct = ifelse(turnout_pct < 1, turnout_pct * 100, turnout_pct))
 vote_econ <- popvote %>% 
   full_join(economy, by = "year") %>% 
   full_join(all_polls %>% 
@@ -92,7 +91,8 @@ state_votes <- read_csv("../data/popvote_bystate_1948-2016.csv") %>%
   full_join(vote_econ %>% select(year, party, incumbent, incumbent_party), by = c("year", "party")) %>%
   mutate(state = state.abb[match(state, state.name)]) %>% 
   inner_join(demographic, by = c("year", "state"), suffix = c("_vote", "_demo")) %>% 
-  inner_join(turnout) %>% 
+  inner_join(turnout  %>% 
+               mutate(state = state.abb[match(state, state.name)])) %>% 
   mutate(turnout_pct = as.numeric(turnout_pct)) %>% 
   mutate(winner = case_when(d > r ~ "dem",
                             TRUE ~ "rep")) %>% 
@@ -478,7 +478,7 @@ turnout %>%
        title = "Nationwide Voter Turnout in 1980-2016 Elections",
        size = "Voting-Eligible \nPopulation") +
   scale_color_manual(values = c(muted("blue"), "red3"),
-                     breaks = c(0, 1),
+                     breaks = c(1, 0),
                      labels = c("Democrat", "Republican"))
 
 ggsave("../figures/turnout/turnout_years.jpg")
