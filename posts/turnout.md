@@ -5,7 +5,7 @@
 
 ### Turnout in 2020
 
-Voter turnout serves key ingredient in a healthy, well-functioning democracy. In recent years, voter turnout has generally increased, with slightly greater turnout when neither party has an incumbent candidate:
+Voter turnout serves as a key ingredient in a healthy, well-functioning democracy. In recent years, voter turnout has generally increased, with slightly greater turnout when neither party has an incumbent candidate:
 
 ![Figure 1](../figures/turnout/turnout_years.jpg)
 
