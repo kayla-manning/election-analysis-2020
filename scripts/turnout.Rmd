@@ -388,7 +388,7 @@ dem_national_mod <- state_votes %>%
 rep_national_mod <- state_votes %>%
       filter(party == "republican",
              quarter == 1) %>% 
-      mutate(d_pv = d / total_vote) %>% 
+      mutate(r_pv = r / total_vote) %>% 
       glm(cbind(r, VEP - r) ~ avg_support * incumbent + gdp_growth_qt,
           data = ., family = "binomial")
 
@@ -442,7 +442,7 @@ nat_prob_table %>%
                                TRUE ~ 0)) %>% 
   summarise(trump_wins = sum(trump_win)) 
 
-# Trump wins just under 1% of the simulations
+# Trump only ~24% of Trump's simulated votes are greater than Biden's votes
 
 sim_rep <- sort(nat_prob_table$sim_rep, decreasing = TRUE)
 sim_dem <- sort(nat_prob_table$sim_dem)
@@ -450,8 +450,7 @@ sim_dem <- sort(nat_prob_table$sim_dem)
 tibble(sim_rep = sim_rep,
        sim_dem = sim_dem) %>% 
   mutate(trump_win = sim_rep > sim_dem) %>% 
-  summarise(trump_win = mean(trump_win),
-            trump_wins = sum(trump_win))
+  summarise(trump_win = mean(trump_win))
 
 ```
 

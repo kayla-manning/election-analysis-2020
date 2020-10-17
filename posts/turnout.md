@@ -64,11 +64,9 @@ Using this method, my forecast yielded a prediction of 321 electoral votes for B
 
 On top of a state-by-state model, I constructed a binomial logit model for the nationwide popular vote following a similar binomial logit procedure. For the nationwide model, I predicted vote counts for each party using polling numbers, incumbency status, the interaction between polling and incumbency, and Q1 GD growth. I simulated fluctuations in turnout by drawing from a normal distributions of possibilities for national VEP, and I ran 100,000 simulations.
 
-A national model predicts that Biden will receive approximately **52.8%** two-party popular vote, with Trump receiving **47.2%**.	
-- simulate fluctuations in turnout
-![nation-sim](../figures/turnout/nation_sim.jpg)
+A national model predicts that Biden will receive approximately **50.8%** two-party popular vote, with Trump receiving **49.2%**.	In the below histogram, only approximately 24% of Trump's vote counts are greater than Biden's.
 
-avg_support * incumbent + gdp_growth_qt
+![nation-sim](../figures/turnout/nation_sim.jpg)
 
 
 ### Looking Ahead
