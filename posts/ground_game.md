@@ -50,14 +50,19 @@ While polling biases certainly pose problems, FiveThirtyEight's detailed handlin
 
 #### State-by-State Model
 
-avg_support * incumbent + gdp_growth_qt + black_change +
-            hispanic_change + age20_change + consec_dem + consec_rep
+To simulate calculate counts for the Electoral College, I constructed a binomial logit model for each state, estimating the vote counts for each party in each state using polling support,[^polls] Q1 GDP growth, change in the Black population in the past year, change in the Hispanic population in the past year, change in the population in their 20s in the past year, the number of consecutive years that the state has voted either Democrat or Republican, and the percent margin of the Democratic vote in the previous election.
+
+For each state, I simulated variations in turnout by drawing a random number from a normal distribution centered at the 2016 voting-eligible population (VEP) for that state with a standard deviation of 1.25 times the standard deviation in that state's VEP from 1980-2016. I multiplied the standard deviation since it is reasonable to expect more variation in turnout this year relative to previous years due to COVID-19. I simulated 1000 different elections for each state, with a different VEP number for each.
+
+Using this method, my forecast yielded a prediction of 321 electoral votes for Biden and 214 for Trump, with Biden winning approximately 50.7% of the popular vote.
 
 ![pred-table](../figures/turnout/pred_table.png)
 
 ![state-winners](../figures/turnout/state_winners.jpg)
 
 #### National Model
+
+On top of a state-by-state model, I constructed a binomial logit model for the nationwide popular vote following a similar binomial logit procedure. For the nationwide model, I predicted vote counts for each party using polling numbers, incumbency status, the interaction between polling and incumbency, and Q1 GD growth. I simulated fluctuations in turnout by drawing from a normal distributions of possibilities for national VEP, and I ran 100,000 simulations.
 
 A national model predicts that Biden will receive approximately **52.8%** two-party popular vote, with Trump receiving **47.2%**.	
 - simulate fluctuations in turnout
@@ -74,5 +79,5 @@ avg_support * incumbent + gdp_growth_qt
 
 [^vep]: Turnout percentages reported throughout this post refer to the percentage of the voting-eligible population (VEP) that casts ballots.
 
-
+[^polls]: All polling numbers used in this week come from FiveThirtyEight's updating poll average from 3 weeks out from the election.
 

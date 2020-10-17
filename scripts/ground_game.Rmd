@@ -51,6 +51,32 @@ vote_econ <- popvote %>%
 
 # joining data with state popular votes
 
+my_state_votes <- state_votes %>% 
+  mutate(winner = case_when(d > r ~ "dem",
+                                         TRUE ~ "rep"),
+         dem_margin = (d - r) / (d + r)) %>% 
+               select(state, year, winner, dem_margin) %>% 
+               distinct() %>% 
+               group_by(state) %>% 
+               mutate(prev_winner = lag(winner) %>% as.character(),
+                      prev_dem = case_when(prev_winner == "dem" ~ "yes",
+                              prev_winner == "rep" ~ "no",
+                              prev_winner == "none" ~ "none"),
+                      prev_rep = case_when(prev_winner == "rep" ~ "yes",
+                                           prev_winner == "dem" ~ "no",
+                                           prev_winner == "none" ~ "none"),
+                      consec_dem = case_when(prev_dem == "yes" ~
+                        ave(prev_dem, rleid(prev_dem, state), FUN = seq_along),
+                        is.na(prev_dem) ~ "0",
+                        TRUE ~ "0"),
+                      consec_rep = case_when(prev_dem == "no" ~
+                                               ave(prev_rep, rleid(prev_rep, state), 
+                                                   FUN = seq_along),
+                                             is.na(prev_dem) ~ "0",
+                                             TRUE ~ "0"),
+                      prev_dem_margin = lag(dem_margin)) %>% 
+  mutate(consec_dem = as.numeric(consec_dem))
+
 state_votes <- read_csv("../data/popvote_bystate_1948-2016.csv") %>% 
   clean_names() %>% 
   pivot_longer(cols = 6:7, names_to = "party") %>% 
@@ -70,22 +96,10 @@ state_votes <- read_csv("../data/popvote_bystate_1948-2016.csv") %>%
   mutate(turnout_pct = as.numeric(turnout_pct)) %>% 
   mutate(winner = case_when(d > r ~ "dem",
                             TRUE ~ "rep")) %>% 
-  inner_join(state_votes %>% 
-               select(state, year, winner) %>% 
-               distinct() %>% 
-               group_by(state) %>% 
-               mutate(prev_winner = lag(winner) %>% as.character(),
-                      prev_dem = case_when(prev_winner == "dem" ~ "yes",
-                              prev_winner == "rep" ~ "no",
-                              prev_winner == "none" ~ "none"),
-                      prev_rep = case_when(prev_winner == "rep" ~ "yes",
-                                           prev_winner == "dem" ~ "no",
-                                           prev_winner == "none" ~ "none"),
-                      consec_dem = ave(prev_dem, rleid(prev_dem, state), FUN = seq_along),
-                      consec_rep = ave(prev_rep, rleid(prev_rep, state), FUN = seq_along))) %>% 
-  mutate(prev_winner = replace_na(prev_winner, "none"))
-
-transform(dataset, Counter = ave(YesNO, rleid(ID, YesNO), FUN = seq_along))
+  inner_join(my_state_votes) %>% 
+  mutate(prev_winner = replace_na(prev_winner, "none")) %>% 
+  mutate(consec_dem = as.numeric(consec_dem),
+         consec_rep = as.numeric(consec_rep))
 
 # updating poll data
 
@@ -121,7 +135,7 @@ transform(dataset, Counter = ave(YesNO, rleid(ID, YesNO), FUN = seq_along))
 states <- unique(state_votes$state)
 
 q1_gdp <- vote_econ %>% 
-  filter(year == 2020, quarter == 1) %>%
+  filter(year == 2020, quarter == 2) %>%
   pull(gdp_growth_qt)
 trump_poll <- poll_2020_df %>% 
   filter(weeks_left == 3,
@@ -169,20 +183,27 @@ for (s in states) {
     consec_d <- state_votes %>% 
       filter(state == s, year == 2016) %>%
       slice(1) %>% 
-      pull(consec_dem) 
+      pull(consec_dem) %>% 
+      as.numeric()
     
     consec_r <- state_votes %>% 
       filter(state == s, year == 2016) %>% 
       slice(1) %>% 
-      pull(consec_rep)
+      pull(consec_rep) %>% 
+      as.numeric()
+    
+    prev_margin <- state_votes %>% 
+      filter(state == s, year == 2016) %>% 
+      slice(1) %>% 
+      pull(dem_margin)
   
     dem_mod <- state_votes %>%
       filter(party == "democrat",
              state == s,
-             quarter == 1) %>% 
+             quarter == 2) %>% 
       mutate(d_pv = d / total_vote) %>% 
       glm(cbind(d, VEP - d) ~ avg_support * incumbent + gdp_growth_qt + black_change +
-            hispanic_change + age20_change + consec_dem + consec_rep,
+            hispanic_change + age20_change + consec_dem + prev_dem_margin,
           data = ., family = "binomial")
 
     prob_table[which(prob_table$state == s), 2] <- predict(
@@ -205,7 +226,8 @@ for (s in states) {
                         filter(state == s, year == 2016) %>% 
                         pull(female_change) %>% mean(),
                       consec_dem = consec_d,
-                      consec_rep = consec_r),
+                      consec_rep = consec_r,
+                      prev_dem_margin = prev_margin),
       type = "response")
     
     # code for the Republican model
@@ -213,10 +235,10 @@ for (s in states) {
     rep_mod <- state_votes %>%
       filter(party == "republican",
              state == s,
-             quarter == 1) %>% 
+             quarter == 2) %>% 
       mutate(r_pv = r / total_vote) %>% 
       glm(cbind(r, VEP - r) ~ avg_support * incumbent + gdp_growth_qt + black_change +
-            hispanic_change + age20_change + consec_dem + consec_rep,
+            hispanic_change + age20_change + consec_rep + prev_dem_margin,
           data = ., family = "binomial")
     
     prob_table[which(prob_table$state == s), 3] <- predict(
@@ -239,7 +261,8 @@ for (s in states) {
                         filter(state == s, year == 2016) %>% 
                         pull(female_change) %>% mean(),
                       consec_dem = consec_d,
-                      consec_rep = consec_r),
+                      consec_rep = consec_r,
+                      prev_dem_margin = prev_margin),
       type = "response")
     
 
@@ -286,8 +309,10 @@ ggsave("../figures/turnout/state_winners.jpg")
 pred_ec <- prob_table %>% 
   mutate(biden_wins = ifelse(sim_dvotes_2020 > sim_rvotes_2020, 1, 0),
          biden_ev = case_when(biden_wins == 1 ~ electoral_votes,
+                              state == "NY" ~ electoral_votes,
                               TRUE ~ 0),
          trump_ev = case_when(biden_wins == 0 ~ electoral_votes,
+                              state == "NY" ~ 0,
                               TRUE ~ 0)) %>% 
   group_by(state, biden_ev, trump_ev) %>% 
   summarise(prob_biden = mean(biden_wins), .groups = "drop") %>% 
@@ -347,13 +372,13 @@ nat_prob_table <- tibble(vep = rep(vep_national, 100000),
                          prob_rep = 0, 
                          sim_dem = 0, 
                          sim_rep = 0) %>% 
-  mutate(vep = map_dbl(vep, ~ rnorm(1, mean = ., sd = vep_sd)))
+  mutate(vep = map_dbl(vep, ~ rnorm(1, mean = ., sd = vep_sd * 1.25)))
 
 # democrat first
 
 dem_national_mod <- state_votes %>%
       filter(party == "democrat",
-             quarter == 2) %>% 
+             quarter == 1) %>% 
       mutate(d_pv = d / total_vote) %>% 
       glm(cbind(d, VEP - d) ~ avg_support * incumbent + gdp_growth_qt,
           data = ., family = "binomial")
@@ -362,18 +387,18 @@ dem_national_mod <- state_votes %>%
 
 rep_national_mod <- state_votes %>%
       filter(party == "republican",
-             quarter == 2) %>% 
+             quarter == 1) %>% 
       mutate(d_pv = d / total_vote) %>% 
-      glm(cbind(d, VEP - d) ~ avg_support * incumbent + gdp_growth_qt,
+      glm(cbind(r, VEP - r) ~ avg_support * incumbent + gdp_growth_qt,
           data = ., family = "binomial")
 
 # adding probabilities and simulations to the table
 
 nat_prob_table <- nat_prob_table %>% 
   mutate(prob_dem = rep(predict(dem_national_mod, tibble(avg_support = trump_poll,
-                      incumbent = TRUE,
+                      incumbent = FALSE,
                       gdp_growth_qt = q1_gdp,
-                      prev_admin = TRUE),
+                      prev_admin = FALSE),
                       type = "response"), nrow(nat_prob_table)),
          prob_rep = rep(predict(rep_national_mod, tibble(avg_support = trump_poll,
                       incumbent = TRUE,
@@ -391,7 +416,8 @@ nat_prob_table %>%
   ggplot(aes(simulation, fill = party)) +
   geom_histogram(bins = 1000) +
   theme_minimal() +
-  scale_fill_manual(labels = c("Biden", "Trump"),
+  scale_fill_manual(breaks = c("sim_dem", "sim_rep"),
+                    labels = c("Biden", "Trump"),
                     values = c(muted("blue"), "red3")) +
   labs(x = "Simulated Vote Counts",
        y = "Number of Occurrences",
@@ -400,13 +426,32 @@ nat_prob_table %>%
        caption = "Predicted using polling 3 weeks out, Q2 GDP, incumbency, 
        and the interaction between incumbency and polls")
 
-ggsave("../figures/turnout/nation_sim")
+ggsave("../figures/turnout/nation_sim.jpg")
 
 # predicts nationwide popular vote of 57.4% for Biden and 42.6% for Trummp
 
 nat_prob_table %>% 
   summarize(d_pv2p = sum(sim_dem) / (sum(sim_dem) + sum(sim_rep)),
             r_pv2p = 1 - d_pv2p)
+
+# estimating percent confidence that Biden will win the popular vote
+
+nat_prob_table %>% 
+  mutate(biden_margin = sim_dem - sim_rep,
+         trump_win = case_when(biden_margin < 0 ~ 1,
+                               TRUE ~ 0)) %>% 
+  summarise(trump_wins = sum(trump_win)) 
+
+# Trump wins just under 1% of the simulations
+
+sim_rep <- sort(nat_prob_table$sim_rep, decreasing = TRUE)
+sim_dem <- sort(nat_prob_table$sim_dem)
+
+tibble(sim_rep = sim_rep,
+       sim_dem = sim_dem) %>% 
+  mutate(trump_win = sim_rep > sim_dem) %>% 
+  summarise(trump_win = mean(trump_win),
+            trump_wins = sum(trump_win))
 
 ```
 
