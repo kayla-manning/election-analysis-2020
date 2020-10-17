@@ -48,10 +48,22 @@ While polling biases certainly pose problems, FiveThirtyEight's detailed handlin
 
 ### Modeling Election Outcomes with Variability in Turnout
 
+#### State-by-State Model
+
+avg_support * incumbent + gdp_growth_qt + black_change +
+            hispanic_change + age20_change + consec_dem + consec_rep
+
+![pred-table](../figures/turnout/pred_table.jpeg)
+
+![state-winners](../figures/turnout/state_winners.jpg)
+
+#### National Model
+
+A national model predicts that Biden will receive approximately **52.8%** two-party popular vote, with Trump receiving **47.2%**.	
 
 ![nation-sim](../figures/turnout/nation_sim.jpg)
 
-![pred-table](../figures/turnout/pred_table.jpeg)
+avg_support * incumbent + gdp_growth_qt
 
 
 ### Looking Ahead
