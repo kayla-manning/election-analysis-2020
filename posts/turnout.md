@@ -36,7 +36,10 @@ To simulate vote counts for the Electoral College, I constructed a binomial logi
 
 This model yielded a prediction of 321 electoral votes for Biden and 214 for Trump, with Biden winning approximately 50.7% of the popular vote. This model does exclude Washington D.C. and its 3 electoral votes since it was missing statewide data. Since D.C. reliably votes Democratic, I can comfortably build upon this prior prediction to estimate that Biden will receive **324** electoral votes and Trump will receive **214**.
 
-![pred-table](../figures/turnout/pred_table.png)
+| Candidate | Electoral Votes | Two-Party Popular Vote |
+|-----------|-----------------|------------------------|
+| Biden     | 324             | 0.507                  |
+| Trump     | 214             | 0.493                  |
 
 ![state-winners](../figures/turnout/state_winners.jpg)
 
