@@ -476,7 +476,8 @@ turnout %>%
        y = "Turnout (%)",
        color = "Winning Party",
        title = "Nationwide Voter Turnout in 1980-2016 Elections",
-       size = "Voting-Eligible \nPopulation") +
+       size = "Voting-Eligible \nPopulation",
+       caption = "Data from United States Elections Project") +
   scale_color_manual(values = c(muted("blue"), "red3"),
                      breaks = c(1, 0),
                      labels = c("Democrat", "Republican"))
