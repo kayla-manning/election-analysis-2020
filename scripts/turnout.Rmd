@@ -424,7 +424,7 @@ nat_prob_table %>%
        y = "Number of Occurrences",
        fill = "Candidate",
        title = "Biden's Simulated Nationwide Win Margin",
-       caption = "Predicted using polling 3 weeks out, Q2 GDP, incumbency, 
+       caption = "Predicted using polling 3 weeks out, Q1 GDP, incumbency, 
        and the interaction between incumbency and polls")
 
 ggsave("../figures/turnout/nation_sim.jpg")
