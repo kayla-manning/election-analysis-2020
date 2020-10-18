@@ -420,12 +420,13 @@ nat_prob_table %>%
   ggplot(aes(d_pct_win)) +
   geom_histogram(bins = 1000, fill = muted("blue")) +
   theme_minimal()  +
-  labs(x = "Simulated Win Margin Counts",
+  labs(x = "Forecasted Democratic Win Margin",
        y = "Number of Occurrences",
        fill = "Candidate",
        title = "Biden's Simulated Nationwide Win Margin",
        caption = "Predicted using polling 3 weeks out, Q1 GDP, incumbency, 
-       and the interaction between incumbency and polls")
+       and the interaction between incumbency and polls") +
+  scale_x_continuous(labels = percent_format())
 
 ggsave("../figures/turnout/nation_sim.jpg")
 

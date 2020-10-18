@@ -50,7 +50,7 @@ Given what we know about states' tendencies to swing one way or another, this ma
 
 I followed a similar procedure as above to construct a binomial logit model for the nationwide popular vote. This model predicts vote counts for each party using polling numbers, incumbency status, the interaction between polling and incumbency, and Q1 GDP growth. In this model, I ran 100,000 simulations with various levels of turnout.
 
-A national model predicts that Biden will receive approximately **50.8%** of the two-party popular vote and Trump will receive the remaining **49.2%**.	Each simulation predicts that Biden will win the national popular vote by 1-2% depending on the turnout, as displayed by the below histogram:
+A national model predicts that Biden will receive approximately **50.8%** of the two-party popular vote and Trump will receive the remaining **49.2%**.	Each simulation predicts that Biden will win the national popular vote by 1.5-1.7% depending on the turnout, as displayed by the below histogram:
 
 ![nation-sim](../figures/turnout/nation_sim.jpg)
 
