@@ -31,9 +31,14 @@ popvote_state <- read_csv("../data/popvote_bystate_1948-2016.csv")
 vote_econ <- popvote %>% 
   full_join(economy, by = "year") %>% 
   full_join(all_polls %>% 
-              filter(weeks_left == 4) %>% 
+              filter(weeks_left == 2) %>% 
               group_by(year, party) %>% 
-              summarise(avg_support = mean(avg_support)))
+              summarise(avg_support = mean(avg_support))) %>% 
+  full_join(read_csv("../data/pollavg_bystate_1968-2016.csv") %>% 
+              filter(weeks_left == 2) %>% 
+              group_by(year, state, party) %>% 
+              summarise(avg_state_poll = mean(avg_poll)) %>% 
+              mutate(state = state.abb[match(state, state.name)]))
 
 # reading and joining ads data
 
@@ -48,31 +53,6 @@ ads <- creative %>%
 
 voters <- vote_econ %>% 
   inner_join(vep, by = "year")
-
-# 538 updating polls
-
-{
-  poll_2020_url <- "https://projects.fivethirtyeight.com/2020-general-data/presidential_poll_averages_2020.csv"
-  poll_2020_df <- read_csv(poll_2020_url)
-  
-  elxnday_2020 <- as.Date("11/3/2020", "%m/%d/%Y")
-  dnc_2020 <- as.Date("8/20/2020", "%m/%d/%Y")
-  rnc_2020 <- as.Date("8/27/2020", "%m/%d/%Y")
-  
-  colnames(poll_2020_df) <- c("year","state","poll_date","candidate_name","avg_support","avg_support_adj")
-  
-  poll_2020_df <- poll_2020_df %>%
-    mutate(party = case_when(candidate_name == "Donald Trump" ~ "republican",
-                             candidate_name == "Joseph R. Biden Jr." ~ "democrat"),
-           poll_date = as.Date(poll_date, "%m/%d/%Y"),
-           days_left = round(difftime(elxnday_2020, poll_date, unit="days")),
-           weeks_left = round(difftime(elxnday_2020, poll_date, unit="weeks")),
-           before_convention = case_when(poll_date < dnc_2020 & party == "democrat" ~ TRUE,
-                                         poll_date < rnc_2020 & party == "republican" ~ TRUE,
-                                         TRUE ~ FALSE)) %>%
-    filter(!is.na(party)) %>%
-    filter(state == "National")
-}
 
 ```
 
@@ -101,12 +81,6 @@ turnout <- read_csv("../data/turnout_1980-2016.csv") %>%
   mutate(turnout_pct = str_remove(turnout_pct, "%"),
          turnout_pct = as.numeric(turnout_pct),
          turnout_pct = ifelse(turnout_pct < 1, turnout_pct * 100, turnout_pct))
-vote_econ <- popvote %>% 
-  full_join(economy, by = "year") %>% 
-  full_join(all_polls %>% 
-              filter(weeks_left == 3) %>% 
-              group_by(year, party) %>% 
-              summarise(avg_support = mean(avg_support)))
 
 # joining data with state popular votes
 
@@ -144,11 +118,12 @@ state_votes <- read_csv("../data/popvote_bystate_1948-2016.csv") %>%
   rename("pv2p" = value) %>% 
   full_join(economy, by = "year") %>% 
   full_join(all_polls %>% 
-              filter(weeks_left == 3) %>% 
+              filter(weeks_left == 2) %>% 
               group_by(year, party) %>% 
               summarise(avg_support = mean(avg_support))) %>% 
   inner_join(vep, by = c("year", "state")) %>% 
-  full_join(vote_econ %>% select(year, party, incumbent, incumbent_party), by = c("year", "party")) %>%
+  full_join(vote_econ %>% select(year, party, incumbent, incumbent_party, state, avg_state_poll) %>% 
+              mutate(state = state.name[match(state, state.abb)])) %>%
   mutate(state = state.abb[match(state, state.name)]) %>% 
   inner_join(demographic, by = c("year", "state"), suffix = c("_vote", "_demo")) %>% 
   inner_join(turnout  %>% 
@@ -161,7 +136,29 @@ state_votes <- read_csv("../data/popvote_bystate_1948-2016.csv") %>%
   mutate(consec_dem = as.numeric(consec_dem),
          consec_rep = as.numeric(consec_rep))
 
-# updating poll data
+# updating state poll data
+
+{
+  state_poll_url <- "https://projects.fivethirtyeight.com/polls-page/president_polls.csv"
+  state_polls_2020 <- read_csv(state_poll_url) %>% 
+    drop_na(state) %>% 
+    mutate(state = state.abb[match(state, state.name)],
+           party = case_when(candidate_name == "Donald Trump" ~ "republican",
+                             candidate_name == "Joseph R. Biden Jr." ~ "democrat"),
+           end_date = mdy(end_date),
+           poll_date = as.Date(end_date, "%m/%d/%Y"),
+           days_left = round(difftime(elxnday_2020, poll_date, unit="days")),
+           weeks_left = round(difftime(elxnday_2020, poll_date, unit="weeks")),
+           before_convention = case_when(poll_date < dnc_2020 & party == "democrat" ~ TRUE,
+                                         poll_date < rnc_2020 & party == "republican" ~ TRUE,
+                                         TRUE ~ FALSE)) %>%
+    filter(!is.na(party))
+  
+  
+  
+}
+
+# updating national poll data
 
 {
   poll_2020_url <- "https://projects.fivethirtyeight.com/2020-general-data/presidential_poll_averages_2020.csv"
@@ -193,27 +190,18 @@ state_votes <- read_csv("../data/popvote_bystate_1948-2016.csv") %>%
 
 ```{r state_prob_mod}
 
-# using NYT classification of states... MOVING TEXAS AND SC HAS RESULT ON OUTCOME OF THE MODEL?
+# using NYT classification of states... moving states from different categories affects the predictions...
 # putting Maine and Nebraska as battleground states even though it varies by district
 
 dem_states <- c("CO", "VA", "CA", "CT", "DE", "HI", "IL", "MD", "MA", "NJ", "NY", "OR", "RI", "VT", "WA")
 bg_states <- c("FL", "IA", "OH", "GA", "NC", "ME", "NC", "MI", "MN", "NE", "NH", "PA", "WI", 
-               "NV", "AZ", "NM", "MT")
-rep_states <- c("AK", "IN", "KS", "MO", "AL", "AR", "ID", "KY", "LA", "MS", "ND", "OK", "SD", "TN", "WV", "WY", "TX", "SC", "UT")
+               "NV", "AZ", "NM", "TX")
+rep_states <- c("AK", "IN", "KS", "MO", "AL", "AR", "ID", "KY", "LA", "MS", "ND", "OK", "SD", "MT",
+                "TN", "WV", "WY", "SC", "UT")
 
 q1_gdp <- vote_econ %>% 
   filter(year == 2020, quarter == 1) %>%
   pull(gdp_growth_qt)
-trump_poll <- poll_2020_df %>% 
-  filter(weeks_left == 3,
-         party == "republican") %>% 
-  pull(avg_support) %>% 
-  mean()
-biden_poll <- poll_2020_df %>% 
-  filter(weeks_left == 3,
-         party == "democrat") %>% 
-  pull(avg_support) %>% 
-  mean()
 
 # want to find std. deviation for VEP so I can draw a random number from a
 # normal distribution with the 2016 value as the mean and the sd
@@ -246,7 +234,21 @@ prob_table <- tibble(state = c(rep(dem_states, each = 1000), rep(bg_states, each
 for (s in bg_states) {
   
       # code for the Democrat model
-    
+  
+  polls <- state_polls_2020 %>% 
+    filter(state == s,
+           weeks_left == 2) %>% 
+    group_by(party) %>% 
+    summarise(avg_support = mean(pct, na.rm = TRUE))
+  
+  biden_poll <- polls %>% 
+    filter(party == "democrat") %>% 
+    pull(avg_support)
+
+  trump_poll <- polls %>% 
+    filter(party == "republican") %>% 
+    pull(avg_support)  
+      
       consec_d <- state_votes %>% 
         filter(state == s, year == 2016) %>%
         slice(1) %>% 
@@ -269,12 +271,12 @@ for (s in bg_states) {
                state %in% bg_states,
                quarter == 1) %>% 
         mutate(d_pv = d / total_vote) %>% 
-        glm(cbind(d, VEP - d) ~ avg_support * incumbent + gdp_growth_qt +
-              prev_dem_margin + consec_dem,
+        glm(cbind(d, VEP - d) ~ avg_state_poll * incumbent + gdp_growth_qt +
+              prev_dem_margin + consec_dem + black_change,
             data = ., family = "binomial")
   
       prob_table[which(prob_table$state == s), 2] <- predict(
-        dem_mod, tibble(avg_support = biden_poll,
+        dem_mod, tibble(avg_state_poll = biden_poll,
                         incumbent = FALSE,
                         gdp_growth_qt = q1_gdp,
                         black_change = state_votes %>% 
@@ -304,12 +306,12 @@ for (s in bg_states) {
                state %in% bg_states,
                quarter == 1) %>% 
         mutate(r_pv = r / total_vote) %>% 
-        glm(cbind(r, VEP - r) ~ avg_support * incumbent + gdp_growth_qt + 
-              prev_dem_margin + consec_rep,
+        glm(cbind(r, VEP - r) ~ avg_state_poll * incumbent + gdp_growth_qt + 
+              prev_dem_margin + consec_rep + black_change,
             data = ., family = "binomial")
       
       prob_table[which(prob_table$state == s), 3] <- predict(
-        rep_mod, tibble(avg_support = trump_poll,
+        rep_mod, tibble(avg_state_poll = trump_poll,
                         incumbent = TRUE,
                         gdp_growth_qt = q1_gdp,
                         black_change = state_votes %>% 
@@ -363,12 +365,12 @@ for (s in dem_states) {
                state %in% dem_states,
                quarter == 1) %>% 
         mutate(d_pv = d / total_vote) %>% 
-        glm(cbind(d, VEP - d) ~ avg_support * incumbent + gdp_growth_qt +
-              prev_dem_margin + consec_dem,
+        glm(cbind(d, VEP - d) ~ avg_state_poll * incumbent + gdp_growth_qt +
+              prev_dem_margin + consec_dem + black_change,
             data = ., family = "binomial")
   
       prob_table[which(prob_table$state == s), 2] <- predict(
-        dem_mod, tibble(avg_support = biden_poll,
+        dem_mod, tibble(avg_state_poll = biden_poll,
                         incumbent = FALSE,
                         gdp_growth_qt = q1_gdp,
                         black_change = state_votes %>% 
@@ -398,12 +400,12 @@ for (s in dem_states) {
                state %in% dem_states,
                quarter == 1) %>% 
         mutate(r_pv = r / total_vote) %>% 
-        glm(cbind(r, VEP - r) ~ avg_support * incumbent + gdp_growth_qt + 
-              prev_dem_margin + consec_rep,
+        glm(cbind(r, VEP - r) ~ avg_state_poll * incumbent + gdp_growth_qt + 
+              prev_dem_margin + consec_rep + black_change,
             data = ., family = "binomial")
       
       prob_table[which(prob_table$state == s), 3] <- predict(
-        rep_mod, tibble(avg_support = trump_poll,
+        rep_mod, tibble(avg_state_poll = trump_poll,
                         incumbent = TRUE,
                         gdp_growth_qt = q1_gdp,
                         black_change = state_votes %>% 
@@ -457,12 +459,12 @@ for (s in rep_states) {
                state %in% rep_states,
                quarter == 1) %>% 
         mutate(d_pv = d / total_vote) %>% 
-        glm(cbind(d, VEP - d) ~ avg_support * incumbent + gdp_growth_qt +
-              prev_dem_margin + consec_dem,
+        glm(cbind(d, VEP - d) ~ avg_state_poll * incumbent + gdp_growth_qt +
+              prev_dem_margin + consec_dem + black_change,
             data = ., family = "binomial")
   
       prob_table[which(prob_table$state == s), 2] <- predict(
-        dem_mod, tibble(avg_support = biden_poll,
+        dem_mod, tibble(avg_state_poll = biden_poll,
                         incumbent = FALSE,
                         gdp_growth_qt = q1_gdp,
                         black_change = state_votes %>% 
@@ -492,12 +494,12 @@ for (s in rep_states) {
                state %in% rep_states,
                quarter == 1) %>% 
         mutate(r_pv = r / total_vote) %>% 
-        glm(cbind(r, VEP - r) ~ avg_support * incumbent + gdp_growth_qt + 
-              prev_dem_margin + consec_rep,
+        glm(cbind(r, VEP - r) ~ avg_state_poll * incumbent + gdp_growth_qt + 
+              prev_dem_margin + consec_rep + black_change,
             data = ., family = "binomial")
       
       prob_table[which(prob_table$state == s), 3] <- predict(
-        rep_mod, tibble(avg_support = trump_poll,
+        rep_mod, tibble(avg_state_poll = trump_poll,
                         incumbent = TRUE,
                         gdp_growth_qt = q1_gdp,
                         black_change = state_votes %>% 
@@ -546,8 +548,10 @@ prob_table %>%
   mutate(winner = case_when(biden_win > 0.5 ~ "Biden",
                             TRUE ~ "Trump")) %>% 
   plot_usmap(data = ., regions = "states", values = "winner")+
-  scale_fill_manual(values = c(muted("blue"), "red3")) +
-  theme_void()
+  scale_fill_manual(breaks = c("Biden", "Trump"),
+                    values = c(muted("blue"), "red3")) +
+  theme_void() +
+  labs(fill = "Projected Winner")
   
 prob_table %>% 
   mutate(biden_win = ifelse(sim_dvotes_2020 > sim_rvotes_2020, 1, 0)) %>% 
@@ -559,6 +563,7 @@ prob_table %>%
                               TRUE ~ 0)) %>% 
   summarise(biden_ev = sum(biden_ev),
             trump_ev = sum(trump_ev))
+
 ```
 ```{r model_error}
 
@@ -672,7 +677,7 @@ state_votes %>%
                quarter == 1) %>% 
         mutate(r_pv = r / total_vote) %>% 
         glm(cbind(r, VEP - r) ~ avg_support * incumbent + gdp_growth_qt + 
-              prev_dem_margin + consec_rep,
+              prev_dem_margin + consec_rep + black_change + age20_change,
             data = ., family = "binomial") %>% 
   summary()
 
@@ -684,12 +689,29 @@ state_votes %>%
                quarter == 1) %>% 
         mutate(r_pv = r / total_vote) %>% 
         glm(cbind(r, VEP - r) ~ avg_support * incumbent + gdp_growth_qt + 
-              prev_dem_margin + consec_dem,
+              prev_dem_margin + consec_dem + black_change + age20_change,
             data = ., family = "binomial") %>% 
   summary()
 
 ```
 
+```{r state_pop_votes}
+
+prob_table %>% 
+  group_by(state) %>% 
+  mutate(d_pv2p = sim_dvotes_2020 / (sim_rvotes_2020 + sim_dvotes_2020),
+         r_pv2p = 1 - d_pv2p) %>% 
+  summarise(sd_d = sd(d_pv2p),
+            sd_r = sd(r_pv2p),
+            d_pv2p = mean(d_pv2p),
+            r_pv2p = mean(r_pv2p)) %>% 
+  mutate(conf.d.low = d_pv2p - 1.96 * sd_d,
+         conf.d.high = d_pv2p + 1.96 * sd_d,
+         conf.r.low = r_pv2p - 1.96 * sd_r,
+         conf.r.high = r_pv2p + 1.96 * sd_r) %>% 
+  select(state, 6:9)
+
+```
 
 
 
