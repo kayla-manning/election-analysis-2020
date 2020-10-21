@@ -45,10 +45,7 @@ This above map shows the win margin and displays how close each race is in each 
 
 ### Looking Ahead
 
-- 2 weeks left!
-- Next post will be final model
-- Hope to tweak this existing model, go further in depth about confidence, strength, out-of-sample and in-sample fit, etc. (check final prediction rubric)
-- Will run model with updated poll numbers on top of any other changes
+With less than two weeks remaining until Election Day, my next post will be my final election prediction. I will likely make some tweaks to the model in this post and include the updated polling numbers. For this post, I used the model to make a preliminary prediction as part of the discussion about how the polling numbers and economic data fit into COVID-19. Next week's post will go into further depth about my reasoning behind constructing the model, its strength and external validity, and uncertainty surrounding the prediction.
 
 
 [^achen]: [Achen and Bartels, 2017] Achen, C. H. and Bartels, L. M. (2017). Democracy for realists: Why elections do not produce responsive government, volume 4. Princeton University
