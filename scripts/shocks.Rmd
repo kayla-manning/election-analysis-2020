@@ -176,7 +176,7 @@ deaths <- covid_nat %>%
   inner_join(poll_2020_df, by = c("date" = "poll_date")) %>% 
   ggplot(aes(deathIncrease, avg_support, color = party)) +
   geom_point() +
-  geom_smooth() +
+  geom_smooth(method = "lm") +
   theme_minimal() +
   labs(x = "Daily Increase in US COVID-19 Deaths",
        y = "Average Polling Support",
@@ -191,7 +191,7 @@ positives <- covid_nat %>%
   inner_join(poll_2020_df, by = c("date" = "poll_date")) %>% 
   ggplot(aes(positiveIncrease, avg_support, color = party)) +
   geom_point() +
-  geom_smooth() +
+  geom_smooth(method = "lm") +
   theme_minimal() +
   labs(x = "Daily Increase in US Positive Cases",
        y = "Average Polling Support",
