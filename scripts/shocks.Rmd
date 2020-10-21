@@ -289,7 +289,7 @@ for (s in bg_states) {
                quarter == 1) %>% 
         mutate(d_pv = d / total_vote) %>% 
         glm(cbind(d, VEP - d) ~ avg_state_poll * incumbent + gdp_growth_qt +
-              prev_dem_margin + consec_dem + black_change,
+              prev_dem_margin + black_change,
             data = ., family = "binomial")
   
       prob_table[which(prob_table$state == s), 2] <- predict(
@@ -324,7 +324,7 @@ for (s in bg_states) {
                quarter == 1) %>% 
         mutate(r_pv = r / total_vote) %>% 
         glm(cbind(r, VEP - r) ~ avg_state_poll * incumbent + gdp_growth_qt + 
-              prev_dem_margin + consec_rep + black_change,
+              prev_dem_margin + black_change,
             data = ., family = "binomial")
       
       prob_table[which(prob_table$state == s), 3] <- predict(
@@ -383,7 +383,7 @@ for (s in dem_states) {
                quarter == 1) %>% 
         mutate(d_pv = d / total_vote) %>% 
         glm(cbind(d, VEP - d) ~ avg_state_poll * incumbent + gdp_growth_qt +
-              prev_dem_margin + consec_dem + black_change,
+              prev_dem_margin + black_change,
             data = ., family = "binomial")
   
       prob_table[which(prob_table$state == s), 2] <- predict(
@@ -418,7 +418,7 @@ for (s in dem_states) {
                quarter == 1) %>% 
         mutate(r_pv = r / total_vote) %>% 
         glm(cbind(r, VEP - r) ~ avg_state_poll * incumbent + gdp_growth_qt + 
-              prev_dem_margin + consec_rep + black_change,
+              prev_dem_margin + black_change,
             data = ., family = "binomial")
       
       prob_table[which(prob_table$state == s), 3] <- predict(
@@ -477,7 +477,7 @@ for (s in rep_states) {
                quarter == 1) %>% 
         mutate(d_pv = d / total_vote) %>% 
         glm(cbind(d, VEP - d) ~ avg_state_poll * incumbent + gdp_growth_qt +
-              prev_dem_margin + consec_dem + black_change,
+              prev_dem_margin + black_change,
             data = ., family = "binomial")
   
       prob_table[which(prob_table$state == s), 2] <- predict(
@@ -512,7 +512,7 @@ for (s in rep_states) {
                quarter == 1) %>% 
         mutate(r_pv = r / total_vote) %>% 
         glm(cbind(r, VEP - r) ~ avg_state_poll * incumbent + gdp_growth_qt + 
-              prev_dem_margin + consec_rep + black_change,
+              prev_dem_margin + black_change,
             data = ., family = "binomial")
       
       prob_table[which(prob_table$state == s), 3] <- predict(
