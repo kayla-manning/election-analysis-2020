@@ -698,6 +698,6 @@ prob_table %>%
   labs(title = "Predicted Win Margin in Each State",
        fill = "Biden's Predicted \nWin Margin (%)")
 
-ggsave("../figures/shocks/margin_map.jpg")
+ggsave("../figures/shocks/margin_map.jpg", height = 5)
 
 ```
