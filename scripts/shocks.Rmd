@@ -41,6 +41,7 @@ library(ggpubr)
 # national covid data
 
 covid_nat <- read_csv("../data/covid_national.csv")
+covid_poll <- read.csv("../data/roper_covid_poll.csv")
 
 ```
 
@@ -174,13 +175,14 @@ covid_nat %>%
 
 deaths <- covid_nat %>% 
   inner_join(poll_2020_df, by = c("date" = "poll_date")) %>% 
-  ggplot(aes(deathIncrease, avg_support, color = party)) +
+  ggplot(aes(death, avg_support, color = party)) +
   geom_point() +
   geom_smooth(method = "lm") +
+  geom_jitter() +
   theme_minimal() +
   labs(x = "Daily Increase in US COVID-19 Deaths",
        y = "Average Polling Support",
-       title = "Polling Response to COVID-19 Death Increases",
+       title = "Polling Response to COVID-19 Deaths",
        color = "Candidate") +
   scale_color_manual(labels = c("Joe Biden", "Donald Trump"),
                      values = c(muted("blue"), "red3"))
@@ -205,6 +207,38 @@ ggarrange(deaths, positives, ncol = 1, common.legend = TRUE, legend = "right")
 ggsave("../figures/shocks/covid_polls.jpg")
 
 ```
+
+```{r covid_concern}
+
+covid_dat <- read_csv("../data/covid-19-polls-master-538/covid_approval_polls_adjusted.csv") %>% 
+  group_by(enddate) %>% 
+  summarise(approve_adjusted = mean(approve_adjusted)) %>% 
+  mutate(enddate = mdy(enddate)) %>% 
+  inner_join(poll_2020_df %>% 
+               filter(party == "democrat"), by = c("enddate" = "poll_date")) %>% 
+  filter(enddate > 2020-03-01)
+
+covid_dat %>% 
+  select(approve_adjusted, avg_support) %>% 
+  drop_na() %>% 
+  cor()
+
+ covid_dat %>% 
+  ggplot(aes(approve_adjusted, avg_support)) +
+  geom_point() +
+  geom_smooth(method = "lm", color = "red3") +
+  theme_minimal() +
+  labs(x = "Approval of Trump's Response to COVID-19",
+       y = "Average Polling Support",
+       title = "Association Between Trump's COVID-19 Approval and Polls",
+       subtitle = "Correlation of -0.473",
+       caption = "Both datasets came from FiveThirtyEight")
+ 
+ ggsave("../figures/shocks/covid_approval.jpg")
+
+```
+
+
 
 ```{r model}
 
