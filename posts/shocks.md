@@ -12,11 +12,6 @@ It certainly sounds interesting to think that shark attacks[^achen] led to Woodr
 
 The [economic numbers](economy.md) of 2020 reflect the damage of COVID; incorporating economic data into prediction models picks up on some of the 2020 shocks. However, voters' emotional responses to certain events of 2020 may exist independent of economic circumstances. In this situation, polls should pick up any sort of non-economic reaction by the public. Examining COVID-19 metrics, for example, shows that deaths and positive test counts have fairly strong, negative correlations with Donald Trump's approval ratings:[^metrics]
 
-
-|              |    Death Count    |   Positive Results |Increase in Positive Results|
-|--------------|-------------------|-------------------|-----------------|            
-|avg_support   |  -0.64782421      |-0.51258921       |     -0.8083311 |
-
 ![covid](../figures/shocks/covid_polls.jpg)
 
 Not surprisingly, public opinion about Donald Trump's handling of the COVID-19 crisis has a moderately strong, positive correlation with his overall polling numbers and the inverse if true for Biden's poll numbers and Trump's COVID approval:
@@ -41,7 +36,7 @@ I maintained the underlying binomial logistic model and varied the turnout as I 
 | Biden     | 350[^DC]        | 0.528                  |
 | Trump     | 214             | 0.423                  |
 
-The above map shows the win margin and displays how close each race is in each state, but [this map](../figures/shocks/winner_map.jpg) clearly shows the predicted winner for each state and [this table](../figures/shocks/state_pv_table.html) shows the two-party popular vote predictions for each state.
+The above map shows the win margin and displays how close each race is in each state, but [this map](../figures/shocks/winner_map.jpg) clearly displays the predicted winner for each state and [this table](../figures/shocks/state_pv_table.html) shows the predicted two-party popular votes for each state.
 
 ### Looking Ahead
 
