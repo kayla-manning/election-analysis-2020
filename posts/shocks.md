@@ -28,7 +28,7 @@ These correlations reveal that incorporating additional variables into a model t
 
 I maintained the underlying binomial logistic model and varied the turnout as I did before. This method yielded must closer and more reasonable predictions for every state:
 
-![map](../figures/margin_map.jpg)
+![map](../figures/shocks/margin_map.jpg)
 
 | Candidate | Electoral Votes | Two-Party Popular Vote |
 |-----------|-----------------|------------------------|
