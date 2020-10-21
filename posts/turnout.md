@@ -1,7 +1,6 @@
 # Voter Turnout
 ## October 17, 2020
 
-
 ### Turnout in 2020
 
 Democracy cannot function as intended if voters neglect to show up at the polls. Over the years, the size of the voting-eligible population and the percentage of those casting ballots have generally[^Obama-turnout] increased:
