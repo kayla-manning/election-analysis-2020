@@ -30,7 +30,7 @@ A few minor tweaks to [last week's](turnout.md) imperfect model strengthened it 
 
 * With parsimony in mind, I cut out several predictor variables from last week's model.[^parsimony] This new model predicts the voter turnout for each party using state polling numbers from 2 weeks out, the candidate's incumbency status, the interaction between incumbency and polls, national Q1 GDP growth, the previous election's Democratic vote margin in that state, and the change in that state's Black population.
 
-I maintained the underlying binomial logistic structure as last week, and I varied the turnout as I did before. This method yielded much closer and more reasonable predictions for each state:
+I maintained the underlying binomial logistic structure from last week, and I varied the turnout as I did before. This method yielded much closer and more reasonable predictions for each state:
 
 ![map](../figures/shocks/margin_map.jpg)
 
