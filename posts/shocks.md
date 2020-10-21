@@ -1,6 +1,8 @@
 # Shocks and Elections: COVID-19
 ## October 24, 2020
 
+### **DRAFT**
+
 ### What the Literature Says about Shocks
 
 The media loves a good "October Surprise," and 2020 has had its fair share of big events. COVID-19 steadily remains the defining issue of the 2020 election, in spite of scandals ranging from [tax avoidance](https://www.nytimes.com/interactive/2020/09/27/us/donald-trump-taxes.html) by the president, [misleading the public](https://www.nytimes.com/2020/09/09/us/politics/woodward-trump-book-virus.html) on the state of COVID-19, and accusations of suspicious [emails](https://www.vox.com/2020/10/14/21515776/hunter-biden-emails-giuliani). How will shocks such as COVID-19 translate into electoral outcomes?

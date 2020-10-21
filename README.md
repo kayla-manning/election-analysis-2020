@@ -19,5 +19,5 @@ This analysis examines political advertising on various media platforms and take
 How do experts anticipate COVID-19 affecting voter turnout? This post considers possible effects of COVID-19 on turnout, explores how different forecasters account for the resulting variability, and looks at models that simulate fluctuations in turnout.
 
 # [7. The Impact of COVID-19](posts/shocks.md)
-**DRAFT** This post examines the relationship between COVID-19 and traditional polls numbers. After a brief descriptive analysis, an updated model provides predictions for two weeks out.
+**DRAFT** This post examines the relationship between COVID-19 and traditional poll numbers. After a brief descriptive analysis, an updated model provides predictions for two weeks out.
 
