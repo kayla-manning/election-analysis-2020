@@ -1,7 +1,7 @@
 # Shocks and Elections: COVID-19
 ## October 24, 2020
 
-### **DRAFT**
+# **DRAFT**
 
 ### What the Literature Says about Shocks
 
