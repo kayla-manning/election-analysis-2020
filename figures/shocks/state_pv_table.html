@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<style>body{background-color:white;}</style>
+
+
+</head>
+<body>
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#gybvuyravg .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#gybvuyravg .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#gybvuyravg .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#gybvuyravg .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 4px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#gybvuyravg .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#gybvuyravg .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#gybvuyravg .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#gybvuyravg .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#gybvuyravg .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#gybvuyravg .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#gybvuyravg .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#gybvuyravg .gt_group_heading {
+  padding: 8px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#gybvuyravg .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#gybvuyravg .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#gybvuyravg .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#gybvuyravg .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#gybvuyravg .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 12px;
+}
+
+#gybvuyravg .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#gybvuyravg .gt_first_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+}
+
+#gybvuyravg .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#gybvuyravg .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#gybvuyravg .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#gybvuyravg .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#gybvuyravg .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#gybvuyravg .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding: 4px;
+}
+
+#gybvuyravg .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#gybvuyravg .gt_sourcenote {
+  font-size: 90%;
+  padding: 4px;
+}
+
+#gybvuyravg .gt_left {
+  text-align: left;
+}
+
+#gybvuyravg .gt_center {
+  text-align: center;
+}
+
+#gybvuyravg .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#gybvuyravg .gt_font_normal {
+  font-weight: normal;
+}
+
+#gybvuyravg .gt_font_bold {
+  font-weight: bold;
+}
+
+#gybvuyravg .gt_font_italic {
+  font-style: italic;
+}
+
+#gybvuyravg .gt_super {
+  font-size: 65%;
+}
+
+#gybvuyravg .gt_footnote_marks {
+  font-style: italic;
+  font-size: 65%;
+}
+</style>
+<div id="gybvuyravg" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;"><table class="gt_table">
+  <thead class="gt_header">
+    <tr>
+      <th colspan="3" class="gt_heading gt_title gt_font_normal" style>State Two-Party Popular Vote Predictions</th>
+    </tr>
+    <tr>
+      <th colspan="3" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style></th>
+    </tr>
+  </thead>
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">State</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">Biden</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">Trump</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr>
+      <td class="gt_row gt_left">AK</td>
+      <td class="gt_row gt_right">0.4521766</td>
+      <td class="gt_row gt_right">0.5478234</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">AL</td>
+      <td class="gt_row gt_right">0.4431770</td>
+      <td class="gt_row gt_right">0.5568230</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">AR</td>
+      <td class="gt_row gt_right">0.4559883</td>
+      <td class="gt_row gt_right">0.5440117</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">AZ</td>
+      <td class="gt_row gt_right">0.5416771</td>
+      <td class="gt_row gt_right">0.4583229</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">CA</td>
+      <td class="gt_row gt_right">0.5961429</td>
+      <td class="gt_row gt_right">0.4038571</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">CO</td>
+      <td class="gt_row gt_right">0.5285301</td>
+      <td class="gt_row gt_right">0.4714699</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">CT</td>
+      <td class="gt_row gt_right">0.5698662</td>
+      <td class="gt_row gt_right">0.4301338</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">DE</td>
+      <td class="gt_row gt_right">0.5657862</td>
+      <td class="gt_row gt_right">0.4342138</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">FL</td>
+      <td class="gt_row gt_right">0.5058351</td>
+      <td class="gt_row gt_right">0.4941649</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">GA</td>
+      <td class="gt_row gt_right">0.5223154</td>
+      <td class="gt_row gt_right">0.4776846</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">HI</td>
+      <td class="gt_row gt_right">0.5987990</td>
+      <td class="gt_row gt_right">0.4012010</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">IA</td>
+      <td class="gt_row gt_right">0.4943929</td>
+      <td class="gt_row gt_right">0.5056071</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">ID</td>
+      <td class="gt_row gt_right">0.4380349</td>
+      <td class="gt_row gt_right">0.5619651</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">IL</td>
+      <td class="gt_row gt_right">0.5763126</td>
+      <td class="gt_row gt_right">0.4236874</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">IN</td>
+      <td class="gt_row gt_right">0.4807801</td>
+      <td class="gt_row gt_right">0.5192199</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">KS</td>
+      <td class="gt_row gt_right">0.4493255</td>
+      <td class="gt_row gt_right">0.5506745</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">KY</td>
+      <td class="gt_row gt_right">0.4538048</td>
+      <td class="gt_row gt_right">0.5461952</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">LA</td>
+      <td class="gt_row gt_right">0.4611187</td>
+      <td class="gt_row gt_right">0.5388813</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">MA</td>
+      <td class="gt_row gt_right">0.5900138</td>
+      <td class="gt_row gt_right">0.4099862</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">MD</td>
+      <td class="gt_row gt_right">0.5874696</td>
+      <td class="gt_row gt_right">0.4125304</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">ME</td>
+      <td class="gt_row gt_right">0.5666444</td>
+      <td class="gt_row gt_right">0.4333556</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">MI</td>
+      <td class="gt_row gt_right">0.5451092</td>
+      <td class="gt_row gt_right">0.4548908</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">MN</td>
+      <td class="gt_row gt_right">0.5607543</td>
+      <td class="gt_row gt_right">0.4392457</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">MO</td>
+      <td class="gt_row gt_right">0.4630756</td>
+      <td class="gt_row gt_right">0.5369244</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">MS</td>
+      <td class="gt_row gt_right">0.4493871</td>
+      <td class="gt_row gt_right">0.5506129</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">MT</td>
+      <td class="gt_row gt_right">0.4551549</td>
+      <td class="gt_row gt_right">0.5448451</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">NC</td>
+      <td class="gt_row gt_right">0.5260090</td>
+      <td class="gt_row gt_right">0.4739910</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">ND</td>
+      <td class="gt_row gt_right">0.4315484</td>
+      <td class="gt_row gt_right">0.5684516</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">NE</td>
+      <td class="gt_row gt_right">0.4684123</td>
+      <td class="gt_row gt_right">0.5315877</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">NH</td>
+      <td class="gt_row gt_right">0.5722853</td>
+      <td class="gt_row gt_right">0.4277147</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">NJ</td>
+      <td class="gt_row gt_right">0.5711919</td>
+      <td class="gt_row gt_right">0.4288081</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">NM</td>
+      <td class="gt_row gt_right">0.5402286</td>
+      <td class="gt_row gt_right">0.4597714</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">NV</td>
+      <td class="gt_row gt_right">0.5257530</td>
+      <td class="gt_row gt_right">0.4742470</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">NY</td>
+      <td class="gt_row gt_right">0.5879246</td>
+      <td class="gt_row gt_right">0.4120754</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">OH</td>
+      <td class="gt_row gt_right">0.4834113</td>
+      <td class="gt_row gt_right">0.5165887</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">OK</td>
+      <td class="gt_row gt_right">0.4365840</td>
+      <td class="gt_row gt_right">0.5634160</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">OR</td>
+      <td class="gt_row gt_right">0.5679057</td>
+      <td class="gt_row gt_right">0.4320943</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">PA</td>
+      <td class="gt_row gt_right">0.5427689</td>
+      <td class="gt_row gt_right">0.4572311</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">RI</td>
+      <td class="gt_row gt_right">0.5728973</td>
+      <td class="gt_row gt_right">0.4271027</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">SC</td>
+      <td class="gt_row gt_right">0.4568435</td>
+      <td class="gt_row gt_right">0.5431565</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">SD</td>
+      <td class="gt_row gt_right">0.4393816</td>
+      <td class="gt_row gt_right">0.5606184</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">TN</td>
+      <td class="gt_row gt_right">0.4575715</td>
+      <td class="gt_row gt_right">0.5424285</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">TX</td>
+      <td class="gt_row gt_right">0.4991401</td>
+      <td class="gt_row gt_right">0.5008599</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">UT</td>
+      <td class="gt_row gt_right">0.4465928</td>
+      <td class="gt_row gt_right">0.5534072</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">VA</td>
+      <td class="gt_row gt_right">0.5288890</td>
+      <td class="gt_row gt_right">0.4711110</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">VT</td>
+      <td class="gt_row gt_right">0.5925566</td>
+      <td class="gt_row gt_right">0.4074434</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">WA</td>
+      <td class="gt_row gt_right">0.5746389</td>
+      <td class="gt_row gt_right">0.4253611</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">WI</td>
+      <td class="gt_row gt_right">0.5581299</td>
+      <td class="gt_row gt_right">0.4418701</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">WV</td>
+      <td class="gt_row gt_right">0.4449513</td>
+      <td class="gt_row gt_right">0.5550487</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">WY</td>
+      <td class="gt_row gt_right">0.4277312</td>
+      <td class="gt_row gt_right">0.5722688</td>
+    </tr>
+  </tbody>
+  
+  
+</table></div>
+</body>
+</html>

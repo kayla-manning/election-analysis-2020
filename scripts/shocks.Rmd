@@ -8,6 +8,7 @@ library(usmap)
 library(data.table)
 library(lubridate)
 library(ggpubr)
+library(gt)
 
 ```
 
@@ -673,7 +674,11 @@ prob_table %>%
   mutate(d_pv2p = sim_dvotes_2020 / (sim_rvotes_2020 + sim_dvotes_2020),
          r_pv2p = 1 - d_pv2p) %>% 
   summarise(d_pv2p = mean(d_pv2p),
-            r_pv2p = mean(r_pv2p))
+            r_pv2p = mean(r_pv2p)) %>% 
+  gt() %>% 
+  tab_header("State Two-Party Popular Vote Predictions") %>% 
+  cols_label(state = "State", d_pv2p = "Biden", r_pv2p = "Trump") %>% 
+  gtsave("../figures/shocks/state_pv_table.html")
 
 # margin map
 
