@@ -568,6 +568,8 @@ prob_table %>%
                     values = c(muted("blue"), "red3")) +
   theme_void() +
   labs(fill = "Projected Winner")
+
+ggsave("../figures/shocks/winner_map.jpg")
   
 prob_table %>% 
   mutate(biden_win = ifelse(sim_dvotes_2020 > sim_rvotes_2020, 1, 0)) %>% 

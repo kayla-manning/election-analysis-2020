@@ -35,7 +35,7 @@ I maintained the underlying binomial logistic model and varied the turnout as I 
 | Biden     | 350[^DC]        | 0.528                  |
 | Trump     | 214             | 0.423                  |
 
-
+This above map shows the win margin and displays how close each race is in each state, but [this](../figures/shocks/winner_map.jpg) map clearly shows the predicted winner for each state.
 
 ### Looking Ahead
 
