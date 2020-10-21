@@ -3,36 +3,36 @@
 
 ### What the Literature Says about Shocks
 
-The media loves a good "October Surprise," but how do shocks actually translate into electoral outcomes? Did the opening of the investigation into Clinton's emails cause the 2016 Democratic contender to lose the race? How did Trump manage to win the office after the release of the Access Hollywood tape? While there have been personal scandals in the 2020 race (Bob Woodward, taxes), COVID-19 reigns as the defining issue of this year.
+The media loves a good "October Surprise," and 2020 has had its fair share of big events. COVID-19 steadily remains the defining issue of the 2020 election, in spite of scandals ranging from [tax avoidance](https://www.nytimes.com/interactive/2020/09/27/us/donald-trump-taxes.html) by the president, [misleading the public](https://www.nytimes.com/2020/09/09/us/politics/woodward-trump-book-virus.html) on the state of COVID-19, and accusations of suspicious [emails](https://www.vox.com/2020/10/14/21515776/hunter-biden-emails-giuliani). How will shocks such as COVID-19 translate into electoral outcomes?
 
-It certainly sounds interesting to think that shark attacks[^achen] led to Woodrow Wilson's defeat in the 1916 election, but most sensational headlines come from flawed statistics.[^fowler] Such voter behavior seems irrational, but studies on tornadoes[^healy] reveal that voters respond to economic damage resulting from the tornados rather than death counts. With this considers, it appears that voters response to how the incumbent *handles* such shocks rather than blaming the incumbent for the occurrence of the events. How does this translate to COVID-19 and the 2020 presidential election?
+It certainly sounds interesting to think that shark attacks[^achen] led to Woodrow Wilson's defeat in the 1916 election, but most sensational headlines come from flawed statistics.[^fowler] Such voter behavior seems irrational, but studies on tornadoes[^healy] reveal that voters respond to economic damage resulting from the tornadoes rather than death counts. With this considers, it appears that voters response to how the incumbent *handles* such shocks rather than blaming the incumbent for the occurrence of the events.
 
 
 ### The Impact of COVID-19 on the 2020 Election
 
-The [economic numbers](economy.md) of 2020 undoubtedly reflect COVID-19's damage, so incorporating economic data in models helps pick up on some of the 2020 shocks. However, voters' emotional responses to COVID and other events of 2020 may be independent of economic circumstances. Polls should pick up any sort of non-economic reaction to the circumstances. Taking COVID-19 metrics, for example, shows that deaths and positive test counts have fairly strong, negative correlations with Donald Trump's approval ratings:[^metrics]
+The [economic numbers](economy.md) of 2020 reflect the damage of COVID; incorporating economic data into prediction models picks up on some of the 2020 shocks. However, voters' emotional responses to certain events of 2020 may exist independent of economic circumstances. In this situation, polls should pick up any sort of non-economic reaction by the public. Examining COVID-19 metrics, for example, shows that deaths and positive test counts have fairly strong, negative correlations with Donald Trump's approval ratings:[^metrics]
 
 
-|              |  avg_support   |    death | deathIncrease |   positive |positiveIncrease |
-| -------------|----------------|-----------|--------------|------------|-----------------|            
-|avg_support    |   1.00000000 |-0.64782421  | -0.06447719 |-0.51258921  |     -0.8083311 |
+|              |    Death Count    |   Positive Results |Increase in Positive Results|
+|--------------|-------------------|-------------------|-----------------|            
+|avg_support   |  -0.64782421      |-0.51258921       |     -0.8083311 |
 
 ![covid](../figures/shocks/covid_polls.jpg)
 
-Not surprisingly, public opinion about Donald Trump's handling of the COVID-19 crisis and his overall polling numbers also appear to have a moderate, negative correlation:
+Not surprisingly, public opinion about Donald Trump's handling of the COVID-19 crisis has a moderately strong, positive correlation with his overall polling numbers and the inverse if true for Biden's poll numbers and Trump's COVID approval:
 
 ![covid_approval](../figures/shocks/covid_approval.jpg)
 
-These correlations reveal that incorporating additional variables into a model to reflect COVID-19 might be redundant. Rather, polls and economic metrics can serve as a proxy for impact of the shocks of 2020 on the electorate.
+Since COVID metrics and COVID-specific approval is correlated with metrics already included in my models, incorporating these additional variables into a model would be redundant. Rather, polls and economic metrics can serve as a proxy for impact of the shocks of 2020 on the electorate.
 
 ### Modeling with Economic Numbers and Polls, by State
 
 [Last week's model](turnout.md) was admittedly weak, but a few minor tweaks strengthened the model significantly. As I mentioned, fitting a separate model for each state left each model extremely susceptible to overfitting and poor out-of-sample performance. To fix this, I made these changes:
 
-* I fit models for 3 different categories of states: strong blue states, strong red states, and battleground states,[^categories] rather than a model for all 50 states
-* I made the model much more parsimonious, using state polling numbers from 2 weeks out, incumbency status, the interaction between incumbency and polls, Q1 GDP growth, that state's Democratic popular vote margin in the previous election, and the change in that state's Black population.
+* I fit separate models for 3 different categories of states: strong or likely blue states, strong or likely red states, and battleground states,[^categories] with the thinking that these states exhibit similar behavior surrounding elections. With this method, I used each state as an individual observation of election outcomes, which substantially increased the sample size of the data when constructing the model.
+* I cut out several of the predictors from the previous week, making the model much more parsimonious. This time, the model predicts the voter turnout for each party using state polling numbers from 2 weeks out, incumbency status, the interaction between incumbency and polls, Q1 GDP growth, that state's Democratic popular vote margin in the previous election, and the change in that state's Black population.
 
-I maintained the underlying binomial logistic model and varied the turnout as I did before. This method yielded must closer and more reasonable predictions for every state:
+I maintained the underlying binomial logistic model and varied the turnout as I did before. This method yielded much closer and more reasonable predictions for every state:
 
 ![map](../figures/shocks/margin_map.jpg)
 
@@ -41,7 +41,7 @@ I maintained the underlying binomial logistic model and varied the turnout as I 
 | Biden     | 350[^DC]        | 0.528                  |
 | Trump     | 214             | 0.423                  |
 
-This above map shows the win margin and displays how close each race is in each state, but [this](../figures/shocks/winner_map.jpg) map clearly shows the predicted winner for each state.
+The above map shows the win margin and displays how close each race is in each state, but [this](../figures/shocks/winner_map.jpg) map clearly shows the predicted winner for each state.
 
 ### Looking Ahead
 

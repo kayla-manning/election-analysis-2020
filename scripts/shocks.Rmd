@@ -214,25 +214,40 @@ covid_dat <- read_csv("../data/covid-19-polls-master-538/covid_approval_polls_ad
   group_by(enddate) %>% 
   summarise(approve_adjusted = mean(approve_adjusted)) %>% 
   mutate(enddate = mdy(enddate)) %>% 
-  inner_join(poll_2020_df %>% 
-               filter(party == "democrat"), by = c("enddate" = "poll_date")) %>% 
+  inner_join(poll_2020_df, by = c("enddate" = "poll_date")) %>% 
   filter(enddate > 2020-03-01)
 
+# correlation of 0.6357695 for Trump
+
 covid_dat %>% 
+  filter(party == "republican") %>% 
   select(approve_adjusted, avg_support) %>% 
   drop_na() %>% 
   cor()
 
- covid_dat %>% 
-  ggplot(aes(approve_adjusted, avg_support)) +
+# correlation of -0.4729634 for Biden 
+
+covid_dat %>% 
+  filter(party == "democrat") %>% 
+  select(approve_adjusted, avg_support) %>% 
+  drop_na() %>% 
+  cor() 
+
+# plotting
+
+covid_dat %>%  
+  ggplot(aes(approve_adjusted, avg_support, color = party, fill = party)) +
   geom_point() +
-  geom_smooth(method = "lm", color = "red3") +
+  geom_smooth(method = "lm", color = "black") +
   theme_minimal() +
   labs(x = "Approval of Trump's Response to COVID-19",
        y = "Average Polling Support",
        title = "Association Between Trump's COVID-19 Approval and Polls",
-       subtitle = "Correlation of -0.473",
-       caption = "Both datasets came from FiveThirtyEight")
+       subtitle = "Correlation of -0.423 for Biden, Correlation of 0.636 for Trump",
+       color = "Candidate") +
+  scale_color_manual(labels = c("Biden", "Trump"), values = c(muted("blue"), "red3")) +
+  scale_fill_manual(values = c(muted("blue"), "red3")) +
+  guides(fill = FALSE)
  
  ggsave("../figures/shocks/covid_approval.jpg")
 
