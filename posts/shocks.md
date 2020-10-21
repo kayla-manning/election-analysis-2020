@@ -12,24 +12,25 @@ It certainly sounds interesting to think that shark attacks[^achen] led to Woodr
 
 ### The Impact of COVID-19 on the 2020 Election
 
-The [economic numbers](economy.md) of 2020 reflect the damage of COVID; incorporating economic data into prediction models picks up on some of the 2020 shocks. However, voters' emotional responses to certain events of 2020 may exist independent of economic circumstances. In this situation, polls should pick up any sort of non-economic reaction by the public. Examining COVID-19 metrics, for example, shows that deaths and positive test counts have fairly strong, negative correlations with Donald Trump's approval ratings:[^metrics]
+The [economic numbers](economy.md) of 2020 undoubtedly reflect the damage of COVID; incorporating economic data into predictions helps to account for some of the pandemic-related fallout. However, voters' emotional responses to events may exist independent of economic circumstances. In this situation, polls should capture how voters process non-economic responses to current events. Examining COVID-19 metrics, for example, shows that the COVID death count and increases in positive test counts have fairly strong, negative correlations with Donald Trump's approval ratings:[^metrics]
 
 ![covid](../figures/shocks/covid_polls.jpg)
 
-Not surprisingly, public opinion about Donald Trump's handling of the COVID-19 crisis has a moderately strong, positive correlation with his overall polling numbers and the inverse if true for Biden's poll numbers and Trump's COVID approval:
+Not surprisingly, public opinion about Donald Trump's handling of the COVID-19 crisis has a moderately strong, positive correlation with his overall polling numbers and the Biden's poll numbers have a negative correlation with Trump's COVID approval:
 
 ![covid_approval](../figures/shocks/covid_approval.jpg)
 
-Since COVID metrics and COVID-specific approval is correlated with metrics already included in my models, incorporating these additional variables into a model would be redundant. Rather, polls and economic metrics can serve as a proxy for impact of the shocks of 2020 on the electorate.
+COVID metrics and COVID-specific approval follow the same trends as variables already included in my models, and incorporating correlated variables is redundant. Because of this, I will use polls and economic metrics as a proxy for the impact of COVID and other shocks on the electorate.
 
 ### Modeling with Economic Numbers and Polls, by State
 
-[Last week's model](turnout.md) was admittedly weak, but a few minor tweaks strengthened the model significantly. As I mentioned, fitting a separate model for each state left each model extremely susceptible to overfitting and poor out-of-sample performance. To fix this, I made these changes:
+A few minor tweaks to [last week's](turnout.md) imperfect model strengthened it significantly. As I mentioned in the previous post, fitting a separate model for each state left each model extremely susceptible to overfitting and poor out-of-sample performance. To fix this, I made the following changes:
 
-* I fit separate models for 3 different categories of states: strong or likely blue states, strong or likely red states, and battleground states,[^categories] with the thinking that these states exhibit similar behavior surrounding elections. With this method, I used each state as an individual observation of election outcomes, which substantially increased the sample size of the data when constructing the model.
-* I cut out several of the predictors from the previous week, making the model much more parsimonious. This time, the model predicts the voter turnout for each party using state polling numbers from 2 weeks out, incumbency status, the interaction between incumbency and polls, Q1 GDP growth, that state's Democratic popular vote margin in the previous election, and the change in that state's Black population.
+* I fit separate models for 3 different categories of states: likely blue states, likely red states, and battleground states,[^categories] with the thinking that voters exhibit similar behavior in elections within their state's group. With this method, I used each state as an individual observation of an election, which drastically increased the observed outcomes from which I constructed the model.
 
-I maintained the underlying binomial logistic model and varied the turnout as I did before. This method yielded much closer and more reasonable predictions for every state:
+* With parsimony in mind, I cut out several predictor variables from last week's model.[^parsimony] This new model predicts the voter turnout for each party using state polling numbers from 2 weeks out, the candidate's incumbency status, the interaction between incumbency and polls, national Q1 GDP growth, the previous election's Democratic vote margin in that state, and the change in that state's Black population.
+
+I maintained the underlying binomial logistic structure as last week, and I varied the turnout as I did before. This method yielded much closer and more reasonable predictions for each state:
 
 ![map](../figures/shocks/margin_map.jpg)
 
@@ -38,11 +39,11 @@ I maintained the underlying binomial logistic model and varied the turnout as I 
 | Biden     | 350[^DC]        | 0.528                  |
 | Trump     | 214             | 0.423                  |
 
-The above map shows the win margin and displays how close each race is in each state, but [this map](../figures/shocks/winner_map.jpg) clearly displays the predicted winner for each state and [this table](../figures/shocks/state_pv_table.html) shows the predicted two-party popular votes for each state.
+The above map shows the win margin and displays the closeness of the race in each state. For a better look at predicted state-by-state outcomes, [this map](../figures/shocks/winner_map.jpg) displays the predicted winner for each state without regard to closeness and [this table](../figures/shocks/state_pv_table.html) lists the predicted two-party popular vote shares for each state.
 
 ### Looking Ahead
 
-With less than two weeks remaining until Election Day, my next post will be my final election prediction. I will likely make some tweaks to the model in this post and include the updated polling numbers. For this post, I used the model to make a preliminary prediction as part of the discussion about how the polling numbers and economic data fit into COVID-19. Next week's post will go into further depth about my reasoning behind constructing the model, its strength and external validity, and uncertainty surrounding the prediction.
+With less than two weeks remaining until Election Day, my next post will be my final election prediction. For this post, I used the model to make a preliminary prediction as part of the discussion about how the polling numbers and economic data fit into COVID-19. Over the course of the next week, I will continue to modify this model and will update with the new polling numbers. My final prediction will go into further depth about my reasoning behind constructing the model, its strength and external validity, and uncertainty surrounding the prediction.
 
 ------------------------------------------------------------------
 
@@ -55,6 +56,8 @@ With less than two weeks remaining until Election Day, my next post will be my f
 [^metrics]: It is important to note that the deaths plot shows the absolute count of deaths in the United States, which increase day-by-day. Plotting the number of deaths on the x-axis essentially shows how the poll numbers have traveled over time. In this case, the death count in March looks quite different from the death count in August, even if COVID-19 is relatively more tame in the latter. In contrast, the increase in the number of positive tests is a more relative number that varies each day but you can observe similar counts months apart. The strong negative correlation between the increase in positive test results and Trump's poll numbers shows that the polls are associated with the increase in positive results, which serve as a proxy for the severity of the pandemic, rather than serving as a simple function of time. 
 
 [^categories]: I followed the [New York Time's classification](https://www.nytimes.com/interactive/2020/us/elections/election-states-biden-trump.html) of states when selecting which states to include in each model.
+
+[^parsimony]: I removed correlated variables from the model and kept predictors that clearly assessed the fundamentals, polls, previous outcomes, and demographics.
 
 [^DC]: The model did not include DC, but I added it to the electoral count since it consistently votes blue in presidential elections.
 
