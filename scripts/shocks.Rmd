@@ -201,13 +201,14 @@ positives <- covid_nat %>%
        y = "Average Polling Support",
        title = "Polling Response to COVID-19 Positive Increases",
        color = "Candidate",
-       subtitle = "Correlation of -0.808 between Trump's polling numbers and increases in positive tests") +
+       subtitle = "Correlation of -0.808 between Trump's polling numbers and increases in positive tests",
+       caption = "Poll data from FiveThirtyEight and COVID data from The COVID Tracking Project at The Atlantic") +
   scale_color_manual(labels = c("Joe Biden", "Donald Trump"),
                      values = c(muted("blue"), "red3"))
 
 ggarrange(deaths, positives, ncol = 1, common.legend = TRUE, legend = "right")
 
-ggsave("../figures/shocks/covid_polls.jpg")
+ggsave("../figures/shocks/covid_polls.jpg", height = 11, width = 9)
 
 ```
 
@@ -247,7 +248,8 @@ covid_dat %>%
        y = "Average Polling Support",
        title = "Association Between Trump's COVID-19 Approval and Polls",
        subtitle = "Correlation of -0.423 for Biden, Correlation of 0.636 for Trump",
-       color = "Candidate") +
+       color = "Candidate",
+       caption = "Data from FiveThirtyEight") +
   scale_color_manual(labels = c("Biden", "Trump"), values = c(muted("blue"), "red3")) +
   scale_fill_manual(values = c(muted("blue"), "red3")) +
   guides(fill = FALSE)
