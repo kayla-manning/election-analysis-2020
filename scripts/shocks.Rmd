@@ -632,8 +632,8 @@ prob_table %>%
   group_by(state) %>% 
   mutate(d_pv2p = sim_dvotes_2020 / (sim_rvotes_2020 + sim_dvotes_2020),
          r_pv2p = 1 - d_pv2p) %>% 
-  summarise(d_pv2p = mean(d_pv2p) * 100,
-            r_pv2p = mean(r_pv2p) * 100) %>% 
+  summarise(d_pv2p = mean(d_pv2p, na.rm = TRUE) * 100,
+            r_pv2p = mean(r_pv2p, na.rm = TRUE) * 100) %>% 
   mutate(d_margin = d_pv2p - r_pv2p) %>% 
   plot_usmap(regions = "states", data = ., values = "d_margin", labels = TRUE) +
   theme_void() +
