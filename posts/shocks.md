@@ -10,9 +10,9 @@
 - correlated with approval
 - economic numbers definitely reflect COVID damage
 
-              |  avg_support   |    death | deathIncrease |   positive |positiveIncrease
- ----------------------------------------------------------------------------------------             
-avg_support    |   1.00000000 |-0.64782421  | -0.06447719 |-0.51258921  |     -0.8083311
+|              |  avg_support   |    death | deathIncrease |   positive |positiveIncrease |
+| -------------|----------------|-----------|--------------|------------|-----------------|            
+|avg_support    |   1.00000000 |-0.64782421  | -0.06447719 |-0.51258921  |     -0.8083311 |
 
 ![covid](../figures/shocks/covid_polls.jpg)
 
