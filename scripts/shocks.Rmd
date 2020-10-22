@@ -155,8 +155,6 @@ state_votes <- read_csv("../data/popvote_bystate_1948-2016.csv") %>%
                                          TRUE ~ FALSE)) %>%
     filter(!is.na(party))
   
-  
-  
 }
 
 ```
@@ -266,7 +264,7 @@ covid_dat %>%
 # putting Maine and Nebraska as battleground states even though it varies by district
 
 dem_states <- c("CO", "VA", "CA", "CT", "DE", "HI", "IL", "MD", "MA", "NJ", "NY", "OR", "RI", "VT", "WA")
-bg_states <- c("FL", "IA", "OH", "GA", "NC", "ME", "NC", "MI", "MN", "NE", "NH", "PA", "WI", 
+bg_states <- c("FL", "IA", "OH", "GA", "ME", "NC", "MI", "MN", "NE", "NH", "PA", "WI", 
                "NV", "AZ", "NM", "TX")
 rep_states <- c("AK", "IN", "KS", "MO", "AL", "AR", "ID", "KY", "LA", "MS", "ND", "OK", "SD", "MT",
                 "TN", "WV", "WY", "SC", "UT")
@@ -627,6 +625,7 @@ prob_table %>%
 ggsave("../figures/shocks/winner_map.jpg")
   
 prob_table %>% 
+  drop_na() %>% 
   mutate(biden_win = ifelse(sim_dvotes_2020 > sim_rvotes_2020, 1, 0)) %>% 
   group_by(state, electoral_votes) %>% 
   summarise(biden_win = mean(biden_win), .groups = "drop") %>% 
@@ -676,19 +675,22 @@ prob_table %>%
 
 prob_table %>% 
   group_by(state) %>% 
+  drop_na() %>% 
   mutate(d_pv2p = sim_dvotes_2020 / (sim_rvotes_2020 + sim_dvotes_2020),
          r_pv2p = 1 - d_pv2p) %>% 
   summarise(d_pv2p = mean(d_pv2p),
             r_pv2p = mean(r_pv2p)) %>% 
   gt() %>% 
   tab_header("State Two-Party Popular Vote Predictions") %>% 
-  cols_label(state = "State", d_pv2p = "Biden", r_pv2p = "Trump") %>% 
-  gtsave("../figures/shocks/state_pv_table.html")
+  cols_label(state = "State", d_pv2p = "Biden", r_pv2p = "Trump") 
+# %>% 
+#   gtsave("../figures/shocks/state_pv_table.html")
 
 # margin map
 
 prob_table %>% 
   group_by(state) %>% 
+  drop_na() %>% 
   mutate(d_pv2p = sim_dvotes_2020 / (sim_rvotes_2020 + sim_dvotes_2020),
          r_pv2p = 1 - d_pv2p) %>% 
   summarise(d_pv2p = mean(d_pv2p) * 100,

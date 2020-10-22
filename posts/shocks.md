@@ -7,30 +7,32 @@
 
 The media loves a good "October Surprise," and 2020 has had its fair share of newsworthy events. COVID-19 consistently remains the defining issue of 2020, despite other scandals ranging from [tax avoidance](https://www.nytimes.com/interactive/2020/09/27/us/donald-trump-taxes.html) by the president, [misleading the public](https://www.nytimes.com/2020/09/09/us/politics/woodward-trump-book-virus.html) on the state of COVID-19, and accusations of suspicious [emails](https://www.vox.com/2020/10/14/21515776/hunter-biden-emails-giuliani). How will the shock of COVID-19 translate into electoral outcomes?
 
-It certainly sounds interesting to think that shark attacks[^achen] led to Woodrow Wilson's defeat in the 1916 election, but most sensational headlines come from flawed statistics.[^fowler] Voter behavior punishing incumbents for natural events seems irrational, however, that may not be the case if voters can attribute damage to the party in power. For example, voters punish incumbents for economic damage resulting from tornadoes[^healy] rather than death counts. In this case, the incumbent does have the power to issue a disaster declaration and attempt to minimize economic damage. With this considered, it appears that voters respond to how the incumbent *handles* such shocks rather than blaming the incumbent for the occurrence of the events.
+It certainly sounds interesting to think that shark attacks[^achen] led to Woodrow Wilson's defeat in the 1916 election, but most sensational headlines come from flawed statistics.[^fowler] Voter behavior punishing incumbents for natural events seems irrational; however, voters can reasonably fault the incumbent for *certain results* of the such events. For example, voters punish incumbents for economic damage resulting from tornadoes[^healy] but not death counts. When focusing on economic repercussions of tornadoes, the incumbent can issue a disaster declaration and attempt to minimize economic damage. This study supports the notion that voters do in fact behave rationally and respond to how the incumbent *handles* such shocks rather than blaming the incumbent for the occurrence of the events.
 
 
 ### The Impact of COVID-19 on the 2020 Election
 
-The [economic numbers](economy.md) of 2020 undoubtedly reflect the damage of COVID; incorporating economic data into predictions helps to account for some of the pandemic-related fallout. However, voters' emotional responses to events may exist independent of economic circumstances. In this situation, polls should capture how voters process non-economic responses to current events. Examining COVID-19 metrics, for example, shows that the COVID death count and increases in positive test counts have fairly strong, negative correlations with Donald Trump's approval ratings:[^metrics]
+The pandemic wreaked havoc on the emotional and economic well-being of Americans. The [economic numbers](economy.md) of 2020 undoubtedly reflect the damage of COVID; incorporating economic data into predictions helps to account for some of the pandemic-related fallout. Under the assumption of rational voting behavior, voters may reasonably punish Donald Trump for his handling of the pandemic. However, voters may also feel that he mishandled less concrete aspects of the pandemic, such as his [hesitancy](https://www.bbc.com/news/world-us-canada-53378439) to wear a [mask](https://www.nytimes.com/2020/10/02/us/politics/donald-trump-masks.html) or his COVID-19 [diagnosis](https://www.npr.org/sections/latest-updates-trump-covid-19-results/2020/10/03/919898777/timeline-what-we-know-of-president-trumps-covid-19-diagnosis) late in the campaign.
+
+Voters' emotional responses to events may exist independent of economic circumstances. In this situation, national and statewide polls should capture voters' responses to the state of the pandemic and other current events. Examining COVID-19 metrics, for example, shows that the COVID death count and increases in positive test counts have fairly strong, negative correlations with Donald Trump's approval ratings:[^metrics]
 
 ![covid](../figures/shocks/covid_polls.jpg)
 
-Not surprisingly, public opinion about Donald Trump's handling of the COVID-19 crisis has a moderately strong, positive correlation with his overall polling numbers, and Biden's poll numbers have a negative correlation with Trump's COVID approval:
+Not surprisingly, public opinion regarding Donald Trump's handling of the COVID-19 crisis has a moderately strong, positive correlation with his overall polling numbers, and Biden's poll numbers have a negative correlation with Trump's COVID approval:
 
 ![covid_approval](../figures/shocks/covid_approval.jpg)
 
-As displayed and explained above, COVID metrics and COVID-specific approval are correlated with variables already included in my models, so I will use polls and economic metrics as a proxy for the impact of COVID to avoid redundancy.
+Since COVID metrics and COVID-specific approval are correlated with variables already included in my models, I will avoid redundancy by using polls and economic metrics as proxies for the impact of COVID.
 
 ### Modeling with Economic Numbers and Polls, by State
 
-A few minor tweaks to [last week's](turnout.md) imperfect model strengthened it significantly. As I mentioned in the previous post, fitting a separate model for each state left each model extremely susceptible to overfitting and poor out-of-sample performance. To fix this, I made the following changes:
+A few modifications to [last week's](turnout.md) model led to much more reasonable predictions. As I mentioned in the previous post, fitting a separate model for each state left each model extremely susceptible to overfitting and poor out-of-sample performance. To fix this, I made the following changes:
 
-* I fit separate models for 3 different categories of states: likely blue states, likely red states, and battleground states,[^categories] with the thinking that voters exhibit similar behavior in elections within their state's group. With this method, I used each state as an individual observation of an election, which drastically increased the observed outcomes from which I constructed the model.
+* I fit separate models for 3 different categories of states--likely blue states, likely red states, and battleground states[^categories]--with the thinking that voters within groups of states exhibit similar behavior in elections. This method uses each state in every election as an individual observation, which drastically increased the size of the sample from which I constructed the model.
 
-* With parsimony in mind, I cut out several predictor variables from last week's model.[^parsimony] This new model predicts the voter turnout for each party using state polling numbers from 2 weeks out, the candidate's incumbency status, the interaction between incumbency and polls, national Q1 GDP growth, the previous election's Democratic vote margin in that state, and the change in that state's Black population.
+* For the sake of parsimony, I omitted several predictor variables from last week's model.[^parsimony] This new model predicts the voter turnout for each party using state polling numbers from 2 weeks out, the candidate's incumbency status, the interaction between incumbency and polls, national Q1 GDP growth, the previous election's Democratic vote margin in that state, and the change in that state's Black population.
 
-I maintained the underlying binomial logistic structure from last week, and I varied the turnout as I did before. This method yielded much closer and more reasonable predictions for each state:
+I maintained the underlying binomial logistic structure from last week, and I varied the turnout as I did before. This method forecasts an electoral count of 305 for Biden, but the model projects many close state-wide races:
 
 ![map](../figures/shocks/margin_map.jpg)
 
@@ -43,7 +45,7 @@ The above map displays the closeness of the race in each state. For a better loo
 
 ### Looking Ahead
 
-With less than two weeks remaining until Election Day, my next post will be my final election prediction. For this post, I used the model to make a preliminary prediction as part of the discussion about how the polling numbers and economic data fit into COVID-19. Throughout the next week, I will continue to modify this model and will update it with new polling numbers. My final prediction will go into further depth about my reasoning behind constructing the model, its strength and external validity, and uncertainty surrounding the prediction.
+With less than two weeks remaining until Election Day, my next post will contain a final election prediction. For this post, I used my model as part of the discussion about how the polling numbers and economic data fit into COVID-19. Throughout the next week, I will continue to modify this model and will update it with new polling numbers. My final prediction will go into further depth about my reasoning behind constructing the model, its strength and external validity, and uncertainty surrounding the prediction.
 
 ------------------------------------------------------------------
 
