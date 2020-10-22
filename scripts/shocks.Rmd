@@ -621,7 +621,8 @@ prob_table %>%
   scale_fill_manual(breaks = c("Biden", "Trump"),
                     values = c(muted("blue"), "red3")) +
   theme_void() +
-  labs(fill = "Projected Winner")
+  labs(fill = "Projected Winner",
+       title = "Forecasted Winners in Each State")
 
 ggsave("../figures/shocks/winner_map.jpg")
   
