@@ -30,7 +30,7 @@ A few modifications to [last week's](turnout.md) model led to much more reasonab
 
 * I fit separate models for 3 different categories of states--likely blue states, likely red states, and battleground states[^categories]--with the thinking that voters within groups of states exhibit similar behavior in elections. This method uses each state in every election as an individual observation, which drastically increased the size of the sample from which I constructed the model.
 
-* For the sake of parsimony, I omitted several predictor variables from last week's model.[^parsimony] This new model predicts the voter turnout for each party using state polling numbers from 2 weeks out, the candidate's incumbency status, the interaction between incumbency and polls, national Q1 GDP growth, the previous election's Democratic vote margin in that state, and the change in that state's Black population.
+* For the sake of parsimony, I omitted several predictor variables from last week's model.[^parsimony] This new model predicts each party's votes using the average of state and national polling numbers from 2 weeks out, the candidate's incumbency status, the interaction between incumbency and polls, national Q1 GDP growth, the previous election's Democratic vote margin in that state, and the change in that state's Black population.
 
 I maintained the underlying binomial logistic structure from last week, and I varied the turnout as I did before. This method forecasts an electoral count of 305 for Biden, but the model projects many close state-wide races:
 

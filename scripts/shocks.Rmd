@@ -135,7 +135,8 @@ state_votes <- read_csv("../data/popvote_bystate_1948-2016.csv") %>%
   inner_join(my_state_votes %>% mutate(state = state.abb[match(state, state.name)])) %>% 
   mutate(prev_winner = replace_na(prev_winner, "none")) %>% 
   mutate(consec_dem = as.numeric(consec_dem),
-         consec_rep = as.numeric(consec_rep))
+         consec_rep = as.numeric(consec_rep),
+         avg_polls = (avg_state_poll + avg_support) / 2)
 
 # updating state poll data
 
@@ -308,7 +309,14 @@ for (s in bg_states) {
     filter(state == s,
            weeks_left == 2) %>% 
     group_by(party) %>% 
-    summarise(avg_support = mean(pct, na.rm = TRUE))
+    summarise(avg_support = mean(pct, na.rm = TRUE)) %>% 
+    inner_join(poll_2020_df %>% 
+                 filter(weeks_left == 2) %>% 
+                 group_by(party) %>% 
+                 summarise(nat_support = mean(avg_support_adj))) 
+  # %>% 
+  #   mutate(avg_support = (avg_support + nat_support) / 2) %>% 
+  #   select(party, avg_support)
   
   biden_poll <- polls %>% 
     filter(party == "democrat") %>% 
