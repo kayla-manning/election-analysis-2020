@@ -36,8 +36,8 @@ I maintained the underlying binomial logistic structure from last week, and I va
 
 | Candidate | Electoral Votes | Two-Party Popular Vote |
 |-----------|-----------------|------------------------|
-| Biden     | 350[^DC]        | 0.528                  |
-| Trump     | 214             | 0.423                  |
+| Biden     | 305[^DC]        | 0.516                  |
+| Trump     | 233             | 0.484                  |
 
 The above map displays the closeness of the race in each state. For a better look at predicted state-by-state outcomes, [this map](../figures/shocks/winner_map.jpg) displays the predicted winner for each state without regard to closeness and [this table](../figures/shocks/state_pv_table.html) lists the predicted two-party popular vote shares for each state.
 

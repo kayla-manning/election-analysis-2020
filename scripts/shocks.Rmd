@@ -132,7 +132,7 @@ state_votes <- read_csv("../data/popvote_bystate_1948-2016.csv") %>%
   mutate(turnout_pct = as.numeric(turnout_pct)) %>% 
   mutate(winner = case_when(d > r ~ "dem",
                             TRUE ~ "rep")) %>% 
-  inner_join(my_state_votes) %>% 
+  inner_join(my_state_votes %>% mutate(state = state.abb[match(state, state.name)])) %>% 
   mutate(prev_winner = replace_na(prev_winner, "none")) %>% 
   mutate(consec_dem = as.numeric(consec_dem),
          consec_rep = as.numeric(consec_rep))
