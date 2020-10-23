@@ -169,7 +169,6 @@ prob_table <- tibble(state = c(rep(dem_states, each = 10000), rep(bg_states, eac
   mutate(VEP = map2_dbl(VEP, vep_sd, ~ rnorm(1, .x, 1.25 * .y)))
 
 
-
 for (s in bg_states) {
   
   # code for the Democrat model
@@ -178,7 +177,14 @@ for (s in bg_states) {
     filter(state == s,
            weeks_left %in% c(1, 2, 3)) %>% 
     group_by(party) %>% 
-    summarise(avg_support = mean(pct, na.rm = TRUE))
+    summarise(avg_support = mean(pct, na.rm = TRUE)) 
+  # %>%
+  #   inner_join(poll_2020_df %>% 
+  #                filter(weeks_left == 2) %>% 
+  #                group_by(party) %>% 
+  #                summarise(nat_support = mean(avg_support_adj))) %>% 
+  #   mutate(avg_support = (avg_support + nat_support) / 2) %>%
+  #   select(party, avg_support)
   
   biden_poll <- polls %>% 
     filter(party == "democrat") %>% 
@@ -210,12 +216,12 @@ for (s in bg_states) {
                state %in% bg_states,
                quarter == 1) %>% 
         mutate(d_pv = d / total_vote) %>% 
-        glm(cbind(d, VEP - d) ~ avg_polls * incumbent + gdp_growth_qt +
+        glm(cbind(d, VEP - d) ~ avg_state_poll * incumbent + gdp_growth_qt +
               prev_dem_margin + black_change,
             data = ., family = "binomial")
   
       prob_table[which(prob_table$state == s), 2] <- predict(
-        dem_mod, tibble(avg_polls = biden_poll,
+        dem_mod, tibble(avg_state_poll = biden_poll,
                         incumbent = FALSE,
                         gdp_growth_qt = q1_gdp,
                         black_change = state_votes %>% 
@@ -245,12 +251,12 @@ for (s in bg_states) {
                state %in% bg_states,
                quarter == 1) %>% 
         mutate(r_pv = r / total_vote) %>% 
-        glm(cbind(r, VEP - r) ~ avg_polls * incumbent + gdp_growth_qt + 
+        glm(cbind(r, VEP - r) ~ avg_state_poll * incumbent + gdp_growth_qt + 
               prev_dem_margin + black_change,
             data = ., family = "binomial")
       
       prob_table[which(prob_table$state == s), 3] <- predict(
-        rep_mod, tibble(avg_polls = trump_poll,
+        rep_mod, tibble(avg_state_poll = trump_poll,
                         incumbent = TRUE,
                         gdp_growth_qt = q1_gdp,
                         black_change = state_votes %>% 
@@ -276,6 +282,7 @@ for (s in bg_states) {
   
       
 }
+
 
 
 for (s in dem_states) {
@@ -304,12 +311,12 @@ for (s in dem_states) {
                state %in% dem_states,
                quarter == 1) %>% 
         mutate(d_pv = d / total_vote) %>% 
-        glm(cbind(d, VEP - d) ~ avg_polls * incumbent + gdp_growth_qt +
+        glm(cbind(d, VEP - d) ~ avg_state_poll * incumbent + gdp_growth_qt +
               prev_dem_margin + black_change,
             data = ., family = "binomial")
   
       prob_table[which(prob_table$state == s), 2] <- predict(
-        dem_mod, tibble(avg_polls = biden_poll,
+        dem_mod, tibble(avg_state_poll = biden_poll,
                         incumbent = FALSE,
                         gdp_growth_qt = q1_gdp,
                         black_change = state_votes %>% 
@@ -339,12 +346,12 @@ for (s in dem_states) {
                state %in% dem_states,
                quarter == 1) %>% 
         mutate(r_pv = r / total_vote) %>% 
-        glm(cbind(r, VEP - r) ~ avg_polls * incumbent + gdp_growth_qt + 
+        glm(cbind(r, VEP - r) ~ avg_state_poll * incumbent + gdp_growth_qt + 
               prev_dem_margin + black_change,
             data = ., family = "binomial")
       
       prob_table[which(prob_table$state == s), 3] <- predict(
-        rep_mod, tibble(avg_polls = trump_poll,
+        rep_mod, tibble(avg_state_poll = trump_poll,
                         incumbent = TRUE,
                         gdp_growth_qt = q1_gdp,
                         black_change = state_votes %>% 
@@ -397,12 +404,12 @@ for (s in rep_states) {
                state %in% rep_states,
                quarter == 1) %>% 
         mutate(d_pv = d / total_vote) %>% 
-        glm(cbind(d, VEP - d) ~ avg_polls * incumbent + gdp_growth_qt +
+        glm(cbind(d, VEP - d) ~ avg_state_poll * incumbent + gdp_growth_qt +
               prev_dem_margin + black_change,
             data = ., family = "binomial")
   
       prob_table[which(prob_table$state == s), 2] <- predict(
-        dem_mod, tibble(avg_polls = biden_poll,
+        dem_mod, tibble(avg_state_poll = biden_poll,
                         incumbent = FALSE,
                         gdp_growth_qt = q1_gdp,
                         black_change = state_votes %>% 
@@ -432,12 +439,12 @@ for (s in rep_states) {
                state %in% rep_states,
                quarter == 1) %>% 
         mutate(r_pv = r / total_vote) %>% 
-        glm(cbind(r, VEP - r) ~ avg_polls * incumbent + gdp_growth_qt + 
+        glm(cbind(r, VEP - r) ~ avg_state_poll * incumbent + gdp_growth_qt + 
               prev_dem_margin + black_change,
             data = ., family = "binomial")
       
       prob_table[which(prob_table$state == s), 3] <- predict(
-        rep_mod, tibble(avg_polls = trump_poll,
+        rep_mod, tibble(avg_state_poll = trump_poll,
                         incumbent = TRUE,
                         gdp_growth_qt = q1_gdp,
                         black_change = state_votes %>% 
@@ -522,20 +529,6 @@ prob_table %>%
 # counting how many states had insignificant results... AZ had 3 elections
 # where the confidence interval contained 0, GA had 2, NM had 1, and UT had 4
 
-prob_table %>% 
-  mutate(diff_sims = sim_dvotes_2020 - sim_rvotes_2020) %>% 
-  group_by(state) %>% 
-  mutate(mean_diff = mean(diff_sims),
-            sd_diff = sd(diff_sims),
-            conf.low = diff_sims - 1.96 * sd_diff,
-            conf.high = diff_sims + 1.96 * sd_diff) %>% 
-  ungroup() %>% 
-  mutate(insignificant = case_when(conf.low < 0 & conf.high > 0 ~ TRUE,
-                                   TRUE ~ FALSE)) %>% 
-  select(state, sim_dvotes_2020, sim_rvotes_2020, diff_sims, conf.low, conf.high, insignificant) %>% 
-  filter(insignificant == TRUE) %>% 
-  count(state)
-
 
 
 ```
@@ -558,7 +551,7 @@ prob_table %>%
 # plotting distributions for the two parties
 
 prob_table %>% 
-  mutate(group = rep(1:10000, times = 50)) %>% 
+  mutate(group = rep(1:1000, times = 50)) %>% 
   group_by(group) %>% 
   summarize(total_dem = sum(sim_dvotes_2020),
          total_rep = sum(sim_rvotes_2020),
@@ -574,7 +567,8 @@ prob_table %>%
   scale_x_continuous(limits = c(0.48, 0.52)) +
   labs(title = "Simulated Two-Party Popular Votes",
        x = "Predicted Share of the Two-Party Popular Vote",
-       y = "Count")
+       y = "Count") +
+  theme_minimal()
 
 # looking at state-by-state distributions
 
@@ -593,7 +587,8 @@ prob_table %>%
                     values = c(muted("blue"), "red3")) +
   labs(title = "Simulated Two-Party Popular Votes",
        x = "Predicted Share of the Two-Party Popular Vote",
-       y = "Count")
+       y = "Count") +
+  theme_minimal()
   
 ```
 
@@ -638,7 +633,7 @@ state_votes %>%
         glm(cbind(r, VEP - r) ~ avg_support * incumbent + gdp_growth_qt + 
               prev_dem_margin + consec_rep,
             data = ., family = "binomial") %>% 
-  summary()
+  tidy()
 
 # democrat model
 

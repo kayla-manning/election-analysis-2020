@@ -1,8 +1,6 @@
 # Shocks and Elections: COVID-19
 ## October 24, 2020
 
-# **DRAFT**
-
 ### What the Literature Says about Shocks
 
 The media loves a good "October Surprise," and 2020 has had its fair share of newsworthy events. COVID-19 consistently remains the defining issue of 2020, despite other scandals ranging from [tax avoidance](https://www.nytimes.com/interactive/2020/09/27/us/donald-trump-taxes.html) by the president, [misleading the public](https://www.nytimes.com/2020/09/09/us/politics/woodward-trump-book-virus.html) on the state of COVID-19, and accusations of suspicious [emails](https://www.vox.com/2020/10/14/21515776/hunter-biden-emails-giuliani). How will the shock of COVID-19 translate into electoral outcomes?
@@ -30,7 +28,7 @@ A few modifications to [last week's](turnout.md) model led to much more reasonab
 
 * I fit separate models for 3 different categories of states--likely blue states, likely red states, and battleground states[^categories]--with the thinking that voters within groups of states exhibit similar behavior in elections. This method uses each state in every election as an individual observation, which drastically increased the size of the sample from which I constructed the model.
 
-* For the sake of parsimony, I omitted several predictor variables from last week's model.[^parsimony] This new model predicts each party's votes using the average of state and national polling numbers from 2 weeks out, the candidate's incumbency status, the interaction between incumbency and polls, national Q1 GDP growth, the previous election's Democratic vote margin in that state, and the change in that state's Black population.
+* For the sake of parsimony, I omitted several predictor variables from last week's model.[^parsimony] This new model predicts each state's votes using state polling numbers from 2 weeks out, the candidate's incumbency status, the interaction between incumbency and polls, national Q1 GDP growth, the previous election's Democratic vote margin in that state, and the change in that state's Black population.
 
 I maintained the underlying binomial logistic structure from last week, and I varied the turnout as I did before. This method forecasts an electoral count of 305 for Biden, but the model projects many close state-wide races:
 
