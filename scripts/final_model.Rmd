@@ -516,6 +516,142 @@ prob_table %>%
 
 ```
 
+```{r out_of_sample, message = FALSE, warning=FALSE}
+
+parties <- c("democrat", "republican")
+state_types <- c(list(bg_states), list(rep_states), list(dem_states))
+years <- seq(1992, 2016, by = 4) %>% as.double()
+
+outsamp_results <- tibble(year = rep(years, each = 100),
+       party = rep(parties, each = 50, times = 7),
+       state = c(rep(c(bg_states, rep_states, dem_states), times = 14)),
+       prediction = 0) %>% 
+  inner_join(vep %>% 
+               filter(year == 2016) %>% 
+               mutate(state = state.abb[match(state, state.name)]) %>% select(state, VEP))
+i = 1
+
+for (year in years) {
+    for (party in parties) {
+      for (state_type in state_types) {
+        for (state in state_type) {
+          
+            states <- state_type[!state_type %in% state]
+            
+            prev_margin <- state_votes %>% 
+                              filter(state == state, 
+                                     year == ifelse(year == 1992, 1992, year - 4)) %>% 
+                              slice(1) %>% 
+                              pull(dem_margin)
+            
+            polls <- state_votes %>% 
+                          filter(state == state,
+                                 year == year) %>% 
+                          group_by(party) %>% 
+                          summarise(avg_support = mean(avg_state_poll, na.rm = TRUE)) 
+            
+            incumbency <- state_votes %>% 
+              select(incumbent, party, year) %>% 
+              filter(party == party,
+                     year == year) %>% 
+              drop_na(incumbent) %>% 
+              slice(1) %>% 
+              pull(incumbent)
+                        
+            biden_poll <- polls %>% 
+              filter(party == "democrat") %>% 
+              pull(avg_support)
+                      
+            trump_poll <- polls %>% 
+              filter(party == "republican") %>% 
+              pull(avg_support)  
+            
+            gdp <- vote_econ %>% 
+              filter(quarter == 1,
+                     year == year) %>% 
+              drop_na(gdp_growth_qt) %>% 
+              slice(1) %>% 
+              pull(gdp_growth_qt)
+            
+            if (party == "republican") {
+              outsamp_mod <- state_votes %>%
+                    filter(party == party,
+                           state %in% states,
+                           quarter == 1) %>% 
+                    glm(cbind(r, VEP - r) ~ avg_state_poll * incumbent + gdp_growth_qt + 
+                          prev_dem_margin + black_change,
+                        data = ., family = "binomial")
+            }
+            else {
+              outsamp_mod <- state_votes %>%
+                    filter(party == party,
+                           state %in% states,
+                           quarter == 1) %>% 
+                    glm(cbind(d, VEP - d) ~ avg_state_poll * incumbent + gdp_growth_qt + 
+                          prev_dem_margin + black_change,
+                        data = ., family = "binomial")
+            }
+            
+            
+            outsamp_results[which(outsamp_results$year == year & 
+                                    outsamp_results$party == party & 
+                                    outsamp_results$state == state), 4] <- predict(
+                  outsamp_mod, tibble(avg_state_poll = ifelse(party == "democrat", 
+                                                              biden_poll, trump_poll),
+                                  incumbent = incumbency,
+                                  gdp_growth_qt = gdp,
+                                  black_change = state_votes %>% 
+                                    filter(state == state, year == year) %>% 
+                                    pull(black_change) %>% mean(),
+                                  prev_dem_margin = prev_margin),
+                  type = "response")
+        
+            i = i + 1
+        }
+      }
+    }
+}
+  
+actual_wins <- state_votes %>% 
+  select(state, year, party, pv2p) %>% 
+  pivot_wider(names_from = party, values_from = pv2p) %>% 
+  unnest(3:4) %>% 
+  distinct() %>% 
+  mutate(actual_dem_win = ifelse(democrat > republican, 1, 0)) %>% 
+  select(state, year, actual_dem_win)
+
+# table with classifications
+
+class <- outsamp_results %>% 
+  mutate(sim = prediction * VEP) %>% 
+  select(year, state, party, sim) %>% 
+  pivot_wider(names_from = party, values_from = sim) %>% 
+  unnest(democrat) %>%
+  unnest(republican) %>% 
+  mutate(predict_dem_win = ifelse(democrat > republican, 1, 0)) %>% 
+  inner_join(actual_wins) %>% 
+  mutate(correct_class = ifelse(predict_dem_win == actual_dem_win, 1, 0)) 
+
+# classification error by state
+
+class %>% 
+  group_by(state) %>% 
+  summarise(correct_class = mean(correct_class))
+
+# classification error by year
+  
+class %>% 
+  group_by(year) %>% 
+  summarize(correct_class = mean(correct_class))
+
+# overall classification
+
+class$correct_class %>% mean()
+
+
+```
+
+
 
 ```{r model_error}
 
@@ -528,8 +664,6 @@ prob_table %>%
 
 # counting how many states had insignificant results... AZ had 3 elections
 # where the confidence interval contained 0, GA had 2, NM had 1, and UT had 4
-
-
 
 ```
 
