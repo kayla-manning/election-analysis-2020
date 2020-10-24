@@ -180,9 +180,9 @@ deaths <- covid_nat %>%
   geom_smooth(method = "lm") +
   geom_jitter() +
   theme_minimal() +
-  labs(x = "Daily Increase in US COVID-19 Deaths",
+  labs(x = "US COVID-19 Death Count",
        y = "Average Polling Support",
-       title = "Polling Response to COVID-19 Deaths",
+       title = "Polling Response to COVID-19 Death Count",
        color = "Candidate",
        subtitle = "Correlation of -0.648 between Trump's polling numbers and the COVID-19 death count") +
   scale_color_manual(labels = c("Joe Biden", "Donald Trump"),

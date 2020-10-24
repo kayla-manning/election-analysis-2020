@@ -130,10 +130,12 @@ state_votes <- read_csv("../data/popvote_bystate_1948-2016.csv") %>%
 
 ```{r model}
 
-# using NYT classification of states... moving states from different categories affects the predictions...
-# putting Maine and Nebraska as battleground states even though it varies by district
+# using NYT classification of states... moving states from different categories
+# affects the predictions... putting Maine and Nebraska as battleground states
+# even though it varies by district
 
-dem_states <- c("CO", "VA", "CA", "CT", "DE", "HI", "IL", "MD", "MA", "NJ", "NY", "OR", "RI", "VT", "WA")
+dem_states <- c("CO", "VA", "CA", "CT", "DE", "HI", "IL", "MD", "MA", "NJ", "NY", "OR", "RI", 
+                "VT", "WA")
 bg_states <- c("FL", "IA", "OH", "GA", "ME", "NC", "MI", "MN", "NE", "NH", "PA", "WI", 
                "NV", "AZ", "NM", "TX")
 rep_states <- c("AK", "IN", "KS", "MO", "AL", "AR", "ID", "KY", "LA", "MS", "ND", "OK", "SD", "MT",
@@ -521,39 +523,43 @@ prob_table %>%
 parties <- c("democrat", "republican")
 state_types <- c(list(bg_states), list(rep_states), list(dem_states))
 years <- seq(1992, 2016, by = 4) %>% as.double()
+states_vector <- c(bg_states, rep_states, dem_states)
 
 outsamp_results <- tibble(year = rep(years, each = 100),
        party = rep(parties, each = 50, times = 7),
-       state = c(rep(c(bg_states, rep_states, dem_states), times = 14)),
-       prediction = 0) %>% 
-  inner_join(vep %>% 
-               filter(year == 2016) %>% 
-               mutate(state = state.abb[match(state, state.name)]) %>% select(state, VEP))
+       state = c(rep(state.abb, each = 1, times = 14)),
+       prediction = 0,
+       prev_margin = 0,
+       biden_poll = 0,
+       trump_poll = 0,
+       gdp = 0,
+       incumbency = TRUE)
+
 i = 1
 
-for (year in years) {
-    for (party in parties) {
+for (y in years) {
+    for (p in parties) {
       for (state_type in state_types) {
-        for (state in state_type) {
+        for (s in state_type) {
           
-            states <- state_type[!state_type %in% state]
+            states <- state_type[!state_type %in% s]
             
             prev_margin <- state_votes %>% 
-                              filter(state == state, 
-                                     year == ifelse(year == 1992, 1992, year - 4)) %>% 
-                              slice(1) %>% 
-                              pull(dem_margin)
+                              filter(state == s, 
+                                     year == y) %>% 
+                              pull(prev_dem_margin) %>% 
+              mean()
             
             polls <- state_votes %>% 
-                          filter(state == state,
-                                 year == year) %>% 
+                          filter(state == s,
+                                 year == y) %>% 
                           group_by(party) %>% 
                           summarise(avg_support = mean(avg_state_poll, na.rm = TRUE)) 
             
             incumbency <- state_votes %>% 
               select(incumbent, party, year) %>% 
-              filter(party == party,
-                     year == year) %>% 
+              filter(party == p,
+                     year == y) %>% 
               drop_na(incumbent) %>% 
               slice(1) %>% 
               pull(incumbent)
@@ -561,21 +567,47 @@ for (year in years) {
             biden_poll <- polls %>% 
               filter(party == "democrat") %>% 
               pull(avg_support)
+            
+            # if (is.na(biden_poll)) {
+            #   biden_poll <- state_votes %>% 
+            #     filter(state == s,
+            #            year == y) %>% 
+            #     group_by(party) %>% 
+            #     summarise(avg_support = mean(avg_support, na.rm = TRUE)) %>% 
+            #     filter(party == "democrat") %>% 
+            #     pull(avg_support)
+            # }
                       
             trump_poll <- polls %>% 
               filter(party == "republican") %>% 
-              pull(avg_support)  
+              pull(avg_support) 
+            
+            # if (is.na(trump_poll)) {
+            #   trump_poll <- state_votes %>% 
+            #     filter(state == s,
+            #            year == y) %>% 
+            #     group_by(party) %>% 
+            #     summarise(avg_support = mean(avg_support, na.rm = TRUE)) %>% 
+            #     filter(party == "republican") %>% 
+            #     pull(avg_support)
+            # }
             
             gdp <- vote_econ %>% 
               filter(quarter == 1,
-                     year == year) %>% 
+                     year == y) %>% 
               drop_na(gdp_growth_qt) %>% 
               slice(1) %>% 
               pull(gdp_growth_qt)
             
-            if (party == "republican") {
+            outsamp_results$incumbency[i] <- incumbency
+            outsamp_results$prev_margin[i] <- prev_margin
+            outsamp_results$biden_poll[i] <- biden_poll
+            outsamp_results$trump_poll[i] <- trump_poll
+            outsamp_results$gdp[i] <- gdp
+            
+            if (p == "republican") {
               outsamp_mod <- state_votes %>%
-                    filter(party == party,
+                    filter(party == p,
                            state %in% states,
                            quarter == 1) %>% 
                     glm(cbind(r, VEP - r) ~ avg_state_poll * incumbent + gdp_growth_qt + 
@@ -584,7 +616,7 @@ for (year in years) {
             }
             else {
               outsamp_mod <- state_votes %>%
-                    filter(party == party,
+                    filter(party == p,
                            state %in% states,
                            quarter == 1) %>% 
                     glm(cbind(d, VEP - d) ~ avg_state_poll * incumbent + gdp_growth_qt + 
@@ -593,10 +625,8 @@ for (year in years) {
             }
             
             
-            outsamp_results[which(outsamp_results$year == year & 
-                                    outsamp_results$party == party & 
-                                    outsamp_results$state == state), 4] <- predict(
-                  outsamp_mod, tibble(avg_state_poll = ifelse(party == "democrat", 
+            outsamp_results[i, 4] <- predict(
+                  outsamp_mod, tibble(avg_state_poll = ifelse(p == "democrat", 
                                                               biden_poll, trump_poll),
                                   incumbent = incumbency,
                                   gdp_growth_qt = gdp,
@@ -605,6 +635,8 @@ for (year in years) {
                                     pull(black_change) %>% mean(),
                                   prev_dem_margin = prev_margin),
                   type = "response")
+            
+            
         
             i = i + 1
         }
@@ -623,6 +655,8 @@ actual_wins <- state_votes %>%
 # table with classifications
 
 class <- outsamp_results %>% 
+  left_join(vep %>% 
+               mutate(state = state.abb[match(state, state.name)]) %>% select(state, VEP, year)) %>% 
   mutate(sim = prediction * VEP) %>% 
   select(year, state, party, sim) %>% 
   pivot_wider(names_from = party, values_from = sim) %>% 
@@ -646,7 +680,7 @@ class %>%
 
 # overall classification
 
-class$correct_class %>% mean()
+class$correct_class %>% mean(na.rm = TRUE)
 
 
 ```
@@ -685,7 +719,7 @@ prob_table %>%
 # plotting distributions for the two parties
 
 prob_table %>% 
-  mutate(group = rep(1:1000, times = 50)) %>% 
+  mutate(group = rep(1:10000, times = 50)) %>% 
   group_by(group) %>% 
   summarize(total_dem = sum(sim_dvotes_2020),
          total_rep = sum(sim_rvotes_2020),
@@ -820,14 +854,15 @@ prob_table %>%
   summarise(sd_d = sd(d_pv2p),
             sd_r = sd(r_pv2p),
             d_pv2p = mean(d_pv2p),
-            r_pv2p = mean(r_pv2p)) %>% 
-  mutate(conf.d.low = d_pv2p - 1.96 * sd_d,
-         conf.d.high = d_pv2p + 1.96 * sd_d,
-         conf.r.low = r_pv2p - 1.96 * sd_r,
-         conf.r.high = r_pv2p + 1.96 * sd_r,
-         biden_margin = d_pv2p - r_pv2p) %>% 
-  select(state, 6:10) %>% 
-  arrange(biden_margin)
+            r_pv2p = mean(r_pv2p)) 
+# %>% 
+#   mutate(conf.d.low = d_pv2p - 1.96 * sd_d,
+#          conf.d.high = d_pv2p + 1.96 * sd_d,
+#          conf.r.low = r_pv2p - 1.96 * sd_r,
+#          conf.r.high = r_pv2p + 1.96 * sd_r,
+#          biden_margin = d_pv2p - r_pv2p) %>% 
+#   select(state, 6:10) %>% 
+#   arrange(biden_margin)
 
 # margin map
 
