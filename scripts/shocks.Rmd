@@ -264,7 +264,8 @@ covid_dat %>%
 # using NYT classification of states... moving states from different categories affects the predictions...
 # putting Maine and Nebraska as battleground states even though it varies by district
 
-dem_states <- c("CO", "VA", "CA", "CT", "DE", "HI", "IL", "MD", "MA", "NJ", "NY", "OR", "RI", "VT", "WA")
+dem_states <- c("CO", "VA", "CA", "CT", "DE", "HI", "IL", "MD", "MA", "NJ", "NY", "OR", "RI", 
+                "VT", "WA")
 bg_states <- c("FL", "IA", "OH", "GA", "ME", "NC", "MI", "MN", "NE", "NH", "PA", "WI", 
                "NV", "AZ", "NM", "TX")
 rep_states <- c("AK", "IN", "KS", "MO", "AL", "AR", "ID", "KY", "LA", "MS", "ND", "OK", "SD", "MT",
