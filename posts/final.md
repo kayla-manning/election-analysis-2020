@@ -3,7 +3,7 @@
 
 ### Model Formula
 
-$$\hat{y} ~ avg_state_poll * incumbent + gdp_growth_qt + prev_dem_margin + black_change$$
+$$\hat{y} ~ avg_state_poll + incumbent + gdp_growth_qt + prev_dem_margin + black_change$$
 
 ### Model Description and Justification
 
@@ -13,11 +13,14 @@ $$\hat{y} ~ avg_state_poll * incumbent + gdp_growth_qt + prev_dem_margin + black
 
 A single nationwide race does not determine the winner of the presidential election, but rather, 50 state-level races combine to decide the winner. For that reason, this model makes use of state-level polling rather than nationwide polling. Donald Trump appears to fare better in state-level polls compared to nationwide polls, which makes this model predict a closer race than if it included national polls.
 
-**INCLUDE POLLS FROM LAST SEVERAL WEEKS TO ACCOUNT FOR HIGHER EARLY VOTING NUMBERS AND HERDING? ALSO GIVES MORE SAMPLES FOR STATES THAT MAY BE LACKING IN POLLS IN A GIVEN WEEK (NATE SILVER DISCUSSES LOWER-THAN-IDEAL NUMBER OF POLLS FOR NE, NV, ETC.)**
+To account for the increased turnout in early voting, I included polling numbers from the last two weeks leading up to the election. This method yielded the best out-of-sample fit when compared to polling numbers from the last week and polling numbers from the last three weeks, likely for two reasons:
+1. As election day nears, two contradictory phenomena occur: polls (a) converge to the election outcome, and (b) increase in bias due to herding toward the anticipated outcome. Including the last two weeks of poll numbers allows for the accuracy due to convergence while expanding the sample in a way that does not amplify herding effects.
+2. Some states do not attract much attention from pollsters, so using polls from multiple weeks increases the number of observations and reduces the likelihood of skewed polling averages due to limited sample sizes.
+
 
 ##### Incumbency
 
-Incumbent candidates benefit from structural advantages, including but not limited to increased media coverage, widespread name recognition, an early start to campaigning, and more. This model incorporates incumbency status to help capture the effect of incumbency status on vote share. On top the incumbency alone, how do the polls behave for incumbent candidates compared to non-incumbent candidates? An interaction term with state-level polling accounts for the possibility of varied poll behavior between incumbent candidates and than non-incumbent candidates.
+Incumbent candidates benefit from structural advantages, including but not limited to increased media coverage, widespread name recognition, an early start to campaigning, and more. This model incorporates incumbency status to help capture the effect of incumbency status on vote share. 
 
 ##### Q1 GDP
 
@@ -33,12 +36,7 @@ Demographics serve as strong predictors for voting behaviors, so incorporating t
 
 #### Data
 
-* 2020 state-level polls: FiveThirtyEight
-* National GDP growth: US Bureau of Economic Analysis, Department of Commerce
-
-#### Sample Size
-
-**combined data only goes back to 1992, but each state counts as an individual observation, so the blue model has 105 observations, the battleground model has 112 observations, and the red model has 133 observations**
+All data for this model is publicly available online. While many online sources host the data used in this model, the data for the 2020 state-level polls came from [FiveThirtyEight](https://projects.fivethirtyeight.com/polls-page/president_polls.csv), and the national GDP growth numbers came from the [US Bureau of Economic Analysis](https://www.bea.gov/data/gdp/gross-domestic-product).
 
 ### Coefficients
 
@@ -50,16 +48,55 @@ Demographics serve as strong predictors for voting behaviors, so incorporating t
 
 #### Out-of-Sample
 
+* incorrectly predicted a 2016 Clinton victory in FL, IA, OH, GA, NC, MI, PA, WI, AZ, but 538 also got FL, NC, MI, PA, and WI wrong
+* of the state/year pairings that had enough data, the model correctly classified the winner 91.3% of the time
+
+| Year | Correct  Classification |
+|-----:|------------------------:|
+| 1992 |               0.8695652 |
+| 1996 |               0.9583333 |
+| 2000 |               0.8695652 |
+| 2004 |               0.9523810 |
+| 2008 |               0.9767442 |
+| 2012 |               0.9459459 |
+| 2016 |               0.8400000 |
+
+Worst performing in swing states... LA did not have enough polling data in 2012 & 1992 was the only year it was wrong (predicted a Republican victory when Clinton won, but this was a huge surprise because George HW Bush won 54% of the state's popular vote in his previous election)
+
+| State | Correct  Classification |
+|-------|------------------------:|
+| FL    |               0.5714286 |
+| GA    |               0.5714286 |
+| WI    |               0.5714286 |
+| CO    |               0.7142857 |
+| ME    |               0.7142857 |
+| MI    |               0.7142857 |
+| NC    |               0.7142857 |
+| OH    |               0.7142857 |
+
 ### Prediction and Graphics
 
-NOTE THAT THIS MODEL ASSUMES DC WILL GO TO BIDEN AND IT CONSIDERS MAINE AND NEBRASKA AS WINNER-TAKE-ALL
+When applied to the 2020 data, this model predicts a narrow Biden victory in the [Electoral College](../figures/final/winner_map.jpg) and popular vote:
+
+![margin-map](../figures/final/win_margin_map.jpg)
+
+| Candidate    | Electoral Votes | Two-Party  Popular Vote |
+|--------------|----------------:|-------------------------|
+| Joe Biden    |             284 | 0.4997898               |
+| Donald Trump |             254 | 0.5002102               |
 
 
 #### Uncertainty Around Prediction
 
 #### Prediction Discussion
 
-REASONABLE TO EXPECT VOTERS TO "COME HOME" AS ELECTION NEARS, SO HIGHER-THAN-EXPECTED TRUMP NUMBERS SEEM VALID
+A few limitations of this forecast: 
+* This model does not account for Washington D.C., but I added it to Biden's electoral count because it is [extremely likely](https://projects.fivethirtyeight.com/2020-election-forecast/district-of-columbia/) to vote Democrat in this election.
+* Due to the structure of the available data, this model considers Maine and Nebraska as winner-take-all states. In reality, however, the different congressional districts for these states could go to separate candidates.
+* The combined data for this model only dates back to 1992, which only provides 7 previous elections from which to construct this model. However, each state in each election counts as an individual observation, which substantially increases the sample size relative to a nationwide model. Of the three models, the blue model has 105 observations, the battleground model has 112 observations, and the red model has 133 observations.
+
+As Election Day approaches, the predicted vote shares for each candidate from each state diverged as voters appear to "come home" to their partisan loyalties. Two weeks prior to the election, this model predicted that Trump would only win Texas by less than 0.01% of the popular vote, for example. However, it now forecasts a fairly decisive Trump victory for the blue-trending but historically red state.
+
 
 
 ------------------------------------------------------------------

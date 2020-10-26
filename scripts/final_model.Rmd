@@ -43,11 +43,11 @@ turnout <- read_csv("../data/turnout_1980-2016.csv") %>%
 vote_econ <- popvote %>% 
   full_join(economy, by = "year") %>% 
   full_join(all_polls %>% 
-              filter(weeks_left %in% c(1, 2, 3)) %>% 
+              filter(weeks_left %in% c(1, 2)) %>% 
               group_by(year, party) %>% 
               summarise(avg_support = mean(avg_support))) %>% 
   full_join(read_csv("../data/pollavg_bystate_1968-2016.csv") %>% 
-              filter(weeks_left %in% c(1, 2, 3)) %>% 
+              filter(weeks_left %in% c(1, 2)) %>% 
               group_by(year, state, party) %>% 
               summarise(avg_state_poll = mean(avg_poll)) %>% 
               mutate(state = state.abb[match(state, state.name)]))
@@ -88,7 +88,7 @@ state_votes <- read_csv("../data/popvote_bystate_1948-2016.csv") %>%
   full_join(economy, by = "year") %>%
   mutate(state = state.abb[match(state, state.name)]) %>% 
   full_join(all_polls %>% 
-              filter(weeks_left %in% c(1, 2, 3)) %>% 
+              filter(weeks_left %in% c(1, 2)) %>% 
               group_by(year, party) %>% 
               summarise(avg_support = mean(avg_support))) %>% 
   inner_join(vep %>% mutate(state = state.abb[match(state, state.name)]), by = c("year", "state")) %>% 
@@ -177,7 +177,7 @@ for (s in bg_states) {
   
   polls <- state_polls_2020 %>% 
     filter(state == s,
-           weeks_left %in% c(1, 2, 3)) %>% 
+           weeks_left %in% c(1, 2)) %>% 
     group_by(party) %>% 
     summarise(avg_support = mean(pct, na.rm = TRUE)) 
   # %>%
@@ -495,14 +495,17 @@ prob_table %>%
   summarise(biden_win = mean(biden_win)) %>% 
   mutate(winner = case_when(biden_win > 0.5 ~ "Biden",
                             TRUE ~ "Trump")) %>% 
-  plot_usmap(data = ., regions = "states", values = "winner", labels = TRUE) +
+  plot_usmap(data = ., regions = "states", values = "winner",
+             color = "white") +
   scale_fill_manual(breaks = c("Biden", "Trump"),
                     values = c(muted("blue"), "red3")) +
   theme_void() +
   labs(fill = "Projected Winner",
        title = "Forecasted Winners in Each State")
 
-# ggsave("../figures/shocks/winner_map.jpg")
+ggsave("../figures/final/winner_map.jpg")
+
+# calculating electoral votes
   
 prob_table %>% 
   drop_na() %>% 
@@ -516,6 +519,18 @@ prob_table %>%
   summarise(biden_ev = sum(biden_ev),
             trump_ev = sum(trump_ev))
 
+# calculating overall popular vote
+
+prob_table %>% 
+  group_by(state) %>% 
+  summarise(avg_dem = mean(sim_dvotes_2020, na.rm = TRUE),
+            avg_rep = mean(sim_rvotes_2020, na.rm = TRUE),
+            .groups = "drop") %>% 
+  summarise(total_dem = sum(avg_dem),
+            total_rep = sum(avg_rep),
+            d_pv2p = total_dem / (total_dem + total_rep),
+            r_pv2p = total_rep / (total_dem + total_rep))
+
 ```
 
 ```{r out_of_sample, message = FALSE, warning=FALSE}
@@ -527,7 +542,7 @@ states_vector <- c(bg_states, rep_states, dem_states)
 
 outsamp_results <- tibble(year = rep(years, each = 100),
        party = rep(parties, each = 50, times = 7),
-       state = c(rep(state.abb, each = 1, times = 14)),
+       state = c(rep(c(bg_states, rep_states, dem_states), each = 1, times = 14)),
        prediction = 0,
        prev_margin = 0,
        biden_poll = 0,
@@ -610,7 +625,7 @@ for (y in years) {
                     filter(party == p,
                            state %in% states,
                            quarter == 1) %>% 
-                    glm(cbind(r, VEP - r) ~ avg_state_poll * incumbent + gdp_growth_qt + 
+                    glm(cbind(r, VEP - r) ~ avg_state_poll + incumbent + gdp_growth_qt + 
                           prev_dem_margin + black_change,
                         data = ., family = "binomial")
             }
@@ -619,7 +634,7 @@ for (y in years) {
                     filter(party == p,
                            state %in% states,
                            quarter == 1) %>% 
-                    glm(cbind(d, VEP - d) ~ avg_state_poll * incumbent + gdp_growth_qt + 
+                    glm(cbind(d, VEP - d) ~ avg_state_poll + incumbent + gdp_growth_qt + 
                           prev_dem_margin + black_change,
                         data = ., family = "binomial")
             }
@@ -666,21 +681,38 @@ class <- outsamp_results %>%
   inner_join(actual_wins) %>% 
   mutate(correct_class = ifelse(predict_dem_win == actual_dem_win, 1, 0)) 
 
-# classification error by state
+# classification error by state; worst performing in FL, GA, WI, CO, IA, ME, MI,
+# NC, OH
 
 class %>% 
   group_by(state) %>% 
-  summarise(correct_class = mean(correct_class))
+  summarise(correct_class = mean(correct_class, na.rm = TRUE)) %>% 
+  arrange(correct_class)
+
+# checking what's up with LA
+
+class %>% 
+  filter(state == "LA")
 
 # classification error by year
   
 class %>% 
   group_by(year) %>% 
-  summarize(correct_class = mean(correct_class))
+  summarize(correct_class = mean(correct_class, na.rm = TRUE))
 
 # overall classification
 
 class$correct_class %>% mean(na.rm = TRUE)
+
+# in 2016, it incorrectly predicted a Clinton victory in FL, IA, OH, GA, NC, MI,
+# PA, WI, AZ of these, FiveThirtyEight incorrectly predicted FL, NC, MI, PA, and
+# WI... at least the actual model is trained with 2016 in mind, so hopefully it
+# will account for the weird stuff in elections with Trump
+
+class %>% 
+  filter(year == 2016,
+         correct_class == 0)
+
 
 
 ```
@@ -689,32 +721,19 @@ class$correct_class %>% mean(na.rm = TRUE)
 
 ```{r model_error}
 
-# counting if any of the states had different results
+# counting if any of the states had different results... AZ and NV had different outcomes
 
 prob_table %>% 
   mutate(biden_win = ifelse(sim_dvotes_2020 > sim_rvotes_2020, 1, 0)) %>% 
   group_by(state) %>% 
-  summarise(pct_biden_win = mean(biden_win, na.rm = TRUE))
+  summarise(pct_biden_win = mean(biden_win, na.rm = TRUE)) %>% 
+  filter(pct_biden_win < 1 & pct_biden_win > 0)
 
-# counting how many states had insignificant results... AZ had 3 elections
-# where the confidence interval contained 0, GA had 2, NM had 1, and UT had 4
 
 ```
 
 
 ```{r national_results}
-
-# calculating overall popular vote
-
-prob_table %>% 
-  group_by(state) %>% 
-  summarise(avg_dem = mean(sim_dvotes_2020, na.rm = TRUE),
-            avg_rep = mean(sim_rvotes_2020, na.rm = TRUE),
-            .groups = "drop") %>% 
-  summarise(total_dem = sum(avg_dem),
-            total_rep = sum(avg_rep),
-            d_pv2p = total_dem / (total_dem + total_rep),
-            r_pv2p = total_rep / (total_dem + total_rep))
 
 # plotting distributions for the two parties
 
@@ -727,7 +746,7 @@ prob_table %>%
          r_pv2p = 1 - d_pv2p) %>% 
   pivot_longer(cols = 4:5, names_to = "party") %>% 
   ggplot(aes(value, fill = party)) +
-  geom_histogram(bins = 1000) +
+  geom_histogram(bins = 1000, alpha = 0.75, position = "identity") +
   theme_minimal() +
   scale_fill_manual(breaks = c("d_pv2p", "r_pv2p"),
                     labels = c("Biden", "Trump"),
@@ -738,17 +757,31 @@ prob_table %>%
        y = "Count") +
   theme_minimal()
 
+# finding the proportion of times Trump had more than 50% of two-party popular
+# vote... ~5% of the time
+
+prob_table %>% 
+  mutate(group = rep(1:10000, times = 50)) %>% 
+  group_by(group) %>% 
+  summarize(total_dem = sum(sim_dvotes_2020),
+         total_rep = sum(sim_rvotes_2020),
+         d_pv2p = total_dem / (total_dem + total_rep),
+         r_pv2p = 1 - d_pv2p) %>% 
+  mutate(trump_win = ifelse(r_pv2p > 0.5, 1, 0)) %>% 
+  pull(trump_win) %>% 
+  mean(na.rm = TRUE)
+
+ggsave("../figures/final/national_vote_dist.jpg")
+
 # looking at state-by-state distributions
 
 prob_table %>% 
-  filter(state %in% bg_states) %>% 
-  filter(state %in% c("FL", "GA", "NC", "PA")) %>% 
-  filter(state== "NC") %>% 
+  # filter(state %in% c("AZ")) %>% 
   mutate(d_pv2p = sim_dvotes_2020 / (sim_dvotes_2020 + sim_rvotes_2020),
          r_pv2p = 1 - d_pv2p) %>% 
   pivot_longer(cols = c(d_pv2p, r_pv2p), names_to = "party") %>% 
   ggplot(aes(value, fill = party)) +
-  geom_histogram(bins = 100) +
+  geom_histogram(bins = 1000, alpha = 0.75, position = "identity") +
   facet_wrap(~ state) +
   scale_fill_manual(breaks = c("d_pv2p", "r_pv2p"),
                     labels = c("Biden", "Trump"),
@@ -757,6 +790,16 @@ prob_table %>%
        x = "Predicted Share of the Two-Party Popular Vote",
        y = "Count") +
   theme_minimal()
+
+# calculating percentage of times Trump wins AZ
+
+prob_table %>% 
+  filter(state %in% c("AZ")) %>% 
+  mutate(d_pv2p = sim_dvotes_2020 / (sim_dvotes_2020 + sim_rvotes_2020),
+         r_pv2p = 1 - d_pv2p) %>% 
+  mutate(trump_win = ifelse(r_pv2p > 0.5, 1, 0)) %>% 
+  pull(trump_win) %>% 
+  mean(na.rm = TRUE)
   
 ```
 
@@ -772,7 +815,7 @@ state_votes %>%
                state %in% bg_states,
                quarter == 1) %>% 
         mutate(r_pv = r / total_vote) %>% 
-        glm(cbind(r, VEP - r) ~ avg_support * incumbent + gdp_growth_qt + 
+        glm(cbind(r, VEP - r) ~ avg_support + incumbent + gdp_growth_qt + 
               prev_dem_margin + consec_rep,
             data = ., family = "binomial") %>% 
   summary()
@@ -784,7 +827,7 @@ state_votes %>%
                state %in% bg_states,
                quarter == 1) %>% 
         mutate(r_pv = r / total_vote) %>% 
-        glm(cbind(r, VEP - r) ~ avg_support * incumbent + gdp_growth_qt + 
+        glm(cbind(r, VEP - r) ~ avg_support + incumbent + gdp_growth_qt + 
               prev_dem_margin + consec_dem,
             data = ., family = "binomial") %>% 
   summary()
@@ -798,10 +841,10 @@ state_votes %>%
                state %in% dem_states,
                quarter == 1) %>% 
         mutate(r_pv = r / total_vote) %>% 
-        glm(cbind(r, VEP - r) ~ avg_support * incumbent + gdp_growth_qt + 
+        glm(cbind(r, VEP - r) ~ avg_support + incumbent + gdp_growth_qt + 
               prev_dem_margin + consec_rep,
             data = ., family = "binomial") %>% 
-  tidy()
+  summary()
 
 # democrat model
 
@@ -810,7 +853,7 @@ state_votes %>%
                state %in% dem_states,
                quarter == 1) %>% 
         mutate(r_pv = r / total_vote) %>% 
-        glm(cbind(r, VEP - r) ~ avg_support * incumbent + gdp_growth_qt + 
+        glm(cbind(r, VEP - r) ~ avg_support + incumbent + gdp_growth_qt + 
               prev_dem_margin + consec_dem,
             data = ., family = "binomial") %>% 
   summary()
@@ -825,7 +868,7 @@ state_votes %>%
                state %in% bg_states,
                quarter == 1) %>% 
         mutate(r_pv = r / total_vote) %>% 
-        glm(cbind(r, VEP - r) ~ avg_support * incumbent + gdp_growth_qt + 
+        glm(cbind(r, VEP - r) ~ avg_support + incumbent + gdp_growth_qt + 
               prev_dem_margin + consec_rep + black_change + age20_change,
             data = ., family = "binomial") %>% 
   summary()
@@ -837,7 +880,7 @@ state_votes %>%
                state %in% bg_states,
                quarter == 1) %>% 
         mutate(r_pv = r / total_vote) %>% 
-        glm(cbind(r, VEP - r) ~ avg_support * incumbent + gdp_growth_qt + 
+        glm(cbind(r, VEP - r) ~ avg_support + incumbent + gdp_growth_qt + 
               prev_dem_margin + consec_dem + black_change + age20_change,
             data = ., family = "binomial") %>% 
   summary()
@@ -874,12 +917,30 @@ prob_table %>%
   summarise(d_pv2p = mean(d_pv2p) * 100,
             r_pv2p = mean(r_pv2p) * 100) %>% 
   mutate(d_margin = d_pv2p - r_pv2p) %>% 
-  plot_usmap(regions = "states", data = ., values = "d_margin", labels = TRUE) +
+  plot_usmap(regions = "states", data = ., values = "d_margin", labels = TRUE,
+             color = "white") +
   theme_void() +
   scale_fill_gradient2(high = muted("blue"), mid = "white", low = "red3",
                        breaks = c(-10, 0, 10)) +
   labs(title = "Predicted Win Margin in Each State",
        fill = "Biden's Predicted \nWin Margin (%)")
+
+prob_table %>% 
+  drop_na() %>% 
+  group_by(state) %>% 
+  mutate(d_pv2p = sim_dvotes_2020 / (sim_rvotes_2020 + sim_dvotes_2020),
+         r_pv2p = 1 - d_pv2p) %>% 
+  summarise(d_pv2p = mean(d_pv2p) * 100,
+            r_pv2p = mean(r_pv2p) * 100) %>% 
+  mutate(d_margin = d_pv2p - r_pv2p) %>% 
+  statebins(state_col = "state", value_col = "d_margin") +
+  theme_void() +
+  scale_fill_gradient2(high = muted("blue"), mid = "white", low = "red3",
+                       breaks = c(-10, 0, 10)) +
+  labs(title = "Predicted Win Margin in Each State",
+       fill = "Biden's Predicted \nWin Margin (%)")
+
+ggsave("../figures/final/win_margin_map.jpg")
 
 ```
 
