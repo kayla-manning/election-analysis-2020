@@ -9,19 +9,13 @@ This forecast predicts a narrow Joe Biden victory, but with far less confidence 
 
 #### Model Description and Methodology
 
-This forecast uses a binomial logistic model to predict the probability that each member of the state's voting-eligible population would vote for either party. The underlying model maps the predicted vote probability using a combination of polling, economic, demographic, and incumbency data,[^data] discussed at length in the Appendix:
+This forecast uses a binomial logistic model to predict the probability that each member of the state's voting-eligible population would vote for either party. The underlying model maps the predicted vote probability using a combination of polling, economic, demographic, and incumbency data:[^data]
 
 $$\hat{y} ~ avg_state_poll + incumbent + gdp_growth_qt + prev_dem_margin + black_change + age20_change + age65_change$$
 
 To have a model specific to a state's characteristics without overfitting the data for each individual state, I grouped states into three separate categories: blue states, red states, and battleground states, as classified by the [New York Times](https://www.nytimes.com/interactive/2020/us/elections/election-states-biden-trump.html). Within each group of states, I constructed one model to predict the probability of voting Democrat and one model to predict the probability of voting Republican.
 
-#### Coefficients
-
-Six models comprised this forecast, with the following coefficients displayed in this [table](../figures/final/coeff_table.html) and on a graph:
-
-![coefficients](../figures/final/model_coefficients.jpg)
-
-##### Interpretation of Coefficients
+See the Appendix for a discussion about the inclusion of each of these variables and a visualization of each model's [coefficients](../figures/final/coeff_table.html).
 
 #### Model Validation
 
@@ -131,6 +125,12 @@ Past elections serve as one of the best predictors for current elections, especi
 ##### State-Level Demographics: Change in Black Population, Change in Age 20-30 Population, and Change in 65 and Over Population
 
 Demographics serve as strong predictors for voting behaviors, so incorporating the change in each state's Black population accounts for changing demographics in the voting population. [Black voters](https://www.pewresearch.org/fact-tank/2020/10/21/key-facts-about-black-eligible-voters-in-2020-battleground-states/) in particular lean Democratic, so this variable captures potential shifts in the partisan leaning within each state. Also, [age](https://www.aei.org/articles/2020-will-be-a-realigning-election-led-by-young-voters/) serves as a fair predictor of voting behavior: younger voters tend to vote Democratic and older voters exhibit a greater tendency to vote Republican. While conducting leave-one-out validation for models, this combination of demographic factors yielded the highest rate of classification success.
+
+#### Coefficients
+
+This [table](../figures/final/coeff_table.html) displays the coefficients for each model, the below figure plots the coefficients for each model:
+
+![coefficients](../figures/final/model_coefficients.jpg)
 
 
 ------------------------------------------------------------------
