@@ -3,7 +3,7 @@
 
 ### Overview
 
-While many forecasters confidently project a Biden victory, how warranted is this enthusiasm? After all, some professional forecasters gave Hillary Clinton over a [90% probability](https://www.nytimes.com/newsgraphics/2016/10/18/presidential-forecast-updates/newsletter.html) of winning the 2016 election. Not much has changed in 2020; as of October 20, FiveThirtyEight gives Joe Biden an [88% probability](https://projects.fivethirtyeight.com/2020-election-forecast/) of defeating Donald Trump in the 2020 election.
+While many forecasters confidently project a Biden victory, how warranted is this enthusiasm? After all, some professional forecasters gave Hillary Clinton over a [90% chance](https://www.nytimes.com/newsgraphics/2016/10/18/presidential-forecast-updates/newsletter.html) of winning the 2016 election. Not much has changed in 2020; as of October 20, FiveThirtyEight gives Joe Biden an [88% chance](https://projects.fivethirtyeight.com/2020-election-forecast/) of defeating Donald Trump in the 2020 election.
 
 This forecast predicts a narrow Joe Biden victory, but with far less confidence than other predictions. While Joe Biden is predicted to win the popular vote by a sizable margin of **INSERT PERCENT HERE**, the forecast predicts that Biden will squeak by with an Electoral College majority of **INSERT ELECTORAL COUNT HERE**. In a total of $100,000$ simulations, Joe Biden won the Electoral College **INSERT PERCENT HERE** of the time, Donald Trump won the Electoral College **INSERT PERCENT HERE** of the time, and neither candidate received 270 votes **INSERT PERCENT HERE** of the time.
 
@@ -110,7 +110,13 @@ While this forecast performed quite well in the leave-one-out cross-validation a
 
 * The combined data for this model only dates back to 1992, so this model is built off of only 7 previous elections. However, each state in each election counts as an individual observation, which substantially increases the sample size relative to a nationwide model. The blue, battleground, and red models are build from 105, 112, and 133 observations in the data, respectively.
 
+#### Conclusion
 
+While this model predicts a narrow Democratic victory in both the Electoral College and popular vote, at **INSERT VOTES HERE** and **INSERT PERCENT HERE** respectively, the close margins, especially in battleground states, give reason for uncertainty. This forecast gives Joe Biden an approximate **INSERT WIN PERCENTAGE HERE** chance of victory, Donald Trump a **INSERT WIN PERCENTAGE HERE** chance of victory, and a **INSERT WIN PERCENTAGE HERE** chance that the House of Representatives will have to decide the election.
+
+Due to the close margins in several battleground states, the election could swing either way. For example, if Joe Biden wins, Michigan, Nevada, Texas, or any other state with a narrow victory projected for Trump, Biden could win the electoral vote by far more than the predicted **INSERT EV COUNT HERE** votes. However, if Trump wins New Hampshire, Nebraska, Pennsylvania, Wisconsin, or any other states projecting an extremely narrow Biden victory, he could easily tip the electoral scale in his favor.
+
+------------------------------------------------------------------
 
 ### Appendix
 

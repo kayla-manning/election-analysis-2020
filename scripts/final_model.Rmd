@@ -539,7 +539,7 @@ prob_table %>%
 n <- 100000
 set.seed(9)
 
-prob_table %>% 
+ev_uncertainty <- prob_table %>% 
   mutate(biden_win = ifelse(sim_dvotes_2020 > sim_rvotes_2020, 1, 0)) %>% 
   group_by(state, electoral_votes) %>% 
   summarise(pct_biden_win = mean(biden_win, na.rm = TRUE)) %>% 
@@ -556,13 +556,29 @@ prob_table %>%
          trump_ev = ifelse(biden_win == 0, electoral_votes, 0)) %>% 
   group_by(id) %>% 
   summarise(biden_ev = sum(biden_ev) + 3,
-            trump_ev = sum(trump_ev), .groups = "drop") %>% 
+            trump_ev = sum(trump_ev), .groups = "drop") 
+
+ev_uncertainty %>% 
   mutate(biden_victory = ifelse(biden_ev >= 270, 1, 0),
          trump_victory = ifelse(trump_ev >= 270, 1, 0),
          tossup = ifelse(trump_ev < 270 & biden_ev < 270, 1, 0)) %>% 
   summarise(biden_win = mean(biden_victory),
             trump_win = mean(trump_victory),
             tossup = mean(tossup)) 
+
+ev_close <- ev_uncertainty %>% 
+  pivot_longer(cols = 2:3, names_to = "candidate", values_to = "ev") %>% 
+  ggplot(aes(ev, fill = candidate)) +
+  geom_histogram(bins = 100, alpha = 0.75, position = "identity") +
+  labs(title = "Simulated Electoral Vote Counts",
+       x = "Electoral Votes",
+       y = "Count",
+       fill = "Candidate",
+       subtitle = "Donald Trump Wins the Electoral College in 38.875% of Simulations") +
+  theme_minimal() +
+  scale_fill_manual(values = c(muted("blue"), "red3"),
+                    labels = c("Biden", "Trump"))
+
 
 ```
 
@@ -571,7 +587,7 @@ prob_table %>%
 
 # plotting distributions for the two parties
 
-prob_table %>% 
+pop_close <- prob_table %>% 
   mutate(group = rep(1:n, times = 50)) %>% 
   group_by(group) %>% 
   summarize(total_dem = sum(sim_dvotes_2020),
@@ -605,6 +621,8 @@ prob_table %>%
   mutate(trump_win = ifelse(r_pv2p > 0.5, 1, 0)) %>% 
   pull(trump_win) %>% 
   mean(na.rm = TRUE)
+
+ggarrange(pop_close, ev_close, ncol = 1, common.legend = TRUE, legend = "right")
 
 ggsave("../figures/final/national_vote_dist.jpg")
 
@@ -818,7 +836,7 @@ all_coeff %>%
   coord_flip() +
   facet_wrap(~type, ncol = 1) +
   theme_minimal() +
-  scale_color_manual(values = c("blue", "red"),
+  scale_color_manual(values = c(muted("blue"), "red3"),
                      labels = c("Democrat", "Republican")) +
   labs(color = "Party",
        y = "Coefficient Estimate",
