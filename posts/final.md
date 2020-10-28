@@ -15,6 +15,8 @@ $$\hat{y} ~ avg_state_poll + incumbent + gdp_growth_qt + prev_dem_margin + black
 
 To have a model specific to a state's characteristics without overfitting the data for each individual state, I grouped states into three separate categories: blue states, red states, and battleground states, as classified by the [New York Times](https://www.nytimes.com/interactive/2020/us/elections/election-states-biden-trump.html). Within each group of states, I constructed one model to predict the probability of voting Democrat and one model to predict the probability of voting Republican.
 
+After predicting the probabilities for each state's partisan turnout, I simulated the number of voters for each party, applying the probability to the voting-eligible population for that state, slightly varying the probabilities and the turnout each time[^variation].
+
 See the Appendix for a discussion about the inclusion of each of these variables and a visualization of each model's [coefficients](../figures/final/coeff_table.html).
 
 #### Out-of-Sample Validation
@@ -150,7 +152,10 @@ As Election Day approaches, the predicted vote shares for each candidate from ea
 
 [^data]: All data for this model is publicly available online. While many online sources host the data used in this model, the data for the 2020 state-level polls came from [FiveThirtyEight](https://projects.fivethirtyeight.com/polls-page/president_polls.csv), and the national GDP growth numbers came from the [US Bureau of Economic Analysis](https://www.bea.gov/data/gdp/gross-domestic-product).
 
-[^oos-classification]: 
+[^variation]: In order to vary the voting-eligible population (VEP) and the probability of voting for each party, I drew the values from a normal distribution. For the VEP, I used a normal distribution centered at each state's VEP in 2016 and used a standard deviation of twice the standard deviation of the VEP in all years from 1980-2016, anticipating greater variation in turnout due to COVID-19. 
+  To simulate fluctuations in the probability of voting for each party, I took the absolute value of a draw from a normal distribution centered at the predicted probability for 2020 with a standard deviation equivalent to that party's standard deviation of two-party popular vote within the respective state from 1992-2016.
+
+[^oos-classification]: Not all states had enough state-level polling data to conduct the out-of-sample validation for each year; this percentage excludes NA values.
 
 [^tossup]: This counts the proportion of times that neither candidate received at least 270 electoral votes. In the case of a [tie](https://www.270towin.com/content/electoral-college-ties/), the House of Representatives would decide the winner of the presidential election.
 

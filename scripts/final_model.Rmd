@@ -185,11 +185,7 @@ prob_table <- tibble(state = c(rep(dem_states, each = 100000), rep(bg_states, ea
   inner_join(ev %>% 
                mutate(state = state.abb[match(state, state.name)]), by = "state") %>% 
   inner_join(vep_std) %>% 
-  mutate(VEP = map2_dbl(VEP, vep_sd, ~ rnorm(1, .x, 2 * .y)),
-         d_fit_link = 0,
-         r_fit_link = 0,
-         d_se_link = 0,
-         r_se_link = 0) %>% 
+  mutate(VEP = map2_dbl(VEP, vep_sd, ~ rnorm(1, .x, 2 * .y))) %>% 
   inner_join(pv2p_std)
 
 
