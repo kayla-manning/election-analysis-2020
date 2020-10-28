@@ -5,7 +5,7 @@
 
 While many forecasters confidently project a Biden victory, how warranted is this enthusiasm? After all, some professional forecasters gave Hillary Clinton over a [90% probability](https://www.nytimes.com/newsgraphics/2016/10/18/presidential-forecast-updates/newsletter.html) of winning the 2016 election. Not much has changed in 2020; as of October 20, FiveThirtyEight gives Joe Biden an [88% probability](https://projects.fivethirtyeight.com/2020-election-forecast/) of defeating Donald Trump in the 2020 election.
 
-This forecast predicts a narrow Joe Biden victory, but with far less confidence than other predictions. While Joe Biden is predicted to win the popular vote by a sizable margin of **INSERT PERCENT HERE**, the forecast predicts that Biden will squeak by with an Electoral Majority of **INSERT ELECTORAL COUNT HERE**. From a total of $100,000$ simulations, Joe Biden won the Electoral College **INSERT PERCENT HERE** of the time, Trump won the Electoral College **INSERT PERCENT HERE** of the time, and neither candidate received 270 votes **INSERT PERCENT HERE** of the time.
+This forecast predicts a narrow Joe Biden victory, but with far less confidence than other predictions. While Joe Biden is predicted to win the popular vote by a sizable margin of **INSERT PERCENT HERE**, the forecast predicts that Biden will squeak by with an Electoral College majority of **INSERT ELECTORAL COUNT HERE**. In a total of $100,000$ simulations, Joe Biden won the Electoral College **INSERT PERCENT HERE** of the time, Donald Trump won the Electoral College **INSERT PERCENT HERE** of the time, and neither candidate received 270 votes **INSERT PERCENT HERE** of the time.
 
 #### Model Description and Methodology
 
@@ -17,12 +17,9 @@ To have a model specific to a state's characteristics without overfitting the da
 
 See the Appendix for a discussion about the inclusion of each of these variables and a visualization of each model's [coefficients](../figures/final/coeff_table.html).
 
-#### Model Validation
+#### Out-of-Sample Validation
 
-##### Out-of-Sample
-
-* incorrectly predicted a 2016 Clinton victory in FL, OH, NC, MI, PA, and WI, but 538 also got FL, NC, MI, PA, and WI wrong
-* of the state/year pairings that had enough data, the model correctly classified the winner 91.85% of the time
+This model correctly classified the winner of the statewide popular vote in 91.85%[^oos-classification] of states in elections from 1992-2016, with the following year-by-year breakdown:
 
 | Year | Correct Classification |
 |-----:|-----------------------:|
@@ -34,7 +31,7 @@ See the Appendix for a discussion about the inclusion of each of these variables
 | 2012 |              0.9500000 |
 | 2016 |              0.8800000 |
 
-Worst performing in swing states, classifying the following states less than 80% of the time:
+Not surprisingly, the model performed the worse in swing states. Across all elections from 1992-2016, the model correctly classified the popular vote winner less than 80% of the time in these 4 states:
 
 | State | Correct Classification |
 |-------|-----------------------:|
@@ -43,58 +40,70 @@ Worst performing in swing states, classifying the following states less than 80%
 | MI    |              0.7142857 |
 | PA    |              0.7142857 |
 
-### Prediction and Graphics
+In the leave-one-out validation for 2016, the model incorrectly classified 6 states: FL, OH, NC, MI, PA, and WI. [FiveThirtyEight](https://projects.fivethirtyeight.com/2016-election-forecast/)'s 2016 forecast correctly predicted OH, but misclassified the remaining five of those six states. However, since the models applied to 2020 include data from the 2016 election, the coefficients should adjust to Donald Trump's unusual political prowess.
+
+
+### 2020 Prediction
 
 When applied to the 2020 data, this model predicts a narrow Biden victory in the [Electoral College](../figures/final/winner_map.jpg), with a much larger margin in the popular vote:
 
-![margin-map](../figures/final/win_margin_map.jpg)
-
 | Candidate    | Electoral Votes | Two-Party Popular Vote |
 |--------------|----------------:|------------------------|
-| Joe Biden    |             284 | 0.5238088              |
-| Donald Trump |             254 | 0.4761912              |
+| Joe Biden    |             273 | 0.5238088              |
+| Donald Trump |             265 | 0.4761912              |
 
 
-#### Uncertainty Around Prediction
+![margin-map](../figures/final/win_margin_map.jpg)
 
-Probability of Electoral College Victory with 100,000 simulations:
 
-| Biden Victory | Trump Victory | Tossup  |
-|---------------|---------------|---------|
-| 0.57722       | 0.37364       | 0.0209 |
+### Uncertainty Around Prediction
+
+In 100,000 simulations of the election, Joe Biden won the Electoral College most frequently, but a Donald Trump victory is not out of reach:
+
+| Biden Victory | Trump Victory | Tossup[^tossup]|
+|---------------|---------------|----------|
+| 0.59036       | 0.38873       | 0.02091  |
+
+However, Donald Trump has a much smaller chance of winning the national popular vote:
 
 ![national-uncertainty](../figures/final/national_vote_dist.jpg)
 
-Closeness in battleground states:
+Luckily for him, the nationwide popular vote does not matter as long as he can secure enough statewide popular vote victories to secure 270 Electoral College votes. While the forecast does project a narrow Joe Biden victory, either candidate could reasonably win most of the battleground states:
 
-| State | Percent Biden Victory |
-|:-----:|:---------------------:|
-| MI    |             0.5399000 |
-| MI    |             0.5399000 |
-| WI    |             0.5411000 |
-| MN    |             0.5413000 |
-| NV    |             0.4181744 |
-| PA    |             0.6035000 |
-| ME    |             0.6411000 |
-| FL    |             0.2769385 |
-| NC    |             0.2605782 |
-| IA    |             0.2283000 |
-| TX    |             0.2151430 |
-| AZ    |             0.1719221 |
-| NH    |             0.8478000 |
-| NM    |             0.9067000 |
-| OH    |             0.0701000 |
-| NE    |             0.0472000 |
+![battleground-uncertainty](../figures/final/bg_vote_dist.jpg)
+
+| State | Proportion of  Biden Victories | Proportion of  Trump Victories |
+|-------|-------------------------------:|-------------------------------:|
+| MI    |                      0.5413900 |                     0.45861000 |
+| WI    |                      0.5451600 |                     0.45484000 |
+| MN    |                      0.5451800 |                     0.45482000 |
+| NV    |                      0.4189772 |                     0.58102276 |
+| PA    |                      0.6068800 |                     0.39312000 |
+| FL    |                      0.2843436 |                     0.71565636 |
+| NC    |                      0.2615635 |                     0.73843646 |
+| IA    |                      0.2278800 |                     0.77212000 |
+| TX    |                      0.2118627 |                     0.78813729 |
+| ME    |                      0.6374500 |                     0.36255000 |
+| AZ    |                      0.1783197 |                     0.82168029 |
+| GA    |                      0.1754539 |                     0.82454614 |
+| OH    |                      0.0752100 |                     0.92479000 |
+| NE    |                      0.0462500 |                     0.95375000 |
+| NH    |                      0.8432500 |                     0.15675000 |
+| NM    |                      0.9064325 |                     0.09356749 |
+
+The three closest races in battleground states according to this model--MI, WI, and MN--all work slightly in Joe Biden's favor. However, Donald Trump could easily win these states and the Electoral College while still losing the popular vote.
 
 
 #### Prediction Discussion
 
-A few limitations of this forecast: 
-* This model does not account for Washington D.C., but I added it to Biden's electoral count because it is [extremely likely](https://projects.fivethirtyeight.com/2020-election-forecast/district-of-columbia/) to vote Democrat in this election.
-* Due to the structure of the available data, this model considers Maine and Nebraska as winner-take-all states. In reality, however, the different congressional districts for these states could go to separate candidates.
-* The combined data for this model only dates back to 1992, which only provides 7 previous elections from which to construct this model. However, each state in each election counts as an individual observation, which substantially increases the sample size relative to a nationwide model. Of the three models, the blue model has 105 observations, the battleground model has 112 observations, and the red model has 133 observations.
+While this forecast performed quite well in the leave-one-out cross-validation and makes reasonable predictions given what we know about states, it is by no means perfect: 
 
-As Election Day approaches, the predicted vote shares for each candidate from each state diverged as voters appear to "come home" to their partisan loyalties. Two weeks prior to the election, this model predicted that Trump would only win Texas by less than 0.01% of the popular vote, for example. However, it now forecasts a fairly decisive Trump victory for the blue-trending but historically red state.
+* This model does not account for Washington D.C. However, D.C. has a history of voting heavily Democratic, making it [extremely likely](https://projects.fivethirtyeight.com/2020-election-forecast/district-of-columbia/) to vote Democrat in this election. For this reason, Washington D.C.'s 3 electoral votes were added to Joe Biden's tally after running the model for the 50 states.
+
+* Due to the structure of the available data, this model considers Maine and Nebraska as winner-take-all states. However, these two states follow the [congressional district method](https://www.270towin.com/content/split-electoral-votes-maine-and-nebraska/) and could actually split their votes.
+
+* The combined data for this model only dates back to 1992, so this model is built off of only 7 previous elections. However, each state in each election counts as an individual observation, which substantially increases the sample size relative to a nationwide model. The blue, battleground, and red models are build from 105, 112, and 133 observations in the data, respectively.
+
 
 
 ### Appendix
@@ -132,10 +141,18 @@ This [table](../figures/final/coeff_table.html) displays the coefficients for ea
 
 ![coefficients](../figures/final/model_coefficients.jpg)
 
+#### "Coming Home"
+
+As Election Day approaches, the predicted vote shares for each candidate from each state diverged as voters appear to "come home" to their partisan loyalties. Two weeks prior to the election, this model predicted that Trump would only win Texas by less than 0.01% of the popular vote, for example. However, it now forecasts a fairly decisive Trump victory for the blue-trending but historically red state.
+
 
 ------------------------------------------------------------------
 
 [^data]: All data for this model is publicly available online. While many online sources host the data used in this model, the data for the 2020 state-level polls came from [FiveThirtyEight](https://projects.fivethirtyeight.com/polls-page/president_polls.csv), and the national GDP growth numbers came from the [US Bureau of Economic Analysis](https://www.bea.gov/data/gdp/gross-domestic-product).
+
+[^oos-classification]: 
+
+[^tossup]: This counts the proportion of times that neither candidate received at least 270 electoral votes. In the case of a [tie](https://www.270towin.com/content/electoral-college-ties/), the House of Representatives would decide the winner of the presidential election.
 
 [^survey-monkey]: I omitted SurveyMonkey polls from my data after G. Elliot Morris spoke in class about how he does not include their polls due to bias. Also, FiveThirtyEight rates SurveyMonkey a D-, which is the lowest grade of any pollster. This data is especially problematic because SurveyMonkey byfar issues the most polls, by nearly ten times as much as the second most prolific pollster. For states that did not have enough state-level polls after omitting SurveyMonkey data, I included polls from the site.
 

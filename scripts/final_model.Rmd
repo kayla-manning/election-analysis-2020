@@ -511,7 +511,7 @@ class %>%
 class$correct_class %>% mean(na.rm = TRUE)
 
 # in 2016, it incorrectly predicted a Clinton victory in FL, OH, NC, MI,
-# PA, WI, AZ. of these, FiveThirtyEight incorrectly predicted FL, NC, MI, PA, and
+# PA, WI. of these, FiveThirtyEight incorrectly predicted FL, NC, MI, PA, and
 # WI... at least the actual model is trained with 2016 in mind, so hopefully it
 # will account for the weird stuff in elections with Trump
 
@@ -561,12 +561,12 @@ prob_table %>%
   group_by(id) %>% 
   summarise(biden_ev = sum(biden_ev) + 3,
             trump_ev = sum(trump_ev), .groups = "drop") %>% 
-  mutate(biden_victory = ifelse(biden_ev > 270, 1, 0),
-         trump_victory = ifelse(trump_ev > 270, 1, 0),
+  mutate(biden_victory = ifelse(biden_ev >= 270, 1, 0),
+         trump_victory = ifelse(trump_ev >= 270, 1, 0),
          tossup = ifelse(trump_ev < 270 & biden_ev < 270, 1, 0)) %>% 
-  summarise(biden_win = sum(biden_victory),
-            trump_win = sum(trump_victory),
-            tossup = sum(tossup)) 
+  summarise(biden_win = mean(biden_victory),
+            trump_win = mean(trump_victory),
+            tossup = mean(tossup)) 
 
 ```
 
@@ -576,7 +576,7 @@ prob_table %>%
 # plotting distributions for the two parties
 
 prob_table %>% 
-  mutate(group = rep(1:10000, times = 50)) %>% 
+  mutate(group = rep(1:n, times = 50)) %>% 
   group_by(group) %>% 
   summarize(total_dem = sum(sim_dvotes_2020),
          total_rep = sum(sim_rvotes_2020),
@@ -592,7 +592,7 @@ prob_table %>%
   labs(title = "Simulated National Two-Party Popular Vote",
        x = "Predicted Share of the Two-Party Popular Vote",
        y = "Count",
-       subtitle = "Donald Trump Wins the Popular Vote in 0.421% of Simulations",
+       subtitle = "Donald Trump Wins the Popular Vote in 0.497% of Simulations",
        fill = "Candidate") +
   theme_minimal()
 
@@ -600,7 +600,7 @@ prob_table %>%
 # vote... ~5% of the time
 
 prob_table %>% 
-  mutate(group = rep(1:10000, times = 50)) %>% 
+  mutate(group = rep(1:n, times = 50)) %>% 
   group_by(group) %>% 
   summarize(total_dem = sum(sim_dvotes_2020),
          total_rep = sum(sim_rvotes_2020),
@@ -620,15 +620,18 @@ prob_table %>%
          r_pv2p = 1 - d_pv2p) %>% 
   pivot_longer(cols = c(d_pv2p, r_pv2p), names_to = "party") %>% 
   ggplot(aes(value, fill = party)) +
-  geom_histogram(bins = 1000, alpha = 0.75, position = "identity") +
+  geom_histogram(bins = 1000, alpha = 0.5, position = "identity") +
   facet_wrap(~ state) +
   scale_fill_manual(breaks = c("d_pv2p", "r_pv2p"),
                     labels = c("Biden", "Trump"),
                     values = c(muted("blue"), "red3")) +
   labs(title = "Simulated Two-Party Popular Vote in Battleground States",
        x = "Predicted Share of the Two-Party Popular Vote",
-       y = "Count") +
+       y = "Count",
+       fill = "Candidate") +
   theme_minimal()
+
+ggsave("../figures/final/bg_vote_dist.jpg")
 
 # calculating percentage of times Trump wins
 
@@ -638,10 +641,11 @@ prob_table %>%
   mutate(d_pv2p = sim_dvotes_2020 / (sim_dvotes_2020 + sim_rvotes_2020),
          r_pv2p = 1 - d_pv2p) %>% 
   mutate(biden_win = ifelse(r_pv2p < 0.5, 1, 0)) %>% 
-  summarise(biden_wins = mean(biden_win, na.rm = TRUE)) %>% 
-  mutate(close = abs(biden_wins - 0.5)) %>% 
-  arrange(close) %>% 
-  select(state, biden_wins)
+  summarise(biden_wins = mean(biden_win, na.rm = TRUE),
+            trump_wins = 1 - biden_wins) %>% 
+  mutate(order = abs(biden_wins / trump_wins - 1)) %>% 
+  arrange(order) %>% 
+  select(state, biden_wins, trump_wins)
   
 ```
 
