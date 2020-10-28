@@ -420,6 +420,27 @@ for (s in bg_states) {
 for (s in dem_states) {
   
       # code for the Democrat model
+  
+    polls <- state_polls_2020 %>% 
+    filter(state == s,
+           weeks_left == 2) %>% 
+    group_by(party) %>% 
+    summarise(avg_support = mean(pct, na.rm = TRUE)) %>% 
+    inner_join(poll_2020_df %>% 
+                 filter(weeks_left == 2) %>% 
+                 group_by(party) %>% 
+                 summarise(nat_support = mean(avg_support_adj))) 
+  # %>% 
+  #   mutate(avg_support = (avg_support + nat_support) / 2) %>% 
+  #   select(party, avg_support)
+  
+  biden_poll <- polls %>% 
+    filter(party == "democrat") %>% 
+    pull(avg_support)
+
+  trump_poll <- polls %>% 
+    filter(party == "republican") %>% 
+    pull(avg_support)  
     
       consec_d <- state_votes %>% 
         filter(state == s, year == 2016) %>%
@@ -514,6 +535,27 @@ for (s in dem_states) {
 for (s in rep_states) {
   
       # code for the Democrat model
+  
+    polls <- state_polls_2020 %>% 
+    filter(state == s,
+           weeks_left == 2) %>% 
+    group_by(party) %>% 
+    summarise(avg_support = mean(pct, na.rm = TRUE)) %>% 
+    inner_join(poll_2020_df %>% 
+                 filter(weeks_left == 2) %>% 
+                 group_by(party) %>% 
+                 summarise(nat_support = mean(avg_support_adj))) 
+  # %>% 
+  #   mutate(avg_support = (avg_support + nat_support) / 2) %>% 
+  #   select(party, avg_support)
+  
+  biden_poll <- polls %>% 
+    filter(party == "democrat") %>% 
+    pull(avg_support)
+
+  trump_poll <- polls %>% 
+    filter(party == "republican") %>% 
+    pull(avg_support)  
     
       consec_d <- state_votes %>% 
         filter(state == s, year == 2016) %>%

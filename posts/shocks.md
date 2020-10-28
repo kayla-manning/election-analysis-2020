@@ -29,14 +29,14 @@ A few modifications to [last week's](turnout.md) model led to much more reasonab
 
 * I omitted several predictor variables from last week's model in an attempt to keep this model parsimonious without sacrificing precision.[^parsimony] This new model predicts each state's votes using state polling numbers from 2 weeks out, the candidate's incumbency status, the interaction between incumbency and polls, national Q1 GDP growth, the previous election's Democratic vote margin in that state, and the change in that state's Black population since the previous election.
 
-I maintained the underlying binomial logistic structure from last week, and I varied the turnout as I did before. As of the morning of October 24, 2020, this model forecasts an electoral count of 305 for Biden, but the model projects many close state-wide races so this prediction will likely change as Election Day approaches:
+I maintained the underlying binomial logistic structure from last week, and I varied the turnout as I did before. As of the afternoon of October 26, 2020, this model forecasts an electoral count of 284 for Biden, but the model projects many close state-wide races so this prediction will likely change as Election Day approaches:
 
 ![map](../figures/shocks/margin_map.jpg)
 
 | Candidate | Electoral Votes | Two-Party Popular Vote |
 |-----------|-----------------|------------------------|
-| Biden     | 305[^DC]        | 0.516                  |
-| Trump     | 233             | 0.484                  |
+| Biden     | 284[^DC]        | 0.534                 |
+| Trump     | 254             | 0.466                  |
 
 The above map displays the closeness of the race in each state. For a better look at predicted state-by-state outcomes, [this map](../figures/shocks/winner_map.jpg) displays the predicted winner for each state without regard to closeness and [this table](../figures/shocks/state_pv_table.html) lists the predicted two-party popular vote shares for each state.
 
