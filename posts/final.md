@@ -56,7 +56,7 @@ When applied to the 2020 data, this model predicts a narrow Biden victory in the
 
 
 
-![margin-map](../figures/final/win_margin_map.jpg)
+![margin-map](../figures/final/prediction_maps.jpg)
 
 
 ### Uncertainty Around Prediction

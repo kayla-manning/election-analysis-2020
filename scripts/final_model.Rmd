@@ -307,7 +307,7 @@ prob_table <- prob_table %>%
          sim_dvotes_2020 = as.numeric(sim_dvotes_2020),
          sim_rvotes_2020 = as.numeric(sim_rvotes_2020)) 
 
-prob_table %>% 
+reg_map <- prob_table %>% 
   drop_na() %>% 
   mutate(biden_win = ifelse(sim_dvotes_2020 > sim_rvotes_2020, 1, 0)) %>% 
   filter(prob_dvote != 0) %>% 
@@ -315,13 +315,14 @@ prob_table %>%
   summarise(biden_win = mean(biden_win)) %>% 
   mutate(winner = case_when(biden_win > 0.5 ~ "Biden",
                             TRUE ~ "Trump")) %>% 
-  plot_usmap(data = ., regions = "states", values = "winner",
-             color = "white") +
+  plot_usmap(data = ., regions = "states", values = "winner") +
   scale_fill_manual(breaks = c("Biden", "Trump"),
                     values = c(muted("blue"), "red3")) +
   theme_void() +
   labs(fill = "Projected Winner",
        title = "Forecasted Winners in Each State")
+
+reg_map
 
 ggsave("../figures/final/winner_map.jpg")
 
@@ -901,7 +902,7 @@ prob_table %>%
 
 # margin map
 
-prob_table %>% 
+margin_map <- prob_table %>% 
   drop_na() %>% 
   group_by(state) %>% 
   mutate(d_pv2p = sim_dvotes_2020 / (sim_rvotes_2020 + sim_dvotes_2020),
@@ -909,8 +910,7 @@ prob_table %>%
   summarise(d_pv2p = mean(d_pv2p) * 100,
             r_pv2p = mean(r_pv2p) * 100) %>% 
   mutate(d_margin = d_pv2p - r_pv2p) %>% 
-  plot_usmap(regions = "states", data = ., values = "d_margin", labels = TRUE,
-             color = "white") +
+  plot_usmap(regions = "states", data = ., values = "d_margin") +
   theme_void() +
   scale_fill_gradient2(high = muted("blue"), mid = "white", low = "red3") +
   labs(title = "Predicted Win Margin in Each State",
@@ -931,6 +931,10 @@ prob_table %>%
        fill = "Biden's Predicted \nWin Margin (%)")
 
 ggsave("../figures/final/win_margin_map.jpg", height = 5)
+
+ggarrange(reg_map, margin_map, ncol = 1)
+
+ggsave("../figures/final/prediction_maps.jpg")
 
 ```
 
