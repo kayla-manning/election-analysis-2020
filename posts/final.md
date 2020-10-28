@@ -7,9 +7,13 @@
 
 https://www.wsj.com/graphics/the-paths-to-victory/
 
-#### Model Description
+#### Model Description and Methodology
 
-$$\hat{y} ~ avg_state_poll + incumbent + gdp_growth_qt + prev_dem_margin + black_change$$
+For this forecast, a binomial logistic model uses the following variables to predict the probability that each member of the state's voting-eligible population would vote for either party:
+
+$$\hat{y} ~ avg_state_poll + incumbent + gdp_growth_qt + prev_dem_margin + black_change + age20_change + age65_change$$
+
+To have a model specific to a state's characteristics without overfitting the data for each individual state, I grouped states into three separate categories: blue states, red states, and battleground states, as classified by the [New York Times](https://www.nytimes.com/interactive/2020/us/elections/election-states-biden-trump.html). Within each group of states, I constructed one model to predict the probability of voting Democrat and one model to predict the probability of voting Republican.
 
 
 #### Variables
@@ -45,40 +49,37 @@ All data for this model is publicly available online. While many online sources 
 
 #### Coefficients
 
+Six models comprised this forecast, with the following coefficients displayed in this [table](../figures/final/coeff_table.html) and on a graph:
+
+![coefficients](../figures/final/model_coefficients.jpg)
+
 ##### Interpretation of Coefficients
 
 #### Model Validation
 
-##### In-Sample
-
 ##### Out-of-Sample
 
-* incorrectly predicted a 2016 Clinton victory in FL, OH, NC, MI, PA, WI, and AZ, but 538 also got FL, NC, MI, PA, and WI wrong
-* of the state/year pairings that had enough data, the model correctly classified the winner 91.850% of the time
+* incorrectly predicted a 2016 Clinton victory in FL, OH, NC, MI, PA, and WI, but 538 also got FL, NC, MI, PA, and WI wrong
+* of the state/year pairings that had enough data, the model correctly classified the winner 91.85% of the time
 
-| Year | Correct  Classification |
-|-----:|------------------------:|
-| 1992 |               0.8260870 |
-| 1996 |               0.9375000 |
-| 2000 |               0.9347826 |
-| 2004 |               0.9767442 |
-| 2008 |               0.9782609 |
-| 2012 |               0.9250000 |
-| 2016 |               0.8600000 |
+| Year | Correct Classification |
+|-----:|-----------------------:|
+| 1992 |              0.7391304 |
+| 1996 |              0.9791667 |
+| 2000 |              0.9347826 |
+| 2004 |              0.9767442 |
+| 2008 |              0.9782609 |
+| 2012 |              0.9500000 |
+| 2016 |              0.8800000 |
 
-Worst performing in swing states:
+Worst performing in swing states, classifying the following states less than 80% of the time:
 
-| State | Correct  Classification |
-|-------|------------------------:|
-| FL    |               0.5714286 |
-| GA    |               0.7142857	|
-| CO    |               0.7142857 |
-| MI    |               0.7142857 |
-| NC    |               0.7142857 |
-| OH    |               0.7142857 |
-| PA    |               0.7142857 |
-| VA    |               0.7142857 |
-| WI    |               0.7142857 |
+| State | Correct Classification |
+|-------|-----------------------:|
+| FL    |              0.5714286 |
+| WI    |              0.5714286 |
+| MI    |              0.7142857 |
+| PA    |              0.7142857 |
 
 ### Prediction and Graphics
 
@@ -93,6 +94,29 @@ When applied to the 2020 data, this model predicts a narrow Biden victory in the
 
 
 #### Uncertainty Around Prediction
+
+![national-uncertainty](../figures/final/national_vote_dist.jpg)
+
+Closeness in battleground states:
+
+| State | Percent Biden Victory |
+|:-----:|:---------------------:|
+| MI    |             0.5399000 |
+| MI    |             0.5399000 |
+| WI    |             0.5411000 |
+| MN    |             0.5413000 |
+| NV    |             0.4181744 |
+| PA    |             0.6035000 |
+| ME    |             0.6411000 |
+| FL    |             0.2769385 |
+| NC    |             0.2605782 |
+| IA    |             0.2283000 |
+| TX    |             0.2151430 |
+| AZ    |             0.1719221 |
+| NH    |             0.8478000 |
+| NM    |             0.9067000 |
+| OH    |             0.0701000 |
+| NE    |             0.0472000 |
 
 #### Prediction Discussion
 
