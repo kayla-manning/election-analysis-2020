@@ -809,6 +809,9 @@ tops
 
 all_coeff %>% 
   filter(term != "(Intercept)") %>% 
+  mutate(type = recode(type, battleground = "Battleground",
+                       blue = "Blue",
+                       red = "Red")) %>% 
   ggplot(aes(term, estimate, color = party)) +
   geom_point() +
   geom_errorbar(aes(ymin = estimate - 1.96 * std.error, ymax = estimate + 1.96 * std.error)) +
@@ -913,11 +916,6 @@ ggsave("../figures/final/win_margin_map.jpg", height = 5)
 
 ```
 
-```{r ev_simulation}
-
-prob_table
-
-```
 
 
 

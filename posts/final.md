@@ -55,10 +55,13 @@ When applied to the 2020 data, this model predicts a narrow Biden victory in the
 | Donald Trump |             265 | 0.4761912              |
 
 
+
 ![margin-map](../figures/final/win_margin_map.jpg)
 
 
 ### Uncertainty Around Prediction
+
+As visible in the map of Joe Biden's predicted win margin, many states will likely have close elections, and the election could easily swing further in Biden's favor if some of Trump's close states flip to blue. However, a victory for Trump is not out of reach due to the extremely close electoral count in this model. How can we quantify the uncertainty with this forecast? The probabilities in this section are **not** estimated vote shares; rather, these probabilities represent each candidate's chance of winning the Electoral College, nationwide popular vote, or statewide popular vote in the [battleground states](https://www.nytimes.com/interactive/2020/us/elections/election-states-biden-trump.html).
 
 In 100,000 simulations of the election, Joe Biden won the Electoral College most frequently, but a Donald Trump victory is not out of reach:
 
@@ -70,11 +73,11 @@ However, Donald Trump has a much smaller chance of winning the national popular 
 
 ![national-uncertainty](../figures/final/national_vote_dist.jpg)
 
-Luckily for him, the nationwide popular vote does not matter as long as he can secure enough statewide popular vote victories to secure 270 Electoral College votes. While the forecast does project a narrow Joe Biden victory, either candidate could reasonably win most of the battleground states:
+Luckily for Trump, the nationwide popular vote does not matter if he secures enough statewide popular vote victories to secure 270 Electoral College votes. While the forecast does project a narrow Joe Biden victory, either candidate could reasonably win most of the battleground states:
 
 ![battleground-uncertainty](../figures/final/bg_vote_dist.jpg)
 
-| State | Proportion of  Biden Victories | Proportion of  Trump Victories |
+| State | Probability of Biden Victory | Probability of Trump Victory |
 |-------|-------------------------------:|-------------------------------:|
 | MI    |                      0.5413900 |                     0.45861000 |
 | WI    |                      0.5451600 |                     0.45484000 |
@@ -93,10 +96,11 @@ Luckily for him, the nationwide popular vote does not matter as long as he can s
 | NH    |                      0.8432500 |                     0.15675000 |
 | NM    |                      0.9064325 |                     0.09356749 |
 
-The three closest races in battleground states according to this model--MI, WI, and MN--all work slightly in Joe Biden's favor. However, Donald Trump could easily win these states and the Electoral College while still losing the popular vote.
+
+The three closest races in battleground states according to this model--MI, WI, and MN--all lean slightly in Joe Biden's favor according to this model. However, Donald Trump could easily win these states and the Electoral College while still losing the popular vote.
 
 
-#### Prediction Discussion
+#### Model Limitations
 
 While this forecast performed quite well in the leave-one-out cross-validation and makes reasonable predictions given what we know about states, it is by no means perfect: 
 
@@ -139,9 +143,10 @@ Demographics serve as strong predictors for voting behaviors, so incorporating t
 
 #### Coefficients
 
-This [table](../figures/final/coeff_table.html) displays the coefficients for each model, the below figure plots the coefficients for each model:
+This [table](../figures/final/coeff_table.html) displays the coefficients for each model, the below figure plots the coefficients for each model. Every coefficient was highly significant with near-zero p-values and incredibly narrow 95% confidence intervals:
 
 ![coefficients](../figures/final/model_coefficients.jpg)
+
 
 #### "Coming Home"
 
