@@ -9,9 +9,9 @@ In a total of $100,000$ simulations, this model gives Joe Biden a **59.0%** chan
 
 #### Model Description and Methodology
 
-In this forecast, a binomial logistic model predicts the state-by-state probabilities that an individual will vote for either party, using a combination of polling, economic, demographic, and incumbency data:[^data]
+In this forecast, a binomial logistic model[^logit] predicts the state-by-state probabilities that an individual will vote for either party, using a combination of polling, economic, demographic, and incumbency data:[^data]
 
-$$\hat{P(\text{vote})} ~ avg_state_poll + incumbent + q1_gdp_growth + prev_dem_margin + black_change + age20_change + age65_change$$
+$$\hat{y} = g(\alpha + \beta_1\text{avg_state_poll} + \beta_2\text{incumbent} + \beta_3\text{q1_gdp_growth} + \beta_4\text{prev_dem_margin} + \beta_5\text{black_change} + \beta_6\text{age20_change} + \beta_7\text{age65_change})$$
 
 To gauge public opinion, the model includes average *state-level polls*[^survey-monkey] in the final 4 weeks before the election. Election-year *Q1 GDP growth* captures the state of the economy, and the *incumbency* term accounts for the [incumbent](../posts/incumbency.md) advantage. Since past elections serve as excellent predictors for future elections, the forecast includes a term for the difference between Democratic and Republican state-level two-party vote share in the *previous election*. Lastly, *demographic variables*--the change in the state's Black population, age 20-30 population, and age 65+ population--capture the impact of shifting demographics on election outcomes. See the Appendix for a graph of the model's [coefficients](../figures/final/coeff_table.html) and further discussion about the inclusion of each variable.
 
@@ -170,6 +170,8 @@ As Election Day approaches, the predicted vote shares for each candidate from ea
 
 
 ------------------------------------------------------------------
+
+[^logit]: The $g(x)$ in the model equation is a logit link function that models the probability of successes as a function of covariates.
 
 [^data]: All data for this model is publicly available online. While many online sources host the data used in this model, the data for the 2020 state-level polls came from [FiveThirtyEight](https://projects.fivethirtyeight.com/polls-page/president_polls.csv), and the national GDP growth numbers came from the [US Bureau of Economic Analysis](https://www.bea.gov/data/gdp/gross-domestic-product).
 

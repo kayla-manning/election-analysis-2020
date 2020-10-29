@@ -377,6 +377,8 @@ prob_table %>%
 
 ```
 
+
+
 ```{r out_of_sample, message = FALSE, warning=FALSE}
 
 parties <- c("democrat", "republican")
