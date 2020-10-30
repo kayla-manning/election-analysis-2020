@@ -573,6 +573,7 @@ prob_table %>%
   tab_footnote(footnote = "For states not listed, the forecasted winner won every simulated election.",
                locations = cells_column_labels(columns = vars(state)))
 
+
 # calculating EV uncertainty
 
 n <- 100000
@@ -686,6 +687,24 @@ prob_table %>%
 
 ggsave("../figures/final/bg_vote_dist.jpg")
 
+# state-by-state distributions by line plot instead
+
+prob_table %>% 
+  filter(state %in% bg_states) %>% 
+  mutate(d_pv2p = sim_dvotes_2020 / (sim_dvotes_2020 + sim_rvotes_2020),
+         r_pv2p = 1 - d_pv2p) %>% 
+  pivot_longer(cols = c(d_pv2p, r_pv2p), names_to = "party") %>% 
+  ggplot(aes(state, value, fill = party)) +
+  geom_point(bins = 1000, alpha = 0.5, position = "identity") +
+  scale_fill_manual(breaks = c("d_pv2p", "r_pv2p"),
+                    labels = c("Biden", "Trump"),
+                    values = c(muted("blue"), "red3")) +
+  labs(title = "Simulated Two-Party Popular Vote in Battleground States",
+       x = "Predicted Share of the Two-Party Popular Vote",
+       y = "Count",
+       fill = "Candidate") +
+  theme_minimal()
+
 # calculating percentage of times Trump wins
 
 prob_table %>% 
@@ -701,6 +720,81 @@ prob_table %>%
   select(state, biden_wins, trump_wins)
   
 ```
+
+```{r state_confidence}
+
+# plot of confidence intervals for each state
+
+interval_plot <- function(my_type) {
+  
+  # making these for the title of my ggplot
+  
+  if (my_type == bg_states) {
+    label = "Battleground States"
+    y_label = "Joe Biden's Estimated Two-Party Popular Vote"
+  }
+  if (my_type == dem_states) {
+    label = "Blue States"
+    y_label = ""
+  }
+  if(my_type == rep_states) {
+    label = "Red States"
+    y_label = ""
+  }
+  
+  prob_table %>% 
+    filter(state %in% my_type) %>% 
+    mutate(d_pv2p = sim_dvotes_2020 / (sim_dvotes_2020 + sim_rvotes_2020),
+           r_pv2p = sim_rvotes_2020 / (sim_dvotes_2020 + sim_rvotes_2020)) %>% 
+    select(state, d_pv2p, r_pv2p) %>% 
+    drop_na() %>% 
+    mutate(state = fct_reorder(as_factor(state), d_pv2p)) %>% 
+    group_by(state) %>% 
+    nest() %>% 
+    mutate(d_pv2p = map(data, ~ pull(., d_pv2p)),
+           r_pv2p = map(data, ~ pull(.,r_pv2p)),
+           d.low = map_dbl(d_pv2p, ~ quantile(., 0.025), na.rm = TRUE),
+           d.mid = map_dbl(d_pv2p, ~ quantile(., 0.5), na.rm = TRUE),
+           d.high = map_dbl(d_pv2p, ~ quantile(., 0.975), na.rm = TRUE),
+           r.low = map_dbl(r_pv2p, ~ quantile(., 0.025), na.rm = TRUE),
+           r.mid = map_dbl(r_pv2p, ~ quantile(., 0.5), na.rm = TRUE),
+           r.high = map_dbl(r_pv2p, ~ quantile(., 0.975), na.rm = TRUE)) %>% 
+    pivot_longer(cols = d.low:r.high, names_to = "type") %>% 
+    mutate(party = ifelse(str_detect(type, "r."), "rep", "dem"),
+           type = str_extract(type, "(?<=\\.).*")) %>% 
+    pivot_wider(names_from = type, values_from = value) %>% 
+    
+    mutate(winner = ifelse(mid > 0.5, "Biden", "Trump")) %>% 
+    filter(party == "dem") %>% 
+    ggplot(aes(state, mid, color = winner)) +
+    geom_point() +
+    coord_flip() +
+    geom_errorbar(aes(ymin = low, ymax = high)) +
+    scale_color_manual(values = c(muted("blue"), "red3"),
+                       breaks = c("Biden", "Trump")) +
+    theme_minimal() +
+    labs(title = paste0(label),
+         y = y_label,
+         x = "State", 
+         color = "Predicted Winner") +
+    geom_hline(yintercept = 0.5)
+}
+
+bg_int <- interval_plot(bg_states)
+blue_int <- interval_plot(dem_states)
+red_int <- interval_plot(rep_states)
+
+partisan <- ggarrange(blue_int, red_int, legend = "none")
+
+ggarrange(partisan  + theme(legend.position = "none"), 
+          bg_int, ncol = 1, common.legend = TRUE) %>% 
+  annotate_figure(text_grob("95% Confidence Intervals for Two-Party Vote Share",
+                            size = 15))
+
+ggsave("../figures/final/state_plots.jpg", height = 9, width = 8)
+
+```
+
 
 
 ```{r model_errors}

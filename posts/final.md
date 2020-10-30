@@ -103,6 +103,10 @@ Luckily for Trump, the national popular vote does not matter if he can reach 270
 
 According to this model, the three closest battleground races--MI, WI, and MN--all lean slightly in Joe Biden's favor. However, these states could easily swing in Donald Trump's favor, giving him the Electoral College victory while still losing the popular vote. [This table](../figures/final/all_states_closeness.html) lists all states and corresponding levels of uncertainty.
 
+The above plots display each candidate's win probabilities, but this plot displays the 95% confidence intervals for Joe Biden's estimated vote share:
+
+![state-intervals](../figures/final/state_plots.jpg)
+
 
 ### Model Limitations
 
