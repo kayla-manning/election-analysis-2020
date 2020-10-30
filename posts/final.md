@@ -82,7 +82,6 @@ However, Donald Trump has a much smaller chance of winning the national popular 
 
 Luckily for Trump, the national popular vote does not matter if he can reach 270 Electoral College votes via statewide victories. While the forecast has a narrow Joe Biden victory as the point prediction, either candidate could reasonably win most of the battleground states:
 
-![battleground-uncertainty](../figures/final/bg_vote_dist.jpg)
 
 | State | Probability of Biden Victory | Probability of Trump Victory |
 |-------|-------------------------------:|-------------------------------:|
@@ -102,6 +101,8 @@ Luckily for Trump, the national popular vote does not matter if he can reach 270
 | NE    |                      0.0462500 |                     0.95375000 |
 | NH    |                      0.8432500 |                     0.15675000 |
 | NM    |                      0.9064325 |                     0.09356749 |
+
+![battleground-uncertainty](../figures/final/bg_vote_dist.jpg)
 
 
 According to this model, the three closest battleground races--MI, WI, and MN--all lean slightly in Joe Biden's favor. However, these states could easily swing in Donald Trump's favor, giving him the Electoral College victory while still losing the popular vote. [This table](../figures/final/all_states_closeness.html) lists all states and corresponding levels of uncertainty.
