@@ -72,10 +72,9 @@ Confidence intervals serve as a helpful tool to measure statistical uncertainty.
 
 Moving away from estimated vote share, the remaining probabilities in this section do **not** represent vote share estimates; rather, these probabilities represent each candidate's chance of victory. From $100,000$ election simulations, this model gives Joe Biden a **59.0%** chance of winning the Electoral College and Donald Trump a **38.9%** chance of winning the Electoral College, with a **2.1%** chance of an electoral tie:
 
-| Biden Electoral|Trump  Electoral|     Electoral   |
-|Victory         |      Victory   |  Tossup[^tossup]|
-|:--------------:|:--------------:|:---------------:|
-| 0.59036        | 0.38873        | 0.02091         |
+| Probability of Biden Electoral College Victory 	| Probability of Trump Electoral College Victory 	| Probability of Electoral College Tie[^tossup] 	|
+|-	|-	|-	|
+| 0.59685 	| 0.38262 	| 0.02053 	|
 
 However, Donald Trump has a much smaller chance of winning the national popular vote:
 
