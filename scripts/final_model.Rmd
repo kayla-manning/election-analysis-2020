@@ -174,6 +174,10 @@ pv2p_std <- state_votes %>%
 # will write a function to build models and plot all states, so I am creating
 # this table to store all of the values
 
+# setting seed because I draw a random number for the VEP
+
+set.seed(9)
+
 prob_table <- tibble(state = c(rep(dem_states, each = 100000), rep(bg_states, each = 100000), rep(rep_states, each = 100000)), 
                      prob_dvote = 0, prob_rvote = 0,
                      sim_dvotes_2020 = 0, sim_rvotes_2020 = 0) %>% 
@@ -315,7 +319,10 @@ for (state_type in state_types) {
   }
 }
 
-# now going to run the simulations for each state, accounting for turnout
+# now going to run the simulations for each state, accounting for turnout,
+# slightly varying the probabilities
+
+set.seed(9)
 
 prob_table <- prob_table %>% 
   mutate(
@@ -630,12 +637,12 @@ pop_close <- prob_table %>%
   labs(title = "Simulated National Two-Party Popular Vote",
        x = "Predicted Share of the Two-Party Popular Vote",
        y = "Count",
-       subtitle = "Donald Trump Wins the Popular Vote in 0.497% of Simulations",
+       subtitle = "Donald Trump Wins the Popular Vote in 0.668% of Simulations",
        fill = "Candidate") +
   theme_minimal()
 
 # finding the proportion of times Trump had more than 50% of two-party popular
-# vote... ~5% of the time
+# vote... ~0.06% of the time
 
 prob_table %>% 
   mutate(group = rep(1:n, times = 50)) %>% 

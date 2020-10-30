@@ -3,7 +3,7 @@
 
 ### Overview
 
-This forecast predicts that Joe Biden will win a fairly sizable two-party popular vote victory of **52.4%**, earn a much narrower Electoral College majority of **273** votes compared to Trump's **265**. 
+This forecast predicts that Joe Biden will win a fairly sizable two-party popular vote victory of **52.4%**, earn a much narrower Electoral College majority of **273** votes compared to Donald Trump's **265** votes. 
 
 In a total of $100,000$ simulations, this model gives Joe Biden a **59.0%** chance of winning the Electoral College and Donald Trump a **38.9%** chance of winning the Electoral College, with a **2.1%** chance of an electoral tie.
 
@@ -159,9 +159,11 @@ Demographics serve as strong predictors for voting behaviors, so incorporating t
 
 #### Coefficients
 
-This [table](../figures/final/coeff_table.html) displays the coefficients for each model, the below figure plots the coefficients for each model. Every coefficient was highly significant with near-zero p-values and incredibly narrow 95% confidence intervals:
+This [table](../figures/final/coeff_table.html) displays the coefficients for each model, the below figure plots the coefficients for each model. With near-zero p-values and incredibly narrow 95% confidence intervals, all coefficients are extremely significant:
 
 ![coefficients](../figures/final/model_coefficients.jpg)
+
+The above plot illustrates the differential effects of variables on the breakdowns of parties within state subgroups. For example, Q1 GDP growth and the change in the Black population has virtually the same coefficient for both parties in traditionally blue states. However, the change in the age 20 population within blue states has a greater positive coefficient for the Democratic candidate than the Republican candidate, and the change in the age 65+ population in blue states has a positive coefficient for republicans in blue states and a negative coefficient for democrats in blue states.
 
 
 #### "Coming Home"
