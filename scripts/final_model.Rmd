@@ -199,20 +199,20 @@ for (state_type in state_types) {
     
     for (p in parties) {
       
-      # code for the Democrat model
-      
-      # just getting polls from pollsters graded from A+ to B/C (total
-      # possibilities are "B"   "C"   "B/C" "C-"  "A+"  "A"   "B-"  "D-"  NA
-      # "A/B" "C+"  "A-"  "B+"  "C/D")
-  
-      # poll <- state_polls_2020 %>% 
-      #   filter(state == s,
-      #          weeks_left %in% c(1, 2, 3, 4),
-      #          str_detect(fte_grade, "A") | str_detect(fte_grade, "B")) %>% 
-      #   group_by(party) %>% 
-      #   summarise(avg_support = mean(pct, na.rm = TRUE)) 
+      # # code for the Democrat model
       # 
-      # if (length(poll$party) == 0) {
+      # # just getting polls from pollsters graded from A+ to B/C (total
+      # # possibilities are "B"   "C"   "B/C" "C-"  "A+"  "A"   "B-"  "D-"  NA
+      # # "A/B" "C+"  "A-"  "B+"  "C/D")
+      # 
+      # # poll <- state_polls_2020 %>% 
+      # #   filter(state == s,
+      # #          weeks_left %in% c(1, 2, 3, 4),
+      # #          str_detect(fte_grade, "A") | str_detect(fte_grade, "B")) %>% 
+      # #   group_by(party) %>% 
+      # #   summarise(avg_support = mean(pct, na.rm = TRUE)) 
+      # # 
+      # # if (length(poll$party) == 0) {
         poll <- state_polls_2020 %>% 
         filter(state == s,
                weeks_left %in% c(1, 2, 3, 4),
@@ -565,7 +565,13 @@ prob_table %>%
   filter(pct_biden_win < 1 & pct_biden_win > 0) %>% 
   mutate(close = pct_biden_win - .5) %>% 
   arrange(abs(close)) %>% 
-  select(state, pct_biden_win) 
+  select(state, pct_biden_win) %>% 
+  gt() %>% 
+  tab_header(title = "Uncertainty Within States",
+             subtitle = "Ordered in terms of closeness, as of 10/30/2020") %>% 
+  cols_label(state = "State", pct_biden_win = "Probability of Biden Victory") %>% 
+  tab_footnote(footnote = "For states not listed, the forecasted winner won every simulated election.",
+               locations = cells_column_labels(columns = vars(state)))
 
 # calculating EV uncertainty
 
