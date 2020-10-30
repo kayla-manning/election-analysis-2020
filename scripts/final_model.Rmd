@@ -788,7 +788,7 @@ partisan <- ggarrange(blue_int, red_int, legend = "none")
 
 ggarrange(partisan  + theme(legend.position = "none"), 
           bg_int, ncol = 1, common.legend = TRUE) %>% 
-  annotate_figure(text_grob("95% Confidence Intervals for Two-Party Vote Share",
+  annotate_figure(text_grob("95% Confidence Intervals for Joe Biden's Two-Party Vote Share",
                             size = 15))
 
 ggsave("../figures/final/state_plots.jpg", height = 9, width = 8)
