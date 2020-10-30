@@ -66,7 +66,11 @@ Any model, including this one, has a near-zero probability of predicting the exa
 
 As visible in the map of Joe Biden's predicted win margin, this forecast anticipates close elections in many states, making a Biden landslide possible in the Electoral College if several of Trump's close states flip to blue. On the contrary, Trump could win the Electoral College if some of the slightly blue states flip to red. How can we quantify the uncertainty with this forecast? 
 
-The probabilities in this section do **not** represent vote share estimates; rather, these probabilities represent each candidate's chance of winning the specified variable. From $100,000$ election simulations, this model gives Joe Biden a **59.0%** chance of winning the Electoral College and Donald Trump a **38.9%** chance of winning the Electoral College, with a **2.1%** chance of an electoral tie:
+Confidence intervals serve as a helpful tool to measure statistical uncertainty. The below plot displays 95% confidence intervals for Joe Biden's two-party vote share in each state. If a state's interval does not contain 50%, then the forecast estimates with 95% confidence that the specified candidate will win that state's two-party vote:
+
+![state-intervals](../figures/final/state_plots.jpg)
+
+Moving away from estimated vote share, the remaining probabilities in this section do **not** represent vote share estimates; rather, these probabilities represent each candidate's chance of victory. From $100,000$ election simulations, this model gives Joe Biden a **59.0%** chance of winning the Electoral College and Donald Trump a **38.9%** chance of winning the Electoral College, with a **2.1%** chance of an electoral tie:
 
 | Biden Electoral|Trump  Electoral|     Electoral   |
 |Victory         |      Victory   |  Tossup[^tossup]|
@@ -102,10 +106,6 @@ Luckily for Trump, the national popular vote does not matter if he can reach 270
 
 
 According to this model, the three closest battleground races--MI, WI, and MN--all lean slightly in Joe Biden's favor. However, these states could easily swing in Donald Trump's favor, giving him the Electoral College victory while still losing the popular vote. [This table](../figures/final/all_states_closeness.html) lists all states and corresponding levels of uncertainty.
-
-The above plots display each candidate's win probabilities, but this plot displays the 95% confidence intervals for Joe Biden's estimated vote share:
-
-![state-intervals](../figures/final/state_plots.jpg)
 
 
 ### Model Limitations
