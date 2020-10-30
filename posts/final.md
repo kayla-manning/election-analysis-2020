@@ -3,7 +3,7 @@
 
 ### Overview
 
-This forecast predicts that Joe Biden will win a fairly sizable two-party popular vote victory of **52.4%**, earn a much narrower Electoral College majority of **273** votes compared to Donald Trump's **265** votes. 
+This forecast predicts that Joe Biden will win a popular vote victory of **52.4%** with a narrow Electoral College majority of **273** votes compared to Donald Trump's **265** votes. However, the model projects a high level of uncertainty in several battleground states. As a result, the Electoral College could easily swing in Donald Trump's direction or further in Biden's favor.
 
 In a total of $100,000$ simulations, this model gives Joe Biden a **59.0%** chance of winning the Electoral College and Donald Trump a **38.9%** chance of winning the Electoral College, with a **2.1%** chance of an electoral tie.
 
@@ -47,7 +47,7 @@ Not surprisingly, the model performed most poorly in swing states. Across all el
 | MI    |              0.7142857 |
 | PA    |              0.7142857 |
 
-In the leave-one-out validation for 2016, the model misclassified 6 states: FL, OH, NC, MI, PA, and WI. [FiveThirtyEight](https://projects.fivethirtyeight.com/2016-election-forecast/)'s 2016 forecast correctly predicted OH, but misclassified the remaining five of those six states. This model for 2020, however, includes the 2016 data and, in theory, should adjust for some of the previous pitfalls.
+In the leave-one-out validation for 2016, the model misclassified 6 states: FL, OH, NC, MI, PA, and WI. [FiveThirtyEight](https://projects.fivethirtyeight.com/2016-election-forecast/)'s 2016 forecast correctly predicted OH but misclassified the remaining five of those six states. This model for 2020, however, includes the 2016 data and, in theory, should adjust for some of the previous pitfalls.
 
 
 ### 2020 Prediction
@@ -66,7 +66,7 @@ This model predicts a narrow Biden victory in the [Electoral College](../figures
 
 ### Uncertainty Around Prediction
 
-To put it bluntly, any model is highly unlikely to predict the exact outcome of an election. However, a forecast is helpful to anticipate possible election outcomes.
+To put it bluntly, any model is highly unlikely to predict the exact outcome of an election. However, a forecast quantifies possible election outcomes and the surrounding uncertainty.
 
 As visible in the map of Joe Biden's predicted win margin, this map anticipates close elections in many states, making a Biden landslide possible in the Electoral College if several of Trump's close states flip to blue. On the contrary, Trump could win the Electoral College if some of the slightly blue states flip to red. How can we quantify the uncertainty with this forecast? 
 
@@ -122,7 +122,7 @@ While this forecast performed quite well in the leave-one-out cross-validation a
 
 This model predicts a narrow Democratic victory with a **273** to **265** Electoral College majority and approximately **52.4%** of the two-party popular vote. However, the close state-level vote margins, especially in battleground states, increase the level of uncertainty. 
 
-Due to the close margins in several battleground states, the Electoral College could easily swing in the direction of a Trump victory or a Biden landslide. For example, if Joe Biden wins Michigan, Nevada, Texas, or any other state with a narrow victory projected for Trump, Biden could win far more than his projected **273** votes. However, if Trump wins New Hampshire, Nebraska, Pennsylvania, Wisconsin, or any other states projecting an extremely narrow Biden victory, he could easily tip the electoral scale in his favor. This forecast gives Joe Biden a **59.4%** chance of a Joe Biden Electoral College victory, **38.5%** chance of a Donald Trump Electoral College victory, and a **2.1%** chance of an electoral tie.
+Due to the close margins in several battleground states, the Electoral College could easily swing in the direction of a Trump victory or a Biden landslide. For example, if Joe Biden wins Michigan, Nevada, Texas, or any other state with a narrow victory projected for Trump, Biden could win far more than his projected **273** votes. However, if Trump wins New Hampshire, Nebraska, Pennsylvania, Wisconsin, or any other states projecting an extremely narrow Biden victory, he could easily tip the electoral scale in his favor. This forecast gives Joe Biden a **59.4%** chance of a Joe Biden Electoral College victory, a **38.5%** chance of a Donald Trump Electoral College victory, and a **2.1%** chance of an electoral tie.
 
 2020 has been quite the year, and the uncertainty surrounding the 2020 election will likely only add to the chaos in the coming days.
 
@@ -183,7 +183,7 @@ As Election Day approaches, the predicted vote shares for each candidate from ea
 
 [^tossup]: This counts the proportion of times that neither candidate received at least 270 electoral votes. In the case of a [tie](https://www.270towin.com/content/electoral-college-ties/), the House of Representatives would decide the winner of the presidential election.
 
-[^survey-monkey]: State-level polling in 2016 did quite a [poor job](https://fivethirtyeight.com/features/the-polls-are-all-right/) of forecasting the election outcomes. Since this forecast uses state polls as the variable for public opinion, I aimed to exclude heavily biased or inaccurate polls where possible. To do this, I utilized FiveThirtyEight's [pollster ratings](https://projects.fivethirtyeight.com/pollster-ratings/). In states with enough polling data, I only included state-level polls from sources rated between A+ to C-. If a state did not have enough data with these guidelines, I loosened the restrictions to include pollsters with ratings between A+ to C/D. Notably, only one pollster did not meet these criteria. If a state did not have enough polling data within those constraints, I removed all pollster rating constraints. As the only pollster to receive a rating of D-, SurveyMonkey has the lowest rating of all pollsters. SurveyMonkey issues the most polls--nearly ten times as much as the second most prolific pollster--making this low rating especially problematic. I only included SurveyMonkey polls for states lacked sufficient state-level polling from all other pollsters.
+[^survey-monkey]: State-level polling in 2016 did quite a [poor job](https://fivethirtyeight.com/features/the-polls-are-all-right/) of forecasting the election outcomes. Since this forecast uses state polls as the variable for public opinion, I aimed to exclude heavily biased or inaccurate polls where possible. To do this, I utilized FiveThirtyEight's [pollster ratings](https://projects.fivethirtyeight.com/pollster-ratings/). In states with enough polling data, I only included state-level polls from sources rated between A+ to C-. If a state did not have enough data with these guidelines, I loosened the restrictions to include pollsters with ratings between A+ to C/D. Notably, only one pollster did not meet these criteria. If a state did not have enough polling data within those constraints, I removed all pollster rating constraints. As the only pollster to receive a rating of D-, SurveyMonkey has the lowest rating of all pollsters. SurveyMonkey issues the most polls--nearly ten times as much as the second most prolific pollster--making this low rating especially problematic. I only included SurveyMonkey polls for states that lacked sufficient state-level polling from all other pollsters.
 
 [^healy-2014]: [Healy and Lenz, 2014] Healy, A. and Lenz, G. S. (2014). Substituting the End for the Whole: Why Voters Respond Primarily to the Election-Year Economy. American journal of political science, 58(1):31–47.
 
