@@ -5,7 +5,6 @@
 
 This forecast predicts that Joe Biden will win a popular vote victory of **52.4%** with a narrow Electoral College majority of **273** votes compared to Donald Trump's **265** votes. However, the model projects a high level of uncertainty in several battleground states. As a result, the Electoral College could easily swing in Donald Trump's direction or further in Biden's favor.
 
-In a total of $100,000$ simulations, this model gives Joe Biden a **59.0%** chance of winning the Electoral College and Donald Trump a **38.9%** chance of winning the Electoral College, with a **2.1%** chance of an electoral tie.
 
 #### Model Description and Methodology
 
@@ -70,7 +69,7 @@ To put it bluntly, any model is highly unlikely to predict the exact outcome of 
 
 As visible in the map of Joe Biden's predicted win margin, this map anticipates close elections in many states, making a Biden landslide possible in the Electoral College if several of Trump's close states flip to blue. On the contrary, Trump could win the Electoral College if some of the slightly blue states flip to red. How can we quantify the uncertainty with this forecast? 
 
-The below probabilities are **not** estimated vote shares; rather, these probabilities represent each candidate's chance of winning the Electoral College, nationwide popular vote, or statewide popular vote in the [battleground states](https://www.nytimes.com/interactive/2020/us/elections/election-states-biden-trump.html). In 100,000 simulations of the election, Joe Biden won the Electoral College most frequently, but Donald Trump still won over 1 out of 3 elections:
+The below probabilities are **not** estimated vote shares; rather, these probabilities represent each candidate's chance of winning the Electoral College, nationwide popular vote, or statewide popular vote in the [battleground states](https://www.nytimes.com/interactive/2020/us/elections/election-states-biden-trump.html). From $100,000$ election simulations, this model gives Joe Biden a **59.0%** chance of winning the Electoral College and Donald Trump a **38.9%** chance of winning the Electoral College, with a **2.1%** chance of an electoral tie:
 
 | Biden Electoral|Trump  Electoral|     Electoral   |
 |Victory         |      Victory   |  Tossup[^tossup]|
