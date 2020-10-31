@@ -642,7 +642,7 @@ prob_table %>%
   pull(trump_win) %>% 
   mean(na.rm = TRUE)
 
-ggarrange(pop_close, ev_close, ncol = 1, common.legend = TRUE, legend = "right")
+ggarrange(pop_close, ev_close, ncol = 1, legend = "right")
 
 ggsave("../figures/final/national_vote_dist.jpg")
 

@@ -37,7 +37,7 @@ In elections from 1992-2016, this model correctly classified the statewide popul
 Not surprisingly, the model performed most poorly in swing states. Across all elections from 1992-2016, the model correctly classified the popular vote winner less than 80% of the time in these 4 states:
 
 | State | Correct Classification |
-|-------|-----------------------:|
+|:-------:|-----------------------:|
 | FL    |              0.5714286 |
 | WI    |              0.5714286 |
 | MI    |              0.7142857 |
@@ -51,7 +51,7 @@ In the leave-one-out validation for 2016, the model misclassified 6 states: FL, 
 This model predicts a narrow Biden victory in the [Electoral College](../figures/final/winner_map.jpg), with a much larger margin in the popular vote:
 
 | Candidate    | Electoral Votes | Two-Party Popular Vote |
-|--------------|----------------:|------------------------|
+|:------------:|----------------:|-----------------------:|
 | Joe Biden    |             273 | 0.5279031	            |
 | Donald Trump |             265 | 0.4720969              |
 
@@ -105,7 +105,7 @@ Luckily for Trump, the national popular vote does not matter if he can reach 270
 ![battleground-uncertainty](../figures/final/bg_vote_dist.jpg)
 
 
-According to this model, the closest battleground races are fairly evenly split between the two candidates. However, these states could all easily swing in Donald Trump's favor, giving him the Electoral College victory while still losing the popular vote. On the other hand, these states could also all vote for Biden, giving him a much larger Electoral College victory than given in this model's point prediction. [This table](../figures/final/all_states_closeness.html) lists all states and corresponding levels of uncertainty.
+According to this model, the closest battleground races are fairly evenly split between the two candidates. However, these states could all easily swing in Donald Trump's favor, giving him the Electoral College victory while still losing the popular vote. If one of Minnesota, Michigan, or Florida flip and the other states remain the same, Donald Trump will win the Electoral College. On the other hand, Nevada, Florida, North Carolina, and Iowa could easily all vote for Biden, giving him a much larger Electoral College victory than estimate in the forecast's point prediction. For a more detailed look at each candidate's state-level win probabilities, [this table](../figures/final/all_states_closeness.html) lists all states and corresponding levels of uncertainty.
 
 
 ### Model Limitations
@@ -119,6 +119,8 @@ While this forecast performed quite well in the leave-one-out cross-validation a
 * The combined data[^demographic-data] for this model only dates back to 1992, which only allows for the model to fit itself with data from 7 previous elections. However, each state counts as an individual observation, increasing the total number of observations to 350. 105, 112, and 133 observations fit the blue, battleground, and red models, respectively.
 
 * This model independently varies voter turnout and probabilities for each simulation.[^variation] A more sophisticated model would introduce some [correlation](https://statmodeling.stat.columbia.edu/2020/10/24/reverse-engineering-the-problematic-tail-behavior-of-the-fivethirtyeight-presidential-election-forecast/) between subgroups such as demographics, COVID deaths, or partisan alignment. For example, low turnout among suburban women in Wisconsin would likely accompany low turnout among suburban women in Minnesota. While this forecast does simulate instances with lower-than-predicted probabilities of voting for either party within each state, the probability of voting for Biden in Wisconsin in a single simulation has no bearing on the probability of voting for Biden in Minnesota.
+
+* To set a rule for how I classified states, I divided states into blue, red, and battleground states using the 2020 [classifications by the New York Times](https://www.nytimes.com/interactive/2020/us/elections/battleground-states.html). Unfortunately, this method does not account for the ideological evolution of states over time. For example, Texas reliably voted Republican in all other elections from 1992-2016, but the New York Times classifies as a "battleground state" for 2020. Ideally, I would have used historical Texas data to construct the "red state" model. If I did that, however, I would either have to (a) make judgment calls for each of the remaining 49 states in each of the 7 elections, or (b) set some other arbitrary rule for the year-by-year classification of states. In the end, I elected to follow the imperfect but uniform method of classifying states by their 2020 status.
 
 ### Conclusion
 
@@ -191,10 +193,11 @@ The section on uncertainty of this post does mention win probabilities, but I pr
 
 Nearly [3 million](https://abcnews.go.com/Politics/hillary-clinton-officially-wins-popular-vote-29-million/story?id=44354341) more Americans voted for Hillary Clinton in 2016 than voted for Donald Trump, yet he still won the election due to the United State's Electoral College system. The win probabilities for both candidates in this forecast highlight the possibility for an electoral imbalance once again: Donald Trump has less than a 1% chance of winning the popular vote but nearly a 40% chance of winning the Electoral College. Many people argue that the Electoral College is an [outdated](https://www.history.com/news/electoral-college-founding-fathers-constitutional-convention) system with no modern merits of existence. Unfortunately, the party reaping the advantages of the Electoral College system has resisted moves to strip them of their advantage throughout history, and that pattern will likely continue for the foreseeable future.
 
-#### "Coming Home"
+#### "Coming Home" and Polls in the Final Days
 
-As Election Day approaches, voters appear to "come home" to their partisan loyalties in many states as close races become more spread out. Two weeks before the election, this model predicted that Trump would only win Texas by less than 0.01% of the popular vote, for example. However, it now gives Donald Trump an 80% chance of winning the state and forecasts a fairly decisive Trump victory in Texas.
+As Election Day approaches, voters appear to "come home" to their partisan loyalties in many states as close races become more spread out. Two weeks before the election, this model predicted that Trump would only win Texas by less than 0.01% of the popular vote, for example. However, it now gives Donald Trump an 80% chance of winning the state and forecasts a fairly decisive Trump victory in Texas. 
 
+In the [FiveThirtyEight Podcast](https://itunes.apple.com/us/podcast/fivethirtyeight-elections/id1077418457) (released on 10/30/2020), Nate Silver described a tightening of polls in battleground states as the election approaches. Since [most polls show a Biden lead](https://www.theguardian.com/us-news/2020/oct/31/us-election-polls-tracker-who-is-leading-in-swing-states-trump-or-biden), this should generally mean positive momentum for Trump. Does this indicate that some Trump supporters, previously apprehensive about supporting the president, are returning to their allegiances after all? Unfortunately, analyzing polls may only work to a certain extent. Can we trust polls to provide reliable information about voters' positions, especially after they [missed the mark by so much in the 2016 election](https://www.pewresearch.org/fact-tank/2016/11/09/why-2016-election-polls-missed-their-mark/)? Luckily, there's only a few days left to speculate before Election Day.
 
 ------------------------------------------------------------------
 
