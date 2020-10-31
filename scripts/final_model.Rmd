@@ -15,6 +15,10 @@ library(broom)
 ```
 
 
+$$\hat{y} = g(\alpha + \beta_1\text{avg_state_poll} + \beta_2\text{incumbent} + \beta_3\text{q1_gdp_growth} + \beta_4\text{prev_dem_margin} + \beta_5\text{black_change} + \beta_6\text{age20_change} + \beta_7\text{age65_change})$$
+
+
+
 ```{r model_data, message = FALSE, warning = FALSE}
 
 # getting data for my state-by-state model
