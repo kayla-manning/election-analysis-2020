@@ -3,7 +3,7 @@
 
 ### Overview
 
-This forecast predicts that Joe Biden will win a popular vote victory of **52.4%** with a narrow Electoral College majority of **273** votes compared to Donald Trump's **265** votes. However, the model projects a high level of uncertainty in several battleground states. As a result, the Electoral College could easily swing further in Biden's favor or in the direction of a Trump victory.
+This forecast predicts that Joe Biden will win a popular vote victory of **52.8%** with a narrow Electoral College majority of **273** votes compared to Donald Trump's **265** votes. However, the model projects a high level of uncertainty in several battleground states. As a result, the Electoral College could easily swing further in Biden's favor or in the direction of a Trump victory.
 
 
 ### Model Description and Methodology
@@ -52,8 +52,8 @@ This model predicts a narrow Biden victory in the [Electoral College](../figures
 
 | Candidate    | Electoral Votes | Two-Party Popular Vote |
 |--------------|----------------:|------------------------|
-| Joe Biden    |             273 | 0.5238088              |
-| Donald Trump |             265 | 0.4761912              |
+| Joe Biden    |             273 | 0.5279031	            |
+| Donald Trump |             265 | 0.4720969              |
 
 
 
@@ -70,11 +70,11 @@ Confidence intervals serve as a helpful tool to measure statistical uncertainty.
 
 ![state-intervals](../figures/final/state_plots.jpg)
 
-Moving away from estimated vote share, the remaining probabilities in this section do **not** represent vote share estimates; rather, these probabilities represent each candidate's chance of victory. From $100,000$ election simulations, this model gives Joe Biden a **59.0%** chance of winning the Electoral College and Donald Trump a **38.9%** chance of winning the Electoral College, with a **2.1%** chance of an electoral tie:
+Moving away from estimated vote share, the remaining probabilities in this section do **not** represent vote share estimates; rather, these probabilities represent each candidate's chance of victory. From $10,000$ election simulations, this model gives Joe Biden a **64.1%** chance of winning the Electoral College and Donald Trump a **33.7%** chance of winning the Electoral College, with a **2.2%** chance of an electoral tie:
 
 | Probability of Biden Electoral College Victory 	| Probability of Trump Electoral College Victory 	| Probability of Electoral College Tie[^tossup] 	|
 |-	|-	|-	|
-| 0.59685 	| 0.38262 	| 0.02053 	|
+| 0.6414 	| 0.3371 	| 0.0215 	|
 
 However, Donald Trump has a much smaller chance of winning the national popular vote:
 
@@ -83,29 +83,29 @@ However, Donald Trump has a much smaller chance of winning the national popular 
 Luckily for Trump, the national popular vote does not matter if he can reach 270 Electoral College votes via statewide victories. While the forecast has a narrow Joe Biden victory as the point prediction, either candidate could reasonably win most of the battleground states:
 
 
-| State | Probability of Biden Victory | Probability of Trump Victory |
-|-------|-------------------------------:|-------------------------------:|
-| MI    |                      0.5413900 |                     0.45861000 |
-| WI    |                      0.5451600 |                     0.45484000 |
-| MN    |                      0.5451800 |                     0.45482000 |
-| NV    |                      0.4189772 |                     0.58102276 |
-| PA    |                      0.6068800 |                     0.39312000 |
-| FL    |                      0.2843436 |                     0.71565636 |
-| NC    |                      0.2615635 |                     0.73843646 |
-| IA    |                      0.2278800 |                     0.77212000 |
-| TX    |                      0.2118627 |                     0.78813729 |
-| ME    |                      0.6374500 |                     0.36255000 |
-| AZ    |                      0.1783197 |                     0.82168029 |
-| GA    |                      0.1754539 |                     0.82454614 |
-| OH    |                      0.0752100 |                     0.92479000 |
-| NE    |                      0.0462500 |                     0.95375000 |
-| NH    |                      0.8432500 |                     0.15675000 |
-| NM    |                      0.9064325 |                     0.09356749 |
+| State 	| Probability of Biden Victory 	| Probability of Trump Victory 	|
+|-	|-	|-	|
+| MN 	| 0.5362000 	| 0.4638000 	|
+| NV 	| 0.4394318 	| 0.5605682 	|
+| MI 	| 0.5861000 	| 0.4139000 	|
+| FL 	| 0.3125000 	| 0.6875000 	|
+| WI 	| 0.6144000 	| 0.3856000 	|
+| NC 	| 0.2859000 	| 0.7141000 	|
+| IA 	| 0.2414000 	| 0.7586000 	|
+| TX 	| 0.2090000 	| 0.7910000 	|
+| AZ 	| 0.2047000 	| 0.7953000 	|
+| PA 	| 0.6379000 	| 0.3621000 	|
+| GA 	| 0.1921000 	| 0.8079000 	|
+| OH 	| 0.0790000 	| 0.9210000 	|
+| NE 	| 0.0439000 	| 0.9561000 	|
+| NM 	| 0.7787000 	| 0.2213000 	|
+| ME 	| 0.8016000 	| 0.1984000 	|
+| NH 	| 0.9101000 	| 0.0899000 	|
 
 ![battleground-uncertainty](../figures/final/bg_vote_dist.jpg)
 
 
-According to this model, the three closest battleground races--MI, WI, and MN--all lean slightly in Joe Biden's favor. However, these states could easily swing in Donald Trump's favor, giving him the Electoral College victory while still losing the popular vote. [This table](../figures/final/all_states_closeness.html) lists all states and corresponding levels of uncertainty.
+According to this model, the closest battleground races are fairly evenly split between the two candidates. However, these states could all easily swing in Donald Trump's favor, giving him the Electoral College victory while still losing the popular vote. On the other hand, these states could also all vote for Biden, giving him a much larger Electoral College victory than given in this model's point prediction. [This table](../figures/final/all_states_closeness.html) lists all states and corresponding levels of uncertainty.
 
 
 ### Model Limitations
@@ -118,13 +118,13 @@ While this forecast performed quite well in the leave-one-out cross-validation a
 
 * The combined data[^demographic-data] for this model only dates back to 1992, which only allows for the model to fit itself with data from 7 previous elections. However, each state counts as an individual observation, increasing the total number of observations to 350. 105, 112, and 133 observations fit the blue, battleground, and red models, respectively.
 
-* When varying voter turnout and probabilities for each simulation,[^variation] this model does so independently. A more sophisticated model would introduce some [correlation](https://statmodeling.stat.columbia.edu/2020/10/24/reverse-engineering-the-problematic-tail-behavior-of-the-fivethirtyeight-presidential-election-forecast/) between subgroups such as demographics, COVID deaths, or partisan alignment. For example, low turnout among Hispanic Democrats in Texas would likely accompany low Hispanic turnout in other southern states. While this forecast does simulate instances with lower-than-predicted probabilities of voting for Biden in Texas, the probability of voting for Biden in Texas has no bearing on the probability of voting for Biden in another state.
+* This model independently varies voter turnout and probabilities for each simulation.[^variation] A more sophisticated model would introduce some [correlation](https://statmodeling.stat.columbia.edu/2020/10/24/reverse-engineering-the-problematic-tail-behavior-of-the-fivethirtyeight-presidential-election-forecast/) between subgroups such as demographics, COVID deaths, or partisan alignment. For example, low turnout among suburban women in Wisconsin would likely accompany low turnout among suburban women in Minnesota. While this forecast does simulate instances with lower-than-predicted probabilities of voting for either party within each state, the probability of voting for Biden in Wisconsin in a single simulation has no bearing on the probability of voting for Biden in Minnesota.
 
 ### Conclusion
 
-This model predicts a narrow Democratic victory with a **273** to **265** Electoral College majority and approximately **52.4%** of the two-party popular vote. However, the close state-level vote margins, especially in battleground states, increase the level of uncertainty. 
+This model predicts a narrow Democratic victory with a **273** to **265** Electoral College majority and approximately **52.8%** of the two-party popular vote. However, the close state-level vote margins, especially in battleground states, increase the level of uncertainty. 
 
-Due to the close margins in several battleground states, the Electoral College could easily swing in the direction of a Trump victory or a Biden landslide. For example, if Joe Biden wins Michigan, Nevada, Texas, or any other state with a narrow victory projected for Trump, Biden could win far more than his projected **273** votes. However, if Trump wins New Hampshire, Nebraska, Pennsylvania, Wisconsin, or any other states projecting an extremely narrow Biden victory, he could easily tip the electoral scale in his favor. This forecast gives Joe Biden a **59.4%** chance of a Joe Biden Electoral College victory, a **38.5%** chance of a Donald Trump Electoral College victory, and a **2.1%** chance of an electoral tie.
+Due to the close margins in several battleground states, the Electoral College could easily swing in the direction of a Trump victory or a Biden landslide. For example, if Joe Biden wins Michigan, Nevada, Texas, or any other state with a narrow victory projected for Trump, Biden could win far more than his projected **273** votes. However, if Trump wins New Hampshire, Nebraska, Pennsylvania, Wisconsin, or any other states projecting an extremely narrow Biden victory, he could easily tip the electoral scale in his favor. This forecast gives Joe Biden a **64.1%** chance of a Joe Biden Electoral College victory, a **33.7%** chance of a Donald Trump Electoral College victory, and a **2.2%** chance of an electoral tie.
 
 2020 has been quite the year, and the uncertainty surrounding the 2020 election will likely only add to the chaos in the coming days.
 
@@ -138,9 +138,9 @@ This section further explains the details of this model and expands upon ideas t
 
 To create individualized models while avoiding overfitting, I grouped states into three separate categories: blue states, red states, and battleground states, as classified by the [New York Times](https://www.nytimes.com/interactive/2020/us/elections/election-states-biden-trump.html). Within each group of states, I constructed two models--one that predicts the probability of voting Democrat and one that predicts the probability of voting Republican--yielding a total of 6 models.
 
-To convert the probabilities to actual vote counts within each state, I multiplied the probabilities generated by the model to each state's voting-eligible population. I simulated $100,000$ total elections for each state, with slight variations in voter turnout and voting probabilities each time.[^variation]
+To convert the probabilities to actual vote counts within each state, I multiplied the probabilities generated by the model to each state's voting-eligible population. I simulated $10,000$ total elections for each state, with slight variations in voter turnout and voting probabilities each time.[^variation]
 
-To produce a single value for the popular vote and Electoral College prediction, I had to aggregate the $5,000,000$ simulations in some way. For the nationwide two-party popular vote, I took the average number of voters for each party within each state, then estimated the nationwide vote count by summing each party's state-level averages. Using these two sums, I calculated the estimated two-party vote share for each party.
+To produce a single value for the popular vote and Electoral College prediction, I had to aggregate the $500,000$ simulations in some way. For the nationwide two-party popular vote, I took the average number of voters for each party within each state, then estimated the nationwide vote count by summing each party's state-level averages. Using these two sums, I calculated the estimated two-party vote share for each party.
 
 I assigned each state's electoral votes to the candidate who won the popular vote in the majority of the $100,000$ election simulations. Then, I summed the electors for each state and added 3 to Joe Biden's vote tally to account for Washington D.C.
 
@@ -202,13 +202,13 @@ As Election Day approaches, voters appear to "come home" to their partisan loyal
 
 [^data]: All data for this model is publicly available online. While many online sources host the data used in this model, the data for the 2020 state-level polls came from [FiveThirtyEight](https://projects.fivethirtyeight.com/polls-page/president_polls.csv), and the national GDP growth numbers came from the [US Bureau of Economic Analysis](https://www.bea.gov/data/gdp/gross-domestic-product).
 
-[^variation]: To vary the voting-eligible population (VEP) and the probability of voting for each party, I drew the values from a normal distribution. For the VEP, I used a normal distribution centered at each state's VEP in 2016 and used a standard deviation of twice the standard deviation of the VEP in all years from 1980-2016, anticipating greater variation in turnout due to COVID-19. To simulate fluctuations in the probability of voting for each party, I took the absolute value of a draw from a normal distribution centered at the predicted probability for 2020 with a standard deviation equivalent to that party's standard deviation of the two-party popular vote within the respective state from 1992-2016.
+[^variation]: To vary the voting-eligible population (VEP) and the probability of voting for each party, I drew the values from a normal distribution. For the VEP, I used a normal distribution centered at each state's VEP in 2016 and used a standard deviation of 1.25 the standard deviation of the VEP in all years from 1980-2016, anticipating greater variation in turnout due to COVID-19 and accounting for [historic turnout](https://www.cnn.com/2020/10/30/politics/texas-2020-early-vote/index.html) thus far in states like Texas. To simulate fluctuations in the probability of voting for each party, I took the absolute value of a draw from a normal distribution centered at the predicted probability for 2020 with a standard deviation equivalent to that party's standard deviation of the two-party popular vote in the last three elections (2008-2016) within the respective state.
 
 [^oos-classification]: Not all states had enough state-level polling data to conduct the out-of-sample validation for each year; this percentage excludes NA values.
 
 [^tossup]: This counts the proportion of times that neither candidate received at least 270 electoral votes. In the case of a [tie](https://www.270towin.com/content/electoral-college-ties/), the House of Representatives would decide the winner of the presidential election.
 
-[^survey-monkey]: State-level polling in 2016 did quite a [poor job](https://fivethirtyeight.com/features/the-polls-are-all-right/) of forecasting the election outcomes. Since this forecast uses state polls as the variable for public opinion, I aimed to exclude heavily biased or inaccurate polls where possible. To do this, I utilized FiveThirtyEight's [pollster ratings](https://projects.fivethirtyeight.com/pollster-ratings/). In states with enough polling data, I only included state-level polls from sources rated between A+ to C-. If a state did not have enough data with these guidelines, I loosened the restrictions to include pollsters with ratings between A+ to C/D. Notably, only one pollster did not meet these criteria. If a state did not have enough polling data within those constraints, I removed all pollster rating constraints. As one of only two pollsters to receive a rating of D-, SurveyMonkey has an extremely low rating but issues the most polls--nearly ten times as much as the second most prolific pollster. This low quality but high quantity makes polls from this source incredibly problematic. I only included SurveyMonkey polls for states that lacked sufficient state-level polling from all other pollsters.
+[^survey-monkey]: State-level polling in 2016 did quite a [poor job](https://fivethirtyeight.com/features/the-polls-are-all-right/) of forecasting the election outcomes. Since this forecast uses state polls as the variable for public opinion, I aimed to exclude heavily biased or inaccurate polls where possible. To do this, I utilized FiveThirtyEight's [pollster ratings](https://projects.fivethirtyeight.com/pollster-ratings/), which assigns grades ranging from A+ to D- to each poll. SurveyMonkey is one of only two pollsters with a rating of D-, but the platform issues the most polls out of anyone--nearly ten times as much as the second most prolific pollster. This low quality and high quantity makes polls from this source incredibly problematic. In order to account for this, I applied an aggressive weighting scheme in an attempt to "crowd out" the low-rated polls. In calculating the polling averages, I counted A-rated polls 20 times, B-rated polls 15 times, C-rated polls 6 times, and other polls only once. Some states have a shortage of high-rated polls, which does not allow me to exclude low-quality polls altogether. This weighting scheme allows me to use the same technique for every state.
 
 [^healy-2014]: [Healy and Lenz, 2014] Healy, A. and Lenz, G. S. (2014). Substituting the End for the Whole: Why Voters Respond Primarily to the Election-Year Economy. American journal of political science, 58(1):31–47.
 
