@@ -86,8 +86,7 @@ However, Donald Trump has a much smaller chance of winning the national popular 
 
 ![national-uncertainty](../figures/final/national_vote_dist.jpg)
 
-Luckily for Trump, the national popular vote does not matter if he can reach 270 Electoral College votes via statewide victories. While the forecast has a narrow Joe Biden victory as the point prediction, either candidate could reasonably win most of the battleground states:
-
+Luckily for Trump, the national popular vote does not matter if he can reach 270 Electoral College votes via statewide victories. While the forecast has a narrow Joe Biden victory as the point prediction, either candidate could reasonably win most of the battleground states. The below table lists each candidate's probability of winning each battleground state, ordered by the projected level of uncertainty:
 
 | State 	| Probability of Biden Victory 	| Probability of Trump Victory 	|
 |:-	:|-	:|-	:|
@@ -111,7 +110,7 @@ Luckily for Trump, the national popular vote does not matter if he can reach 270
 ![battleground-uncertainty](../figures/final/bg_vote_dist.jpg)
 
 
-According to this model, the closest battleground races are fairly evenly split between the two candidates. However, these states could all easily swing in Donald Trump's favor, giving him the Electoral College victory while still losing the popular vote. If one of Minnesota, Michigan, or Florida flip and the other states remain the same, Donald Trump will win the Electoral College. On the other hand, Nevada, Florida, North Carolina, and Iowa could easily all vote for Biden, giving him a much larger Electoral College victory than estimate in the forecast's point prediction. For a more detailed look at each candidate's state-level win probabilities, [this table](../figures/final/all_states_closeness.html) lists all states and corresponding levels of uncertainty.
+According to this model, the closest battleground races are fairly evenly split between the two candidates. However, these states could all easily swing in Donald Trump's favor, giving him the Electoral College victory while still losing the popular vote. If one of Minnesota, Michigan, or Florida flip and the other states remain the same, Donald Trump will win the Electoral College. On the other hand, Nevada, Florida, North Carolina, and Iowa could easily all vote for Biden, giving him a much larger Electoral College victory than estimated by the forecast's point prediction. For a more detailed look at each candidate's state-level win probabilities, [this table](../figures/final/all_states_closeness.html) lists all states and corresponding levels of uncertainty.
 
 
 ### Model Limitations

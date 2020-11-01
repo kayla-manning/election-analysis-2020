@@ -533,7 +533,7 @@ prob_table %>%
   select(state, pct_biden_win) %>% 
   gt() %>% 
   tab_header(title = "Uncertainty Within States",
-             subtitle = "Ordered in terms of projected closeness") %>% 
+             subtitle = "Ordered by projected level of uncertainty") %>% 
   cols_label(state = "State", pct_biden_win = "Probability of Biden Victory") %>% 
   tab_footnote(footnote = "For states not listed, the forecasted winner won every election simulation.",
                locations = cells_column_labels(columns = vars(state)))
