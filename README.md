@@ -1,7 +1,7 @@
 Welcome to my election analysis blog! I will post updates every Saturday. Feel free to reach out to me ([kaylamanning@college.harvard.edu](kaylamanning@college.harvard.edu)) if you have any comments or questions.
 
 # [Final Prediction](posts/final.md)
-**THIS IS A DRAFT. COME BACK AFTER 9 PM EST ON 11/1 FOR THE FINAL PREDICTION.**
+*This forecast uses polling numbers as of 3 PM EST on 11/1/2020.*
 
 The following posts analyze various components of presidential elections and provide updated predictions for the 2020 race. Each post ultimately informed the modeling decisions in my final prediction:
 

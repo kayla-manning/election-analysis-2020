@@ -39,7 +39,8 @@ demographic <- read_csv("../data/demographic_1990-2018.csv") %>%
          asian_change = asian - lag(asian),
          female_change = female - lag(female),
          age20_change = age20  - lag(age20),
-         age65_change = age65 - lag(age65)) 
+         age65_change = age65 - lag(age65),
+         white_change = white - lag(white)) 
 vep <- read_csv("../data/vep_1980-2016.csv")
 turnout <- read_csv("../data/turnout_1980-2016.csv") %>% 
   mutate(turnout_pct = str_remove(turnout_pct, "%"),
@@ -179,8 +180,9 @@ pv2p_std <- state_votes %>%
 # setting seed because I draw a random number for the VEP
 
 set.seed(9)
+n <- 100000
 
-prob_table <- tibble(state = c(rep(dem_states, each = 10000), rep(bg_states, each = 10000), rep(rep_states, each = 10000)), 
+prob_table <- tibble(state = c(rep(dem_states, each = n), rep(bg_states, each = n), rep(rep_states, each = n)), 
                      prob_dvote = 0, prob_rvote = 0,
                      sim_dvotes_2020 = 0, sim_rvotes_2020 = 0) %>% 
   inner_join(vep %>% 
@@ -201,15 +203,15 @@ for (state_type in state_types) {
     
     for (p in parties) {
 
-      # weighing higher-rated polls by more; A-rated by 20x, B-rated by 10x,
-      # C-rated by 6x
+      # weighing higher-rated polls by more; A-rated by 40x, B-rated by 20x,
+      # C-rated by 10x
       
       poll <- state_polls_2020 %>% 
         filter(state == s,
                weeks_left %in% c(1, 2, 3, 4)) %>% 
-        mutate(ntimes = case_when(str_detect(fte_grade, "C") ~ 6,
-          str_detect(fte_grade, "B") ~ 10,
-          str_detect(fte_grade, "A") ~ 20,
+        mutate(ntimes = case_when(str_detect(fte_grade, "C") ~ 10,
+          str_detect(fte_grade, "B") ~ 20,
+          str_detect(fte_grade, "A") ~ 40,
                                   TRUE ~ 1)) 
       poll <- as.data.frame(lapply(poll, rep, poll$ntimes))
       poll <- poll %>% 
@@ -229,12 +231,6 @@ for (state_type in state_types) {
       
       if (p == "democrat") {
         
-        consec_d <- state_votes %>% 
-          filter(state == s, year == 2016) %>%
-          slice(1) %>% 
-          pull(consec_dem) %>% 
-          as.numeric()
-        
         y <- 2
         
         mod <- state_votes %>%
@@ -251,13 +247,7 @@ for (state_type in state_types) {
       }
       
       if (p == "republican") {
-        
-        consec_r <- state_votes %>% 
-          filter(state == s, year == 2016) %>% 
-          slice(1) %>% 
-          pull(consec_rep) %>% 
-          as.numeric()   
-        
+
         y <- 3
         
         mod <- state_votes %>%
@@ -455,14 +445,14 @@ for (y in years) {
                                   incumbent = incumbency,
                                   gdp_growth_qt = gdp,
                                   black_change = state_votes %>% 
-                                    filter(state == state, year == year) %>% 
+                                    filter(state == state, year == y) %>% 
                                     pull(black_change) %>% mean(),
                                   prev_dem_margin = prev_margin,
                                   age20_change = state_votes %>% 
-                                    filter(state == s, year == 2016) %>% 
+                                    filter(state == s, year == y) %>% 
                                     pull(age20_change) %>% mean(),
                                   age65_change = state_votes %>% 
-                                    filter(state == s, year == 2016) %>% 
+                                    filter(state == s, year == y) %>% 
                                     pull(age65_change) %>% mean()),
                   type = "response")
             
@@ -543,15 +533,14 @@ prob_table %>%
   select(state, pct_biden_win) %>% 
   gt() %>% 
   tab_header(title = "Uncertainty Within States",
-             subtitle = "Ordered in terms of closeness, as of 10/30/2020") %>% 
+             subtitle = "Ordered in terms of projected closeness") %>% 
   cols_label(state = "State", pct_biden_win = "Probability of Biden Victory") %>% 
-  tab_footnote(footnote = "For states not listed, the forecasted winner won every simulated election.",
+  tab_footnote(footnote = "For states not listed, the forecasted winner won every election simulation.",
                locations = cells_column_labels(columns = vars(state)))
 
 
 # calculating EV uncertainty
 
-n <- 10000
 set.seed(9)
 
 ev_uncertainty <- prob_table %>% 
@@ -584,20 +573,21 @@ ev_uncertainty %>%
 ev_close <- ev_uncertainty %>% 
   pivot_longer(cols = 2:3, names_to = "candidate", values_to = "ev") %>% 
   filter(candidate == "trump_ev") %>% 
-  mutate(result = case_when(ev <= 270 ~ "Biden",
-                            ev > 270 ~ "Trump",
+  mutate(result = case_when(ev < 269 ~ "Biden",
+                            ev >= 270 ~ "Trump",
                             ev == 269 ~ "Tie")) %>% 
   ggplot(aes(ev, fill = result)) +
-  geom_histogram(bins = 100, position = "identity", alpha = 0.75) +
+  geom_histogram(binwidth = 1, position = "identity", alpha = 0.75) +
   labs(title = "Simulated Electoral Vote Counts",
        x = "Donald Trump's Electoral Votes",
        y = "Count",
        fill = "Winner",
-       subtitle = "Donald Trump Wins the Electoral College in 33.71% of Simulations") +
-  geom_vline(xintercept = 270) +
+       subtitle = "Donald Trump Wins the Electoral College in 35.074% of Simulations") +
+  geom_vline(xintercept = 270, size = 1) +
   theme_minimal() +
   scale_fill_manual(breaks = c("Biden", "Trump", "Tie"),
-                    values = c(muted("blue"), "red3", "gray"))
+                    values = c(muted("blue"), "red3", "gray"),
+                    labels = c("Biden", "Trump", "Tie"))
 
 
 ```
@@ -624,7 +614,7 @@ pop_close <- prob_table %>%
   labs(title = "Simulated National Two-Party Popular Vote",
        x = "Predicted Share of the Two-Party Popular Vote",
        y = "Count",
-       subtitle = "Donald Trump Wins the Popular Vote in 0.050% of Simulations",
+       subtitle = "Donald Trump Wins the Popular Vote in 0.049% of Simulations",
        fill = "Candidate") +
   theme_minimal()
 
@@ -739,7 +729,7 @@ interval_plot <- function(my_type) {
     theme_minimal() +
     labs(title = paste0(label),
          y = y_label,
-         x = "State", 
+         x = "", 
          color = "Predicted Winner") +
     geom_hline(yintercept = 0.5)
 }
