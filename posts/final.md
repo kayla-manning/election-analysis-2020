@@ -47,7 +47,7 @@ Not surprisingly, the model performed most poorly in swing states. Across all el
 | PA    |              0.7142857 |
 | WI    |              0.7142857 |
 
-In the leave-one-out validation for 2016, the model misclassified 6 states: FL, OH, NC, MI, PA, and WI. [FiveThirtyEight](https://projects.fivethirtyeight.com/2016-election-forecast/)'s 2016 forecast correctly predicted OH but misclassified the remaining five of those six states. Fortunately, this model for 2020 includes the 2016 data and, in theory, should adjust for some of the previous pitfalls. Also, the misses in 2016 may have been in part due to bad polling numbers. For the 2020 prediction, I aim to combat this by applying a weighting scheme that favors high-quality pollsters over less reliable sources.[^survey-monkey]
+In the leave-one-out validation for 2016, the model misclassified 6 states: FL, OH, NC, MI, PA, and WI. [FiveThirtyEight](https://projects.fivethirtyeight.com/2016-election-forecast/)'s 2016 forecast correctly predicted OH but misclassified the remaining five of those six states. [Inaccurate polling numbers](https://www.nytimes.com/2017/05/31/upshot/a-2016-review-why-key-state-polls-were-wrong-about-trump.html) likely played a role in the misses for 2016. For the 2020 prediction, I aim to combat this by applying a weighting scheme that favors high-quality pollsters over less reliable sources.[^survey-monkey]
 
 
 ### 2020 Prediction
