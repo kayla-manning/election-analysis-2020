@@ -86,7 +86,7 @@ However, Donald Trump has a much smaller chance of winning the national popular 
 
 ![national-uncertainty](../figures/final/national_vote_dist.jpg)
 
-Luckily for Trump, the national popular vote does not matter if he can reach 270 Electoral College votes via statewide victories. While the forecast has a narrow Joe Biden victory as the point prediction, either candidate could reasonably win most of the battleground states. The below table lists each candidate's probability of winning each battleground state, ordered by the projected level of uncertainty:
+Luckily for Trump, the national popular vote does not matter if he can reach 270 Electoral College votes via statewide victories. While the forecast has a narrow Joe Biden victory as the point prediction, either candidate could reasonably win most of the battleground states. The below table lists the candidates' probabilities of winning each battleground state, ordered by the projected level of uncertainty:
 
 | State 	| Probability of Biden Victory 	| Probability of Trump Victory 	|
 |:-	:|-	:|-	:|
