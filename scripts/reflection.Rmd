@@ -1,0 +1,266 @@
+---
+output:
+  html_document:
+    theme: "cerulean"
+---
+
+```{r packages, include=FALSE}
+
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(plotly)
+library(ggpubr)
+library(htmlwidgets)
+library(googlesheets4)
+library(janitor)
+
+{
+  monochrome <- c('#760000', '#BE1E26', '#D84742', '#FF6B61', '#FF9586')
+  primary <- c('#EE3838', '#FA9E1C', '#78C4D4', '#4B5973', '#E2DDDB')
+  sidebysidebarplot <- c("#ef3e3e", "#2c3e50")
+  theme_hodp <- function () { 
+    theme_classic(base_size=12, base_family="Helvetica") %+replace%
+      theme(
+        panel.background  = element_blank(),
+        plot.background = element_blank(),
+        legend.background = element_rect(fill="transparent", colour=NA),
+        legend.key = element_rect(fill="transparent", colour=NA),
+        plot.title = element_text(size=24,  family="Helvetica", face = "bold", margin = margin(t = 0, r = 0, b = 10, l = 0)),
+        plot.subtitle = element_text(size=18,  family="Helvetica", color="#717171", face = "italic", margin = margin(t = 0, r = 0, b = 10, l = 0)),
+        plot.caption = element_text(size=8,  family="Helvetica", hjust = 1),
+        axis.text.x =element_text(size=10,  family="Helvetica"),
+        axis.title.x =element_text(size=14, family="Helvetica", margin = margin(t = 10, r = 0, b = 0, l = 0), face = "bold"),
+        axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0), size=14, family="Helvetica", angle=90, face ='bold'),
+        legend.title=element_text(size=10, family="Helvetica"), 
+        legend.text=element_text(size=10, family="Helvetica"),
+        legend.position = "bottom",
+        axis.ticks = element_blank()
+      )
+    }
+}
+
+```
+
+```{r data, message=FALSE}
+
+# reading in data with my forecasts
+
+state_pred_compare <- read_csv("../data/pred_compare.csv")
+sims <- read_csv("../data/election_simulation_results.csv")
+
+# for maps
+
+{
+  us_map <- map_data("state") %>% 
+  mutate(region = toupper(region),
+    region = state.abb[match(region,  toupper(state.name))])
+}
+
+# data that Prof. Enos told us to use
+
+{
+ enos_data <- read_sheet("https://docs.google.com/spreadsheets/d/1faxciehjNpYFNivz-Kiu5wGl32ulPJhdJTDsULlza5E/edit#gid=0", 
+           col_types = paste0("dcc", paste0(rep("d", times = 39), collapse = ""), collapse = "")) %>% 
+  slice(-1) %>% 
+  unnest(FIPS) %>% 
+  clean_names() %>% 
+  rename("democrat" = joseph_r_biden_jr,
+         "republican" = donald_j_trump,
+         "state" = geographic_name) %>% 
+  select(state, democrat, republican) %>% 
+  mutate(democrat = democrat / (democrat + republican) * 100,
+         republican = 100 - democrat,
+         state = state.abb[match(state, state.name)]) %>% 
+  pivot_longer(2:3, names_to = "party", values_to = "actual_pv2p")
+
+  pred <- read_csv("../data/election_simulation_results.csv") %>% 
+    drop_na() %>% 
+    group_by(state) %>% 
+    mutate(d_pv2p = sim_dvotes_2020 / (sim_rvotes_2020 + sim_dvotes_2020),
+           r_pv2p = 1 - d_pv2p) %>% 
+    summarise(d_pv2p = mean(d_pv2p),
+              r_pv2p = mean(r_pv2p),
+              d_margin = d_pv2p - r_pv2p) %>% 
+    select(1:3) %>% 
+    pivot_longer(d_pv2p:r_pv2p, names_to = "party", values_to = "pred_pv2p") %>% 
+    mutate(party = recode(party, d_pv2p = "democrat",
+                          r_pv2p = "republican"),
+           pred_pv2p = pred_pv2p * 100)
+  
+  enos_pred_compare <- enos_data %>% 
+    inner_join(pred, by = c("state", "party")) %>% 
+    mutate(diff = actual_pv2p - pred_pv2p) %>% 
+    filter(party == "democrat") 
+}
+
+```
+
+```{r compare_states}
+
+# scatterplot of model error
+
+error <- enos_pred_compare %>% 
+  mutate(incorrect = ifelse(state %in% c("AZ", "NV", "GA"), TRUE, FALSE)) %>% 
+  ggplot(aes(pred_pv2p, actual_pv2p,
+             text = paste0("Biden Overperformed in ", state, " by ", round(diff, 3), "%"),
+             color = diff, shape = incorrect)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0) +
+  labs(y = "Actual Two-Party Popular Vote Share",
+       title = "State-Level Model Error",
+       subtitle = "Negative numbers indicate overestimate of Joe Biden's Vote",
+       x = "Predicted Two-Party Popular Vote Share",
+       color = "Error = \nActual - Predicted",
+       shape = "Incorrect Prediction?") +
+  theme_hodp() +
+  scale_color_gradient2(low = "#BE1E26", mid = "#E2DDDB", high = "#4B5973")
+
+ggplotly(error, tooltip = c("text", "x", "y", "shape"))
+
+
+# average error... (overestimated Biden's state-level popular votes by an average of 0.392%)
+
+avg_error <- enos_pred_compare %>% 
+  pull(diff) %>% 
+  mean() %>% 
+  round(3)
+
+# correlation of 0.9621935 between actual and predicted pv2p
+
+corr <- enos_pred_compare %>% 
+  select(actual_pv2p, pred_pv2p) %>% 
+  cor() %>% 
+  as_tibble() %>% 
+  slice(1) %>% 
+  pull(2)
+
+# root mean squared error of 3.83554
+
+rmse <- enos_pred_compare %>% 
+  mutate(diff = diff^2) %>% 
+  pull(diff) %>% 
+  mean() %>% 
+  sqrt()
+
+```
+
+With a correlation of `r corr` between the actual and the predicted two-party popular vote for each state. The average difference between the actual and predicted two-party vote shares was `r avg_error`%. That is, on average, Joe Biden underperformed his predicted vote share by `r avg_error` percentage points relative to the forecast.
+
+```{r maps}
+
+pred_map <- ggplotly(enos_pred_compare %>% 
+  left_join(us_map, by = c("state" = "region")) %>% 
+  ggplot(aes(long, lat, group = group, text = paste0("Biden's Predicted Two-Party \nVote Share in ", 
+                                                     state, ": ", round(pred_pv2p, 3), "%"))) +
+  geom_polygon(aes(fill = pred_pv2p)) +
+  scale_fill_gradient2(low = "#BE1E26", high = "#4B5973",
+                       midpoint = 50,
+                       breaks = c(30, 50, 70),
+                       labels = c(30, 50, 70),
+                       limits = c(25, 75)) +
+  coord_map() +
+  labs(x = "",
+       y = "",
+       fill = "Biden's Two-Party \nVote Share",
+       title = "Predicted Vote Shares") +
+  theme_hodp() +
+  theme(axis.line = element_blank(),
+        axis.text = element_blank(),
+        axis.text.x = element_blank()),
+  tooltip = "text")
+
+actual_map <- ggplotly(enos_pred_compare %>% 
+  left_join(us_map, by = c("state" = "region")) %>% 
+  ggplot(aes(long, lat, group = group, text = paste0("Biden's Actual Two-Party \nVote Share in ", 
+                                                     state, ": ", round(actual_pv2p, 3), "%"))) +
+  geom_polygon(aes(fill = actual_pv2p)) +
+  scale_fill_gradient2(low = "#BE1E26", high = "#4B5973",
+                       midpoint = 50,
+                       breaks = c(30, 50, 70),
+                       labels = c(30, 50, 70),
+                       limits = c(25, 75)) +
+  coord_map() +
+  labs(x = "",
+       y = "",
+       fill = "Biden's Two-Party \nVote Share",
+       title = "Predicted Versus Actual Results") +
+  theme_hodp() +
+  theme(axis.line = element_blank(),
+        axis.text = element_blank(),
+        axis.text.x = element_blank()),
+  tooltip = "text")
+
+subplot(pred_map, actual_map, nrows = 2)
+
+```
+
+
+```{r simulated_outcomes}
+
+# seeing how many times this exact cocktail of wins happened
+
+set.seed(9)
+
+ev_uncertainty <- sims %>% 
+  mutate(biden_win = ifelse(sim_dvotes_2020 > sim_rvotes_2020, 1, 0)) %>% 
+  group_by(state, electoral_votes) %>% 
+  summarise(pct_biden_win = mean(biden_win, na.rm = TRUE), .groups = "drop") %>% 
+  mutate(close = pct_biden_win - .5) %>% 
+  arrange(abs(close)) %>% 
+  select(state, pct_biden_win, electoral_votes) %>% 
+  
+  # simulating 100,000 elections in each state with the given win probabilities
+  
+  slice(rep(1:n(), each = 100000)) %>% 
+  mutate(biden_win = map_int(pct_biden_win, ~ rbinom(1, 1, .)),
+         id = rep(1:100000, times = 50),
+         biden_ev = ifelse(biden_win == 1, electoral_votes, 0),
+         trump_ev = ifelse(biden_win == 0, electoral_votes, 0))
+
+
+# getting list of states that Biden won in each simulation
+
+ev_sim_results <- ev_uncertainty %>% 
+  group_by(id) %>% 
+  mutate(biden_win = as.character(biden_win),
+    biden_win = case_when(biden_win == "1" ~ state)) %>% 
+  drop_na(biden_win) %>% 
+  select(id, biden_win) %>% 
+  nest() %>% 
+  arrange(id)
+
+# states that Joe Biden actually won
+
+actual_wins <- enos_pred_compare %>% 
+  filter(actual_pv2p > 50) %>% 
+  pull(state)
+
+# this exact outcome happened 53 / 100,000 times
+
+times <- ev_uncertainty %>% 
+  filter(biden_win == 1, 
+         state %in% actual_wins) %>% 
+  group_by(id) %>% count() %>% 
+  filter(n == length(actual_wins)) %>% 
+  nrow()
+
+# finding times my point prediction happened
+
+pred_wins <- sims %>% 
+  drop_na() %>% 
+  mutate(biden_win = ifelse(sim_dvotes_2020 > sim_rvotes_2020, 1, 0)) %>% 
+  group_by(state, electoral_votes) %>% 
+  summarise(biden_win = mean(biden_win), .groups = "drop") %>% 
+  filter(biden_win > 0.5) %>% 
+  pull(state)
+
+pred_times <- ev_uncertainty %>% 
+  filter(biden_win == 1, 
+         state %in% pred_wins) %>% 
+  group_by(id) %>% count() %>% 
+  filter(n == length(pred_wins)) %>% 
+  nrow()
+
+```
+
+The exact 2020 outcomes actually happened in `r times` of my simulations. To put that into perspective, my point prediction occurred in `r pred_times` of my simulations, which equates to `r round(pred_times / 100000, 3)`%. Forecasters cannot predict the election outcome with absolute certainty, but models provide a range of possible scenarios. This model successfully anticipated a close Electoral Race with a large popular vote margin, and the actual outcome occurred more than a handful of times in my simulations. It was not the most likely outcome, but neither is rolling any given number on a die.

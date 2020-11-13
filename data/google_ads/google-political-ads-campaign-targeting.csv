@@ -1,1 +1,3 @@
-Campaign_ID,Age_Targeting,Gender_Targeting,Geo_Targeting_Included,Geo_Targeting_Excluded,Start_Date,End_Date,Ads_List,Advertiser_ID,Advertiser_Name
+version https://git-lfs.github.com/spec/v1
+oid sha256:210ec272e63061dca70b0692467e2703bd45c3718509fcddcc91168d75bf3a55
+size 148
