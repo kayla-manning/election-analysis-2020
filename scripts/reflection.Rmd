@@ -67,7 +67,9 @@ sims <- read_csv("../data/election_simulation_results.csv")
   rename("democrat" = joseph_r_biden_jr,
          "republican" = donald_j_trump,
          "state" = geographic_name) %>% 
-  select(state, democrat, republican) %>% 
+  select(state, democrat, republican) 
+  
+  enos_pv2p <- enos_data %>% 
   mutate(democrat = democrat / (democrat + republican) * 100,
          republican = 100 - democrat,
          state = state.abb[match(state, state.name)]) %>% 
@@ -87,7 +89,7 @@ sims <- read_csv("../data/election_simulation_results.csv")
                           r_pv2p = "republican"),
            pred_pv2p = pred_pv2p * 100)
   
-  enos_pred_compare <- enos_data %>% 
+  enos_pred_compare <- enos_pv2p %>% 
     inner_join(pred, by = c("state", "party")) %>% 
     mutate(diff = actual_pv2p - pred_pv2p) %>% 
     filter(party == "democrat") 
@@ -264,3 +266,16 @@ pred_times <- ev_uncertainty %>%
 ```
 
 The exact 2020 outcomes actually happened in `r times` of my simulations. To put that into perspective, my point prediction occurred in `r pred_times` of my simulations, which equates to `r round(pred_times / 100000, 3)`%. Forecasters cannot predict the election outcome with absolute certainty, but models provide a range of possible scenarios. This model successfully anticipated a close Electoral Race with a large popular vote margin, and the actual outcome occurred more than a handful of times in my simulations. It was not the most likely outcome, but neither is rolling any given number on a die.
+
+```{r nat_pv2p}
+
+# calculating the actual national two-party pv
+
+enos_data %>% 
+  summarise(d = sum(democrat),
+            r = sum(republican)) %>% 
+  summarise(d_pv2p = d / (d + r),
+            r_pv2p = 1 - d_pv2p)
+
+```
+
