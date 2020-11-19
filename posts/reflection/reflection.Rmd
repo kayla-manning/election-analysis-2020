@@ -62,6 +62,12 @@ knitr::opts_chunk$set(echo = FALSE)
 
 state_pred_compare <- read_csv("../../data/pred_compare.csv")
 sims <- read_csv("../../data/election_simulation_results.csv")
+state_pop_votes <- read_csv("../../data/popvote_bystate_1948-2020.csv") %>% 
+  clean_names() %>% 
+  mutate(state = state.abb[match(state, state.name)],
+         d_pv2p = ifelse(year == 2020, d_pv2p * 100, d_pv2p),
+         r_pv2p = ifelse(year == 2020, r_pv2p * 100, r_pv2p),
+         d_margin = d_pv2p - r_pv2p)
 
 # putting all errors together
 
@@ -149,6 +155,21 @@ errors <- read_csv("../../data/error_538.csv") %>%
                               "trump_pv2p" = "Trump"))
 }
 
+# will use this for shiny input on state linegraphs
+
+{
+  dem_states <- c("CO", "VA", "CA", "CT", "DE", "HI", "IL", "MD", "MA", "NJ", "NY", "OR", "RI", 
+                  "VT", "WA")
+  bg_states <- c("FL", "IA", "OH", "GA", "ME", "NC", "MI", "MN", "NE", "NH", "PA", "WI", 
+                 "NV", "AZ", "NM", "TX")
+  rep_states <- c("AK", "IN", "KS", "MO", "AL", "AR", "ID", "KY", "LA", "MS", "ND", "OK", "SD", "MT",
+                  "TN", "WV", "WY", "SC", "UT")
+  types <- tibble(type = c("Battleground", "Red", "Blue")) %>% 
+    mutate(state = case_when(type == "Battleground" ~ list(bg_states),
+                             type == "Red" ~ list(rep_states),
+                             type == "Blue" ~ list(dem_states)))
+}
+
 ```
 
 ```{r nat_pv2p}
@@ -170,13 +191,12 @@ actual_d_pv2p <- round(actual_d_pv2p * 100, 1)
 
 ```
 
-### Recap
 
 Just days before the election, my [final forecast](https://kayla-manning.github.io/gov1347/posts/final.html) went against the wisdom of professional forecasters and pollsters alike and projected a rail-thin electoral margin for Joe Biden. While the election results surprised many people on the night of November 3, my model's point prediction anticipated an even closer race in the electoral college--273 electoral votes for Biden compared to his actual 306--but a wider spread in the popular vote--52.8% compared to his actual `r actual_d_pv2p`%.
 
 ### Accuracy and Patterns
 
-The statistical aphorism that "all models are wrong, but some are useful" served as my guiding philosophy in constructing this model. As I discussed in my [final prediction](https://kayla-manning.github.io/gov1347/posts/final.html), I did not expect this model to perfectly forecast all outcomes in the election. Rather, this forecast aimed to provide a range of state-level probabilities and outcomes. Then, I used the most probable state-level outcomes to produce point predictions for the Electoral College and national popular vote. While these numbers could be interpreted as my "final prediction", I would have been incredibly shocked if the exact outcomes matched perfectly due to the wide amount of variability in my simulations.
+The statistical aphorism that "all models are wrong, but some are useful" served as my guiding philosophy in constructing this model. As I discussed in my [final prediction](https://kayla-manning.github.io/gov1347/posts/final.html), I did not expect this model to perfectly forecast all outcomes in the election. Rather, this forecast aimed to provide a range of state-level probabilities and outcomes. Then, I used the most probable state-level outcomes to produce point predictions for the Electoral College and national popular vote. While these numbers could be interpreted as my "final prediction", I would have been incredibly shocked if my point predictions perfectly matched the election outcome since my election simulations yielded a fair amount of uncertainty.
 
 ```{r simulated_outcomes}
 
@@ -246,9 +266,11 @@ pred_times <- ev_uncertainty %>%
 
 ```
 
-The actual Electoral College outcome, with each candidate winning the states that they won on Election Night, occurred in `r times` of my simulations. To put that into perspective, my point prediction occurred in `r pred_times` of my simulations, which equates to `r round(pred_times / 100000, 3)`%. Forecasters cannot predict the election outcome with absolute certainty, but models provide a range of possible scenarios. This model successfully anticipated a close Electoral Race with a large popular vote margin, and the actual outcome occurred more than a handful of times in my simulations.
+All in all, I'm quite happy with how this model paralleled with the election outcomes. It only misclassified the winner of GA, NV, and AZ, which were three of the final states called. Even though the model predicted that a Donald Trump victory was more likely in these states, the forecast predicted a close race in those states and gave either candidate a fair shot of winning--Joe Biden won GA, NV, and AZ in 19.2%, 43.9%, and 20.5% of simulations, respectively. 
 
-All in all, I'm quite happy with how this model paralleled with the election outcomes. It only misclassified the winner of GA, NV, and AZ, which were three of the final states called. Even though the model predicted that a Donald Trump victory was more likely in these states, the forecast predicted a close race in those states and gave either candidate a fair shot of winning--Joe Biden won GA, NV, and AZ in 19.2%, 43.9%, and 20.5% of simulations, respectively. In my nationwide election simulations, the exact election outcome occurred in 57 out of 100,000 (0.057%) simulations. Interpreting these probabilities with a frequentist[^frequentist] approach, those probabilities could have very well been correct and we just happened to observe one of the `r times` elections where each candidate won this exact cocktail of states.
+The actual Electoral College outcome, with each candidate winning the states that they ultimately won in the election, occurred in `r times`, or `r round(times / 100000, 3)`, of my simulations. For additional context, my exact point prediction occurred in `r pred_times` of my simulations, which only equates to `r round(pred_times / 100000, 3)`% of my simulations. Using a frequentist[^frequentist] approach to probability, my forecast could have generate the exact probabilities and we just happened to observe one of the `r times` elections where each candidate won this exact cocktail of states.
+
+Forecasters cannot predict the election outcome with absolute certainty, but models provide a range of possible scenarios. This model successfully anticipated a close Electoral Race with a large popular vote margin, and the actual outcome occurred more than a handful of times in my simulations.
 
 ```{r compare_states}
 
@@ -268,7 +290,9 @@ error <- enos_pred_compare %>%
        color = "Error = \nActual - Predicted",
        shape = "Incorrect Prediction?") +
   theme_hodp() +
-  scale_color_gradient2(low = "#BE1E26", mid = "#E2DDDB", high = "#4B5973")
+  scale_color_gradient2(low = "#BE1E26", mid = "#E2DDDB", high = "#4B5973",
+                        limits = c(-15, 15), labels = c(-10, 0, 10),
+                        breaks = c(-10, 0, 10))
 
 ggplotly(error, tooltip = c("text", "x", "y", "shape"))
 
@@ -376,7 +400,9 @@ ggplotly(state_pred_compare %>%
   ggplot(aes(long, lat, group = group, text = paste0("Difference between actual and \npredicted vote shares in ", 
                                                      state, ": ", round(diff, 3), "%"))) +
   geom_polygon(aes(fill = diff)) +
-  scale_fill_gradient2(low = my_red, mid = "white", high = my_blue) +
+  scale_fill_gradient2(low = my_red, mid = "white", high = my_blue,
+                       midpoint = 0, limits = c(-14, 14), labels = c(-10, 0, 10),
+                       breaks = c(-10, 0, 10)) +
   coord_map() +
   labs(x = "",
        y = "",
@@ -481,23 +507,52 @@ ggplotly(errors %>%
 
 ##
 
-### Hypothesis for Inaccuracies
+### Hypotheses for Inaccuracies: Partisan Shifts in Voting and Voter Registration
 
-As with any forecast model that incorporated polls, this forecast would have benefited from improved polling accuracy. Unfortunately, I do not control the polling methodology, so I must improve my model in other ways. In an effort to minimize the impact of biased polls, I applied an aggressive weighting scheme based on FiveThirtyEight's pollster grades. Despite of these efforts, the model still produced extreme predictions in either direction, with a more favorable predictions for Biden in the liberal states and more favorable predictions for Trump in conservative states. The diverging direction of the inaccuracies leads me to consider other potential causes for the inaccuracies and potential improvements for future iterations of this model. Since this model was not unilaterally biased, it leads to me believe that perhaps this model did not pick up on states trending towards purple. Many of the largest errors came from states in the "reliably blue" and "reliably red" pools for the model construction. While larger errors in these states did not lead to incorrect classification, it is important to identify why my model predicted greater polarization than what played out on election day.
+As with any forecast model that incorporated polls, this forecast would have benefited from improved polling accuracy. Unfortunately, I do not control the polling methodology, so I must improve my model in other ways. In an effort to minimize the impact of biased polls, I applied an aggressive weighting scheme based on FiveThirtyEight's pollster grades. Despite of these efforts, the model still produced extreme predictions in either direction, with a more favorable predictions for Biden in the liberal states and more favorable predictions for Trump in conservative states. Since this model was not unilaterally biased, it leads to me believe that perhaps this model did not pick up on states trending towards purple. 
 
-One hypothesis for the polarized predictions is that this model lacked a variable that directly considers the partisan trends within the state. This model neglected to pick up on the magnitude of changing views in states such as Arizona and Georgia, both of which voted for Trump in 2016 yet voted for Biden in 2020.[^good-shifts] To account for this in 2024 and beyond, I could include a variable that captures shifting partisanship within a state between elections. In this model, I attempted to use demographic changes as a proxy for this, but a more direct variable might work better. I plan on incorporating a "difference in Democratic vote share" variable in future iterations of this model, which looks at the difference in the share of that state's two-party popular vote in the previous two elections.
+One hypothesis for the polarized predictions is that this model lacked a variable that directly considers the partisan trends within the state. This model neglected to pick up on the magnitude of changing views in states such as Arizona and Georgia, both of which voted for Trump in 2016 yet voted for Biden in 2020 and were misclassified by this model.[^good-shifts] In addition to Georgia and Arizona, New York--the state with the largest prediction error--also followed the momentum of a 2016 partisan shift toward the center:
 
-### Proposed Test to Assess Hypothesis
+```{r state_swings}
 
-To assess this hypothesis, I could reconstruct the model, following the same procedures as outlined in my [final prediction](https://kayla-manning.github.io/gov1347/posts/final.html). I would use the same data from 1992-2016 and include the new variable that captures the state-level changes in voting patterns between elections. Once I have constructed this model, I would follow a series of steps to assess its validity:
+# making linegraph to show the partisan shifts over time
+
+state_pop_votes %>% 
+  filter(state %in% c("AZ", "GA", "NY"),
+         year %in% seq(2000, 2020, by = 4)) %>% 
+  ggplot(aes(year, d_margin, color = d_margin)) +
+  geom_line() +
+  geom_point() +
+  facet_wrap(~ state) +
+  coord_flip() +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  scale_color_gradient(low = my_red, high = my_blue) +
+  theme_hodp() +
+  labs(title = "Partisan Shifts Since 2000",
+       y = "Democratic Two-Party Vote-Share Margin",
+       x = "") +
+  theme(legend.position = "none") +
+  scale_y_continuous(limits = c(-35, 35))
+
+```
+
+To account for this in 2024 and beyond, I could include a variable that captures shifting partisanship within a state between elections. In this model, I attempted to use demographic changes as a proxy for this, but a more direct variable might work better. I plan on incorporating a "difference in Democratic vote share" variable in future iterations of this model, which looks at the difference in the share of that state's two-party popular vote in the previous two elections.
+
+This forecast also does not include changes in party registration, which would also pick up on changes in partisanship within a state. More recent data is available for party registration, which means the model could look at 2020 data. To include voter registration in the models, I could take the change in Democratic voters' percentage of the electorate from the previous election year. For example, if Democrats comprised 40% of Texas registered voters in 2016 and 45% of Texas registered voters in 2020, then the difference would be $0.45 - 0.40 = 0.05$.
+
+
+### Proposed Test to Assess Hypotheses: Assess New Models with Additional Variables
+
+To assess the partisan shift hypothesis, I could reconstruct the model, following the same procedures as outlined in my [final prediction](https://kayla-manning.github.io/gov1347/posts/final.html). I would use the same data from 1992-2016 and include the new variable that captures the state-level changes in voting patterns between elections. Once I have constructed this model, I would follow a series of steps to assess its validity:
 
 1. First and foremost, I would assess the statistical significance of the partisan change coefficients for each of the pooled models.
 2. Then, I would assess the out-of-sample fit with a leave-one-out cross-validation and compare the classification accuracy to my official 2020 forecast.
-3. If both of those steps support the strength of this new model, I would forecast the 2020 results using this year's data. To remain consistent between the two models, I would not use polls from after 3 PM EST on November 1, which is the last time I ran the previous forecast model.
+3. If both of those steps support the strength of this new model, I would forecast the 2020 results using this year's data.[^forecast-polls]
 4. Finally, I would compare this model's 2020 forecast to my previous model. 
 
-These assessments should provide enough metrics to determine which model performs better in- and out-of-sample. If this model more accurately predicted the state-level outcomes, then I know that my 2024 should resemble this newer model. However, if my previous model performed better in the leave-one-out classification and on the 2020 data, then I would stick with my original, more parsimonious model for the future.
+These assessments should provide enough metrics to determine which model performs better in- and out-of-sample. If this new model provided more accurate 2020 predictions and performed better when assessing in- and out-of-sample fit, then I know that some inaccuracies of my official model stemmed from the absence of a variable to capture partisan change between elections. However, if my previous model performed better or approximately the same, then I would stick with my original, more parsimonious model for the future.
 
+If I wish to assess the validity of the voter registration hypothesis, I would follow the exact same steps as above, but with the variable that captures the change in Democratic voter registration. If both of these variables fare better than the original model, I would assess the strength of an additional model that contains both partisan shifts in voting and voter registration, following the same process.
 
 ### Improvements for Future Iterations
 
@@ -515,9 +570,14 @@ Aside from the lack of a variable to capture shifting partisan alignment within 
 While my forecast failed to predict the election outcomes with absolute precision, this model correctly projected a relatively close race in the Electoral College with a larger margin in the popular vote. Furthermore, the outcomes of November 3 all reasonably match the probabilities assigned by the model. Even in GA, NV, and AZ--the three misclassified states--the actual vote shares were not too far from the predictions, and the simulations gave both candidates a fair probability of winning all three of those states. Despite having predicted this election exceptionally well when many models did not, future iterations of this model must do a better job at accounting for partisan shifts within states.
 
 
+
+
+
 ---------------------------------------------------------------------
 
 [^frequentist]: Unlike rolling dice, we cannot experience multiple occurrences of the same election to uncover the true probability of each event. Frequentist probability describes the relative frequency of an event in many trials; conducting many simulations in my model took a frequentist approach to uncover the probability of each outcome. However, we can never really know if any of the probabilities were correct because the 2020 election only happened once (thank goodness!). Trying to say whether or not a probabilistic forecast was *correct* is like rolling a "six" on a single die and concluding that your prior probabilities of 1/6 for rolling a 6 and 5/6 for rolling anything else were incorrect because you observed the less probable outcome on a single iteration.
 
 [^good-shifts]: However, any changes would have to keep in mind that FL, OH, WI, etc. were more conservative than most forecasts anticipated, and this model correctly anticipated the winner in these highly contentious battleground states.
+
+[^forecast-polls]: To remain consistent with my final forecast, I would not use polls from after 3 PM EST on November 1, which is the last time I used FiveThirtyEight's state-level polling data for my original model.
 

@@ -1,4 +1,4 @@
-# Got all of this code from Yao's Github
+# Got all of this code from Yao's Github (https://github.com/itsyaoyu/nyt-2020-scraper)
 # Loading in necessary libraries
 
 library(rjson)
