@@ -305,13 +305,13 @@ me <- enos_pred_compare %>%
 
 ```
 
-With a correlation of `r corr` between the actual and the predicted two-party popular vote for each state, there is an incredibly strong correlation between the actual and predicted state-level two-party vote shares. With that said, there are a few patterns in the inaccuracies:
+With a correlation of `r round(corr, 3)` between the actual and the predicted two-party popular vote for each state, there is an incredibly strong correlation between the actual and predicted state-level two-party vote shares. With that said, there are a few patterns in the inaccuracies:
 
 - On average, Joe Biden underperformed his predicted vote share by `r avg_error` percentage points relative to the forecast. As visible in the below scatterplot, Joe Biden's actual vote share fell short of the model's predictions in the Democrat-leaning states and exceeded the predicted vote share in the Republican-leaning states.
 
-- Despite overpredicting Joe Biden's vote share in most states, the model *underestimated* Joe Biden's performance in the only three states with the incorrect predicted winner. Essentially, the model overestimated Joe Biden's vote share in general but underestimated it in the states with incorrect point predictions.
+- Despite overpredicting Joe Biden's vote share in most states, the model *underestimated* Joe Biden's performance in the only three misclassified states. Essentially, the model overestimated Joe Biden's vote share in general but underestimated it in the states with incorrect point predictions.
 
-The maps and table, included below, illustrate the aforementioned patterns.
+The below maps illustrate the areas with the greatest error. Notice that safe blue and red states such as New York and Louisiana have relatively large errors, while battleground states such as Texas and Ohio have extremely slim errors. For a closer look at the data, the included table contains all of the actual and predicted two-party vote shares for Joe Biden, ordered by the magnitude of the error:
 
 ## {.tabset}
 
@@ -380,13 +380,19 @@ ggplotly(state_pred_compare %>%
   coord_map() +
   labs(x = "",
        y = "",
-       fill = "Difference between Biden's Actual \nand Predicted Two-Party Vote Share",
-       title = "Prediction Error in my Forecast") +
+       fill = "Difference Between Biden's \nActual and Predicted \nTwo-Party Vote Share",
+       title = "Forecast Error") +
   theme_hodp() +
   theme(axis.line = element_blank(),
         axis.text = element_blank(),
         axis.text.x = element_blank()),
-  tooltip = "text")
+  tooltip = "text") %>% 
+ layout(annotations = 
+          list(x = 1, y = -0.1, text = "Red indicates that Trump received a greater share of votes than predicted.", 
+               showarrow = F, xref='paper', yref='paper', 
+               xanchor='right', yanchor='auto', xshift=80, yshift=40,
+               font=list(size=15))
+ )
 
 ```
 
@@ -459,14 +465,16 @@ Since this model was not unilaterally biased like most other forecast models, th
 ggplotly(errors %>% 
   mutate(source = recode(source, "538" = "FiveThirtyEight",
          "economist" = "The Economist",
-         "me" = "Kayla Manning")) %>% 
+         "me" = "Kayla Manning"),
+         source = fct_relevel(as_factor(source), "Kayla Manning")) %>% 
   ggplot(aes(error)) +
   geom_density(fill = my_red, alpha = 0.5) +
   geom_histogram(aes(y = after_stat(count / sum(count))), bins = 10, fill = my_red) + 
+  geom_vline(xintercept = 0, linetype = "dashed") +
   facet_wrap(~ source) +
-  labs(x = "Error = Actual Democratic Two-Party Vote Share - Predicted",
+  labs(x = "Difference Between Biden's Actual and Predicted \nTwo-Party Vote Share",
        y = "Count",
-       title = "Distribution of State-Level Errors \nin Forecast Models") +
+       title = "Error Distributions by Forecast") +
   theme_hodp()) 
 
 ```
@@ -475,33 +483,36 @@ ggplotly(errors %>%
 
 ### Hypothesis for Inaccuracies
 
-As with any forecast model that incorporated polls, this forecast would have benefited from improved polling accuracy. Unfortunately, I do not control the polling methodology, so I must improve my model in other ways. I applied an aggressive weighting scheme based on FiveThirtyEight's pollster grades in an attempt to control for polling bias. In spite of these efforts, the model still produced extreme predictions in either direction, with a more favorable outcome for Biden in the liberal states and predicted a more favorable outcome for Trump in conservative states. The diverging direction of the inaccuracies leads me to consider other potential causes for the inaccuracies and potential improvements for future iterations of this model.
+As with any forecast model that incorporated polls, this forecast would have benefited from improved polling accuracy. Unfortunately, I do not control the polling methodology, so I must improve my model in other ways. In an effort to minimize the impact of biased polls, I applied an aggressive weighting scheme based on FiveThirtyEight's pollster grades. Despite of these efforts, the model still produced extreme predictions in either direction, with a more favorable predictions for Biden in the liberal states and more favorable predictions for Trump in conservative states. The diverging direction of the inaccuracies leads me to consider other potential causes for the inaccuracies and potential improvements for future iterations of this model. Since this model was not unilaterally biased, it leads to me believe that perhaps this model did not pick up on states trending towards purple. Many of the largest errors came from states in the "reliably blue" and "reliably red" pools for the model construction. While larger errors in these states did not lead to incorrect classification, it is important to identify why my model predicted greater polarization than what played out on election day.
 
-This model neglected to pick up on the magnitude of changing views in states such as Arizona and Georgia, both of which voted for Trump in 2016 yet voted for Biden in 2020.[^good-shifts] To account for this in 2024 and beyond, I could include a variable that captures shifting partisanship within a state between elections. In this model, I attempted to use demographic changes as a proxy for this, but a more direct variable might work better. I plan on incorporating a "difference in Democratic vote share" variable in future iterations of this model, which looks at the difference in the share of that state's two-party popular vote in the two previous elections. For 2024, I would each state's Democratic vote share in 2016 from the Democratic vote share in 2020. Negative numbers indicate Republican trends and positive numbers would indicate Democratic shifts, with larger absolute values indicating a shift of greater magnitude. 
+One hypothesis for the polarized predictions is that this model lacked a variable that directly considers the partisan trends within the state. This model neglected to pick up on the magnitude of changing views in states such as Arizona and Georgia, both of which voted for Trump in 2016 yet voted for Biden in 2020.[^good-shifts] To account for this in 2024 and beyond, I could include a variable that captures shifting partisanship within a state between elections. In this model, I attempted to use demographic changes as a proxy for this, but a more direct variable might work better. I plan on incorporating a "difference in Democratic vote share" variable in future iterations of this model, which looks at the difference in the share of that state's two-party popular vote in the previous two elections.
 
 ### Proposed Test to Assess Hypothesis
 
-To assess this hypothesis, I could reconstruct the model, following the same procedures as outlined in my [final prediction](https://kayla-manning.github.io/gov1347/posts/final.html). I would use the same data from 1992-2016 and include this variable that captures the state-level changes in voting patterns between elections. Once I have constructed this new model, I could assess its validity in several ways:
+To assess this hypothesis, I could reconstruct the model, following the same procedures as outlined in my [final prediction](https://kayla-manning.github.io/gov1347/posts/final.html). I would use the same data from 1992-2016 and include the new variable that captures the state-level changes in voting patterns between elections. Once I have constructed this model, I would follow a series of steps to assess its validity:
 
-- First and foremost, I would assess the statistical significance of the model coefficients for the partisan change.
-- Then, I could assess the out-of-sample fit with a leave-one-out cross-validation and compare the classification accuracy with that of my previous model.
-- If both of those steps support the strength of this new model, I could forecast the 2020 results using this year's data. To remain consistent between the two models, I would not use polls from after 3 PM EST on November 1, which is the last time I ran the previous forecast model.
+1. First and foremost, I would assess the statistical significance of the partisan change coefficients for each of the pooled models.
+2. Then, I would assess the out-of-sample fit with a leave-one-out cross-validation and compare the classification accuracy to my official 2020 forecast.
+3. If both of those steps support the strength of this new model, I would forecast the 2020 results using this year's data. To remain consistent between the two models, I would not use polls from after 3 PM EST on November 1, which is the last time I ran the previous forecast model.
+4. Finally, I would compare this model's 2020 forecast to my previous model. 
 
-Finally, I would compare this model's 2020 forecast to my previous model. If this model more accurately predicted the state-level outcomes, then I know that my 2024 should resemble this newer model. However, if my previous model performed better in the leave-one-out classification and on the 2020 data, then I would stick with my original, more parsimonious model for the future.
+These assessments should provide enough metrics to determine which model performs better in- and out-of-sample. If this model more accurately predicted the state-level outcomes, then I know that my 2024 should resemble this newer model. However, if my previous model performed better in the leave-one-out classification and on the 2020 data, then I would stick with my original, more parsimonious model for the future.
 
 
 ### Improvements for Future Iterations
 
-Aside from the lack of a variable to capture shifting partisan alignment within states, there are several other modifications I would make to the methodology behind this model in a future iteration. I touched on many of these in greater detail in my [final prediction](https://kayla-manning.github.io/gov1347/posts/final.html) post, but here is a brief overview:
+Aside from the lack of a variable to capture shifting partisan alignment within states, I also plan to make several methodological changes to this model for the future. I touched on many of these in greater detail in my [final prediction](https://kayla-manning.github.io/gov1347/posts/final.html) post, but here is a brief overview:
 
-- This model does not include Washington D.C. in the forecast, and I manually added its 3 electoral votes after forecasting the vote shares for the 50 states. Ideally, I would find the necessary data to include D.C. in my forecast.
-- Also due to the absence of the appropriate district-level data, this model allocates the electoral votes from Maine and Nebraska on a  winner-take-all basis rather than following the congressional district method, as they do in reality. Again, future iterations would ideally include district-level data for these states.
-- This model varied voter turnout and partisan probabilities independently by simply drawing from a normal distribution. A more sophisticated model in the future would introduce some correlation between geographies, demographic groups, and ideologies. Moreover, since I drew these probabilities from a normal distribution, some states could have negative probabilities if the initial probability for voting for a particular party was extremely low (e.g. voting Republican in Hawaii). I mitigated this by taking the absolute value of the probability, but this introduced some extreme variation in the model and I must find a better method to restrict the domain in future iterations of this model.
-- Lastly, I classified states based on their 2020 ideologies. Ideally, I would re-classify each state in every election year when constructing the model. For example, this model considered Colorado as a "blue state" for all years based on its 2020 classification, but it was either a "red state" or "battleground state" in most of the previous elections in the data. In the future, I would like to set a rule for classifying each state for every election, rather than relying solely on the 2020 classification by the [New York Times](https://www.nytimes.com/interactive/2020/us/elections/electoral-college-battleground-states.html).
+- This model does not include Washington D.C., so I manually added its 3 electoral votes after forecasting the vote shares for the 50 states. Ideally, I would find the necessary data to include D.C. in my forecast.
+- Also due to the absence of appropriate data, this model allocates the electoral votes from Maine and Nebraska on a winner-take-all basis rather than following the congressional district method, as they do in reality. Again, future iterations would ideally include district-level data for these states.
+- I need to improve my methodology for varying voter turnout and probabilities:
+  * This model varied voter turnout and partisan probabilities independently by simply drawing from a normal distribution. A more sophisticated model in the future would introduce some correlation between geographies, demographic groups, and ideologies. 
+  * Moreover, since I drew these probabilities from a normal distribution, some states could have negative probabilities if the initial probability for voting for a particular party was extremely low (e.g. voting Republican in Hawaii). I took the absolute value of these draws to ensure all probabilities were positive, but this introduced some extreme variation in states that had an extremely low probability of voting for one party. For example, the confidence intervals for Republican votes in Hawaii were unrealistically wide since the negative vote probabilities became positive probabilities of a larger magnitude than what was actually likely in the normal distribution. I must find a better method to restrict the domain in future iterations of this model.
+- Lastly, I classified states based on their 2020 ideologies. In the future, I would like to set a rule for classifying each state for every election, rather than relying solely on the 2020 classification by the [New York Times](https://www.nytimes.com/interactive/2020/us/elections/electoral-college-battleground-states.html). For example, this model considered Colorado as a "blue state" for all years based on its 2020 classification, but it was either a "red state" or "battleground state" in most of the previous elections in the data. In its current condition, the "blue state" model was constructed with all Colorado data from 1992-2018. Ideally, I would use Colorado data from the years it was considered a "battleground state" to construct the "battleground" model, the years it was a "red state" to construct the "red" model, and the years it was a "blue state" to construct the "blue" model.
 
 ### Conclusion
 
-While my forecast did not perfectly predict the election outcomes, this model correctly projected a relatively close race in the Electoral College with a larger margin in the popular vote. Furthermore, the outcomes of November 3 all reasonably match the probabilities assigned by the model. Even in GA, NV, and AZ--the three states with the incorrect predicted winner--the actual vote shares were not too far from the predictions, and both candidates had a fair probability of winning those states. Despite having predicted this election exceptionally well when many models did not, future iterations of this model must do a better job at accounting for partisan shifts within states (assuming this country survives to see another 4 years).
+While my forecast failed to predict the election outcomes with absolute precision, this model correctly projected a relatively close race in the Electoral College with a larger margin in the popular vote. Furthermore, the outcomes of November 3 all reasonably match the probabilities assigned by the model. Even in GA, NV, and AZ--the three misclassified states--the actual vote shares were not too far from the predictions, and the simulations gave both candidates a fair probability of winning all three of those states. Despite having predicted this election exceptionally well when many models did not, future iterations of this model must do a better job at accounting for partisan shifts within states.
 
 
 ---------------------------------------------------------------------
