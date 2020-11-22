@@ -3,7 +3,7 @@ Welcome to my election analysis blog! I will post updates every Saturday. Feel f
 # [Final Prediction](posts/final.md)
 *This forecast uses polling numbers as of 3 PM EST on 11/1/2020.*
 
-## [Post-Election Model Reflection](posts/reflection.reflection.html)
+## [Post-Election Model Reflection](posts/reflection/reflection.html)
 How did my model compare to election results? In this post I analyze my blog in the context of the election results, hypothesize reasons for its shortcomings, and brainstorm ways to improve it in future iterations.
 
 The following posts analyze various components of presidential elections and provide updated predictions for the 2020 race. Each post ultimately informed the modeling decisions in my final prediction:
