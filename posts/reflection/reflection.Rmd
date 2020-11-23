@@ -495,13 +495,14 @@ ggplotly(errors %>%
          source = fct_relevel(as_factor(source), "Kayla Manning")) %>% 
   ggplot(aes(error)) +
   geom_density(fill = my_red, alpha = 0.5) +
-  geom_histogram(aes(y = after_stat(count / sum(count))), bins = 10, fill = my_red) + 
+  geom_histogram(aes(y = after_stat(count / sum(count))), bins = 13, fill = my_red) + 
   geom_vline(xintercept = 0, linetype = "dashed") +
   facet_wrap(~ source) +
   labs(x = "Difference Between Biden's Actual and Predicted \nTwo-Party Vote Share",
        y = "Count",
        title = "Error Distributions by Forecast") +
-  theme_hodp()) 
+  theme_hodp() +
+  scale_x_continuous(limits = c(-15, 15))) 
 
 ```
 
@@ -542,10 +543,12 @@ state_pop_votes %>%
   labs(title = "Partisan Shifts Since 2000",
        y = "Democratic Two-Party Vote-Share Margin",
        x = "",
-       caption = "The dotted line indicates the predicted democratic margin. Notice that all of \nthe lines lie behind the trends set in the previous two elections.") +
+       caption = "The dotted line indicates the predicted democratic margin. Notice that none of \nthe predictions follow the trend between 2012 and 2016.") +
   theme(legend.position = "none",
         axis.title.x = element_text(margin = margin(10, 0, 10, 0))) +
   scale_y_continuous(limits = c(-40, 40)) +
+  scale_x_continuous(breaks = seq(2000, 2020, by = 4),
+                     labels = seq(2000, 2020, by = 4)) +
   scale_linetype_manual(name = "type",
                         values = c(3, 1),
                         labels = c("Predicted Margin", "Tie"),
