@@ -1,6 +1,6 @@
 ---
 title: "Testing Narratives: Would Trump win in a COVID-free world?"
-date: November 23, 2020
+date: December 10, 2020
 output:
   html_document:
     theme: "cerulean"
@@ -61,7 +61,7 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ```
 
-```{r data, warning = FALSE}
+```{r data, warning = FALSE, message = FALSE}
 {
   covid <- read_csv("https://data.cdc.gov/api/views/9mfq-cb36/rows.csv?accessType=DOWNLOAD") %>% 
   mutate(submission_date = mdy(submission_date))
@@ -100,16 +100,9 @@ knitr::opts_chunk$set(echo = FALSE)
 # data for Achen-Bartels-inspired regression
 
 {
-  govs <- read_csv("../../data/governor_data.csv") %>% 
-    select(1:2) %>% 
-    rename(state = Location,
-           governor = `Governor Political Affiliation`) %>% 
-    mutate(state = state.abb[match(state, state.name)]) %>% 
-    drop_na(state)
-  
   mod_dat <- covid %>% 
     inner_join(pops_2019) %>% 
-    inner_join(state_votes) %>% 
+    inner_join(state_votes_all) %>% 
     group_by(state) %>% 
     arrange(desc(submission_date)) %>%
     filter(submission_date == "2020-11-03") %>% 
@@ -124,8 +117,7 @@ knitr::opts_chunk$set(echo = FALSE)
     filter(!str_detect(type, "d")) %>% 
     pivot_wider(names_from = type, values_from = pv2p) %>% 
     unnest(r_pv2p_2020) %>% 
-    unnest(r_pv2p_2016) %>% 
-    inner_join(govs)
+    unnest(r_pv2p_2016)
 }
 
 # merging county-level voting and covid data
@@ -134,9 +126,10 @@ knitr::opts_chunk$set(echo = FALSE)
   
   # got county voting data from Prof. Enos's spreadsheet
   
-  sheets_deauth()
+  gs4_deauth()
 
-  county_vote <- read_sheet("https://docs.google.com/spreadsheets/d/1WvMnskSYGkKyZ4ovO-QDTPJP8Qs6VjOYsru-pxo3ad0/edit#gid=0") %>% 
+  county_vote <- read_sheet("https://docs.google.com/spreadsheets/d/1WvMnskSYGkKyZ4ovO-QDTPJP8Qs6VjOYsru-pxo3ad0/edit#gid=0",
+                            sheet = 1) %>% 
     clean_names() %>% 
     slice(-1) %>% 
     select(fips, geographic_name, geographic_subtype, joseph_r_biden_jr, donald_j_trump) %>% 
@@ -187,11 +180,22 @@ knitr::opts_chunk$set(echo = FALSE)
   
 }
 
+{
+  # using NYT classification of states... putting Maine and Nebraska as battleground states
+  # even though it varies by district
+  
+  dem_states <- c("CO", "VA", "CA", "CT", "DE", "HI", "IL", "MD", "MA", "NJ", "NY", "OR", "RI", 
+                  "VT", "WA")
+  bg_states <- c("FL", "IA", "OH", "GA", "ME", "NC", "MI", "MN", "NE", "NH", "PA", "WI", 
+                 "NV", "AZ", "NM", "TX")
+  rep_states <- c("AK", "IN", "KS", "MO", "AL", "AR", "ID", "KY", "LA", "MS", "ND", "OK", "SD", "MT",
+                  "TN", "WV", "WY", "SC", "UT")
+}
 
 
 ```
 
-```{r model_data}
+```{r model_data, warning = FALSE, message = FALSE}
 
 economy <- read_csv("../../data/econ.csv") %>% 
   clean_names()
@@ -302,18 +306,146 @@ state_votes <- read_csv("../../data/popvote_bystate_1948-2016.csv") %>%
 
 ```
 
-```{r model}
+## COVID-19 and its potential effect on the election
 
-# using NYT classification of states... moving states from different categories
-# affects the predictions... putting Maine and Nebraska as battleground states
-# even though it varies by district
+As I previous justified in my [blog post](https://kayla-manning.github.io/gov1347/posts/shocks.html) about electoral shocks and COVID-19, my model relied on polling and economic data to serve as proxies for any impact of COVID-19 on the 2020 election. Given the importance of economic fundamentals in determining election winners, it is not unreasonable to think that the pandemic and its toll on the economy must have hurt his bid for re-election. Considering [all](https://kayla-manning.github.io/gov1347/) that we have learned over the past few months, it seems that Trump's strong (pre-pandemic) [economic record](https://www.bloomberg.com/opinion/articles/2020-10-30/trump-s-economy-really-was-better-than-obama-s) and his [incumbent advantage](https://kayla-manning.github.io/gov1347/posts/incumbency.html) could have reasonably carried him to another 4 years in the White House. In an alternate universe without COVID-19, would Donald Trump have won the 2020 election? In other words, did Trump lose because of COVID-19, or would Biden still have defeated the incumbent president in a COVID-free world?
 
-dem_states <- c("CO", "VA", "CA", "CT", "DE", "HI", "IL", "MD", "MA", "NJ", "NY", "OR", "RI", 
-                "VT", "WA")
-bg_states <- c("FL", "IA", "OH", "GA", "ME", "NC", "MI", "MN", "NE", "NH", "PA", "WI", 
-               "NV", "AZ", "NM", "TX")
-rep_states <- c("AK", "IN", "KS", "MO", "AL", "AR", "ID", "KY", "LA", "MS", "ND", "OK", "SD", "MT",
-                "TN", "WV", "WY", "SC", "UT")
+Given his fairly large loss in 2016, a Trump victory in the popular vote would have been unlikely even without the pandemic, but the Electoral College might have been a different story. Several paths existed for a Trump electoral victory, but none of them panned out for him on Election Night. Donald Trump failed to secure Arizona, Georgia, and Wisconsin in 2020, despite having won all three of them in 2016. These are just a few of several states that were hit relatively hard by the pandemic and flipped from red to blue in 2020.
+
+## Why does it matter and how will I test it?
+
+This narrative absolutely warrants some explanation: the Trump and Biden administrations would likely take very different approaches to policy making in 2021-2024. The 1918 Spanish influenza pandemic provides the only comparable situation to that which we face in 2020. In order to determine a methodologically sound approach, I structured my approach similar to past research on the Spanish flu's impact on 1918 gubernatorial races.
+
+Previous research on the 1918 midterms and 1920 general election suggests that the pandemic had negligible in any electoral impact.[^achen-bartels-flu] However, the national dialogue around the pandemic looks quite different now than it did a century ago. Relative to the magnitude of the pandemic, the Spanish flu received little public attention, which contrasts greatly with how COVID-19 has dominated nearly every facet of life in 2020. So, while we cannot automatically extend the conclusions from the 1918 pandemic to COVID-19, we can use similar methodology to take a preliminary look at COVID's electoral impact. 
+
+In *Democracy For Realists*, Achen and Bartels examined whether the states and cities hit hardest by the pandemic responded differently at the polls.[^achen-bartels-flu] While they focused on gubernatorial races during the 1918 midterms, I plan on applying the underlying structure of their analysis to the 2020 presidential race. Similar to Achen and Bartels, I plan on running a simple regression that maps Donald Trump's 2020 vote share from his 2016 vote share and COVID cases and/or deaths.[^dummy]
+
+## Regression Data
+
+For this regression, I had to gather a mixture of COVID, population, and voting data from several sources:
+
+- **COVID-19 cases and deaths**: the state-level COVID data came from the [CDC COVID Data Tracker](https://covid.cdc.gov/covid-data-tracker/#cases_casesper100klast7days), and the county-level COVID counts came from the [GitHub](https://github.com/nytimes/covid-19-data/blob/master/us-counties.csv) of the New York Times
+- **Population**: I used 2019 population estimates from the [US Census Bureau](https://www.census.gov/data/datasets/time-series/demo/popest/2010s-state-total.html) to calculate the COVID cases and/or deaths as a percentage of the total population within the relevant state or county
+- **Voting**: Voting data is generally available from many sources, but [this](https://docs.google.com/spreadsheets/d/1WvMnskSYGkKyZ4ovO-QDTPJP8Qs6VjOYsru-pxo3ad0/edit#gid=0) spreadsheet contains the vote counts I used for the county-level regressions. Of course, I used state-level counts for my state regressions.
+
+## Regression Results
+
+Achen and Bartels centered their analysis around excess flu deaths and vote share in the previous election, so ny initial regression mapped Trump's 2020 state-level vote share from his 2016 vote share and total COVID deaths up to Election Day as a percentage of that state's population. The p-value for the COVID deaths coefficient was quite large, but the same regression with cases instead yielded a much smaller, but still insignificant p-value. Both of these coefficients were positive, but the large p-values make it difficult to draw any conclusions from the regression. Perhaps, COVID was more of a deciding factor in battleground states?
+
+Sure enough, the state-level regressions yielded more significant coefficients for the COVID terms when focusing solely on battleground states. The most significant coefficient was when looking at COVID cases in battleground states, which had a p-value of $0.086$. If we want to interpret this coefficient with a significance level of $\alpha = 0.10$, we can say that a 1% increase in a battleground state's case count as a percentage of the population is associated with an approximate increase of $0.57$% of Trump's 2020 two-party vote share within that state.
+
+```{r state_regression, warning = FALSE, message = FALSE}
+
+# covid deaths are insignificant with p = 0.644
+
+all_states_deaths <- lm(r_pv2p_2020 ~ r_pv2p_2016 + death_pct, data = mod_dat)
+
+# case pct is more significant with p = 0.216
+
+all_states_cases <- lm(r_pv2p_2020 ~ r_pv2p_2016 + case_pct, data = mod_dat)
+
+# let's focus on battleground states... case pct has p = 0.0857
+
+bg_states_cases <- lm(r_pv2p_2020 ~ r_pv2p_2016 + case_pct, data = mod_dat %>% filter(state %in% bg_states))
+bg_states_deaths <- lm(r_pv2p_2020 ~ r_pv2p_2016 + death_pct, data = mod_dat %>% filter(state %in% bg_states))
+
+tab_model(all_states_deaths, all_states_cases, bg_states_deaths, bg_states_cases,
+          dv.labels = c("All States and COVID Deaths", "All States and COVID Cases", "Battleground States and COVID Deaths", 
+                        "Battleground States and COVID Cases"),
+          pred.labels = c("(Intercept)", "Trump's 2016 Two-Party Vote Share", "Deaths as Percent of Population", "Cases as Percent of Population"),
+          show.ci = FALSE,
+          title = "Comparing State-Level Models")
+
+```
+
+The significance of that term depends on how you select your $\alpha$ value. However, whether you conclude its significant or not, it does reveal that there is possibly a positive association between Trump's 2020 vote share in battleground states and higher total cases as percent of the population when controlling for Trump's lagged vote share in that same state.
+
+Next, I wanted to extend the analysis one step further and observe the same regressions with county-level COVID metrics and vote shares. Again, all of the coefficients indicated a positive relationship between Donald Trump's 2020 vote share and increase in COVID cases or deaths as a percentage of the county's population. This time, all of the slope coefficients yielded significant p-values at an $\alpha = 0.001$ significance level, confirming the positive association: **ADD NOTE ABOUT INCREASING SAMPLE SIZE AND DECREASING P-VALUE**
+
+```{r county_regression, warning = FALSE, message = FALSE}
+
+# covid deaths are very significant at county-level (with a positive coefficient)
+
+all_county_deaths <- lm(r_pv2p_2020 ~ r_pv2p_2016 + death_pct, data = county) 
+
+# case pct is also significant with a positive coefficient
+
+all_county_cases <- lm(r_pv2p_2020 ~ r_pv2p_2016 + case_pct, data = county)
+
+# let's focus on battleground states... case pct is also very significant and positive
+
+bg_county_cases <- lm(r_pv2p_2020 ~ r_pv2p_2016 + case_pct, data = county %>% filter(state %in% bg_states))
+
+# deaths in battleground states is highly significant with a very positive coefficient
+
+bg_county_deaths <- lm(r_pv2p_2020 ~ r_pv2p_2016 + death_pct, data = county %>% filter(state %in% bg_states))
+
+tab_model(all_county_deaths, all_county_cases, bg_county_deaths, bg_county_cases,
+          dv.labels = c("All Counties and COVID Deaths", "All Counties and COVID Cases", "Counties in Battleground States and COVID Deaths", 
+                        "Counties in Battleground States and COVID Cases"),
+          pred.labels = c("(Intercept)", "Trump's 2016 Two-Party Vote Share", "Deaths as Percent of Population", "Cases as Percent of Population"),
+          show.ci = FALSE,
+          title = "Comparing County-Level Models")
+
+```
+
+The below plots provide a clearer visualization of this positive association between COVID-19 and Trump's 2020 vote share:
+
+## {.tabset}
+
+### State-Level
+
+```{r state_scatterplot}
+
+# visualizing the positive association
+
+
+ggplotly(mod_dat %>% 
+  filter(state %in% bg_states,
+         r_pv2p_2016 < 55 & r_pv2p_2016 > 45) %>% 
+  ggplot(aes(case_pct, r_pv2p_2020, text = state, size = r_pv2p_2016)) +
+  geom_point() + 
+  geom_smooth(formula = y ~ x, aes(case_pct, r_pv2p_2020), method = "lm", se = 0, color = my_red) +
+  theme_hodp() +
+  labs(x = "Cases as Percent of the Population",
+       y = "Trump's 2020 Two-Party Popular Vote",
+       title = "Republican Vote Share and COVID-19 \nCases in Battleground States"))
+
+```
+
+### County-Level
+
+```{r county_scatterplot}
+
+county %>% 
+  filter(state %in% bg_states,
+         death_pct > 0.05,
+         r_pv2p_2020 > 45 & r_pv2p_2020 < 55) %>% 
+  ggplot(aes(case_pct, r_pv2p_2020)) +
+  geom_point() + 
+  geom_smooth(method = "lm", se = 0, color = my_red) +
+  theme_hodp() +
+  labs(x = "Cases as Percent of the Population",
+       y = "Trump's 2020 Two-Party Popular Vote",
+       title = "Republican Vote Share and COVID-19 \nCases in Battleground States")
+
+```
+
+## New Model Results
+
+Taking an interest in the results of the regression, I decided to take a more nuanced look at the implications of these findings. The regressions take very crude measures of COVID numbers and previous vote share, without considering possible confounding variables. My previous election model used a mixture of demographic variables, economic metrics, incumbency status, and polling numbers to produce a probabilistic forecast for the 2020 election. While the forecast did not match the election results exactly, it did match the outcomes fairly closely, so it would not hurt to examine what happens without any measured impact of COVID-19.
+
+COVID-19 bled into the polling and economic data used for the predictions, so I took steps to try to erase or minimize any impact of COVID-19 on these metrics:
+
+* I treated the election as if Trump was running for re-election off of his 2019 economy by using 2019's Q1 GDP in the prediction. 
+* For polling, crafted my predictions with all state-level polls from more than 15 weeks[^poll-weeks] out from the election, as opposed to focusing on the 4 weeks prior to the election.
+
+I used a very similar[^model-changes] model equation to that from my [final forecast](https://kayla-manning.github.io/gov1347/posts/final.html). In this hypothetical, pandemic-free world, Trump lost both the Electoral College and the national two-party popular vote by an even larger margin than what panned out on the actual election day:
+
+```{r model, warning = FALSE, message = FALSE}
+
+# getting everything set up for the loop
+
 state_types <- c(list(bg_states), list(rep_states), list(dem_states))
 
 parties <- c("democrat", "republican")
@@ -538,82 +670,20 @@ tibble(Candidate = c("Biden", "Trump"),
 
 ```
 
-```{r state_regression}
 
-# covid deaths are insignificant with p = 0.644
+## Do these results support the narrative?
 
-all_states_deaths <- lm(r_pv2p_2020 ~ r_pv2p_2016 + death_pct, data = mod_dat)
+While these tests were imperfect measures, they indicate that coronavirus likely did not hurt, and may have even helped, Trump in his 2020 election bid. While I cannot conclude that COVID-19 caused Trump to perform better in the 2020 election, these preliminary measures do indicate that there is a positive association between COVID numbers and Donald Trump's vote share.
 
-# case pct is more significant with p = 0.216
+-----------------------
 
-all_states_cases <- lm(r_pv2p_2020 ~ r_pv2p_2016 + case_pct, data = mod_dat)
+[^achen-bartels-flu]: [Achen and Bartels, 2017] Achen, C. H. and Bartels, L. M. (2017). Democracy for realists: Why elections do not produce responsive government
 
-# let's focus on battleground states... case pct has p = 0.0857
+[^poll-weeks]: While this includes some data from after COVID-19 came to the United States, I had to expand the window of time in order to get a large enough sample size for the model to run for each state.
 
-bg_states_cases <- lm(r_pv2p_2020 ~ r_pv2p_2016 + case_pct, data = mod_dat %>% filter(state %in% bg_states))
-bg_states_deaths <- lm(r_pv2p_2020 ~ r_pv2p_2016 + death_pct, data = mod_dat %>% filter(state %in% bg_states))
+[^model-changes]: I added an interaction term to the model from my original forecast for this iteration. In retrospect, it did not make sense to not include it in the first place since the state of the economy likely has opposite effects for incumbent and non-incumbent candidates.
 
-tab_model(all_states_deaths, all_states_cases, bg_states_deaths, bg_states_cases,
-          dv.labels = c("All States and COVID Deaths", "All States and COVID Cases", "Battleground States and COVID Deaths", 
-                        "Battleground States and COVID Cases"),
-          pred.labels = c("(Intercept)", "Trump's 2016 Two-Party Vote Share", "Deaths as Percent of Population", "Cases as Percent of Population"),
-          show.ci = FALSE,
-          title = "Comparing State-Level Models")
-
-# visualizing the positive association
-
-mod_dat %>% 
-  filter(state %in% bg_states,
-         r_pv2p_2016 < 55 & r_pv2p_2016 > 45) %>% 
-  ggplot(aes(death_pct, r_pv2p_2020, text = state, size = r_pv2p_2016)) +
-  geom_point() + 
-  geom_smooth(method = "lm", se = 0, color = my_red) +
-  theme_hodp() +
-  labs(x = "Cases as Percent of the Population",
-       y = "Trump's 2020 Two-Party Popular Vote",
-       title = "Republican Vote Share and COVID-19 \nDeaths in Battleground States")
-
-```
-
-```{r county_regression}
-
-# covid deaths are very significant at county-level (with a positive coefficient)
-
-all_county_deaths <- lm(r_pv2p_2020 ~ r_pv2p_2016 + death_pct, data = county) 
-
-# case pct is also significant with a positive coefficient
-
-all_county_cases <- lm(r_pv2p_2020 ~ r_pv2p_2016 + case_pct, data = county)
-
-# let's focus on battleground states... case pct is also very significant and positive
-
-bg_county_cases <- lm(r_pv2p_2020 ~ r_pv2p_2016 + case_pct, data = county %>% filter(state %in% bg_states))
-
-# deaths in battleground states is highly significant with a very positive coefficient
-
-bg_county_deaths <- lm(r_pv2p_2020 ~ r_pv2p_2016 + death_pct, data = county %>% filter(state %in% bg_states, death_pct < 0.2))
-
-tab_model(all_county_deaths, all_county_cases, bg_county_deaths, bg_county_cases,
-          dv.labels = c("All Counties and COVID Deaths", "All Counties and COVID Cases", "Counties in Battleground States and COVID Deaths", 
-                        "Counties in Battleground States and COVID Cases"),
-          pred.labels = c("(Intercept)", "Trump's 2016 Two-Party Vote Share", "Deaths as Percent of Population", "Cases as Percent of Population"),
-          show.ci = FALSE,
-          title = "Comparing County-Level Models")
-
-county %>% 
-  filter(state %in% bg_states,
-         r_pv2p_2016 < 55 & r_pv2p_2016 > 45) %>% 
-  ggplot(aes(death_pct, r_pv2p_2020,
-             color = state)) +
-  geom_point() + 
-  geom_smooth(method = "lm", se = 0, color = my_red) +
-  theme_hodp() +
-  labs(x = "Cases as Percent of the Population",
-       y = "Trump's 2020 Two-Party Popular Vote",
-       title = "Republican Vote Share and COVID-19 \nDeaths in Battleground States")
-
-```
-
+[^dummy]: Achen and Bartels also included a dummy variable that indicated whether the specified gubernatorial candidate was a Democratic incumbent. Since Donald Trump ran in both 2016 and 2020, I did not include an indicator for incumbency and instead just focused on his vote share for both races.
 
 
 
