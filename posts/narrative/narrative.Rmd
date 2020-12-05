@@ -117,7 +117,8 @@ knitr::opts_chunk$set(echo = FALSE)
     filter(!str_detect(type, "d")) %>% 
     pivot_wider(names_from = type, values_from = pv2p) %>% 
     unnest(r_pv2p_2020) %>% 
-    unnest(r_pv2p_2016)
+    unnest(r_pv2p_2016) %>% 
+    ungroup()
 }
 
 # merging county-level voting and covid data
@@ -306,23 +307,23 @@ state_votes <- read_csv("../../data/popvote_bystate_1948-2016.csv") %>%
 
 ```
 
-## COVID-19 and its potential effect on the election
+## Did COVID cost Trump the election?
 
-As I previous justified in my [blog post](https://kayla-manning.github.io/gov1347/posts/shocks.html) about electoral shocks and COVID-19, my model relied on polling and economic data to serve as proxies for any impact of COVID-19 on the 2020 election. Given the importance of economic fundamentals in determining election winners, it is not unreasonable to think that the pandemic and its toll on the economy must have hurt his bid for re-election. Considering [all](https://kayla-manning.github.io/gov1347/) that we have learned over the past few months, it seems that Trump's strong (pre-pandemic) [economic record](https://www.bloomberg.com/opinion/articles/2020-10-30/trump-s-economy-really-was-better-than-obama-s) and his [incumbent advantage](https://kayla-manning.github.io/gov1347/posts/incumbency.html) could have reasonably carried him to another 4 years in the White House. In an alternate universe without COVID-19, would Donald Trump have won the 2020 election? In other words, did Trump lose because of COVID-19, or would Biden still have defeated the incumbent president in a COVID-free world?
+As discussed in my [blog post](https://kayla-manning.github.io/gov1347/posts/shocks.html) about electoral shocks and COVID-19, polling and economic data served as proxies for any impact of COVID-19 on the 2020 election in my model. Given the importance of economic fundamentals in determining election winners, it is not unreasonable to think that the pandemic's toll on the economy must have hurt his re-election bid. Considering [all](https://kayla-manning.github.io/gov1347/) that we have learned over the past few months, it seems that Trump's strong (pre-pandemic) [economic record](https://www.bloomberg.com/opinion/articles/2020-10-30/trump-s-economy-really-was-better-than-obama-s) and his [incumbent advantage](https://kayla-manning.github.io/gov1347/posts/incumbency.html) could have reasonably carried him to another 4 years in the White House. In an alternate universe without COVID-19, would Donald Trump have won the 2020 election? In other words, did Trump lose because of COVID-19, or would Biden still have defeated the incumbent president in a COVID-free world?
 
-Given his fairly large loss in 2016, a Trump victory in the popular vote would have been unlikely even without the pandemic, but the Electoral College might have been a different story. Several paths existed for a Trump electoral victory, but none of them panned out for him on Election Night. Donald Trump failed to secure Arizona, Georgia, and Wisconsin in 2020, despite having won all three of them in 2016. These are just a few of several states that were hit relatively hard by the pandemic and flipped from red to blue in 2020.
+Given his fairly large popular vote loss in 2016, a Trump victory in the popular vote would have been unlikely even without the pandemic, but an Electoral College victory does not seem out of reach. Several paths existed for a Trump electoral victory even with the pandemic, but none of them panned out for him on Election Night. Donald Trump failed to secure Arizona, Georgia, and Wisconsin in 2020, despite having won all three of them in 2016. These are just a few of several states that were hit relatively hard by the pandemic and flipped from red to blue in 2020.
 
 ## Why does it matter and how will I test it?
 
-This narrative absolutely warrants some explanation: the Trump and Biden administrations would likely take very different approaches to policy making in 2021-2024. The 1918 Spanish influenza pandemic provides the only comparable situation to that which we face in 2020. In order to determine a methodologically sound approach, I structured my approach similar to past research on the Spanish flu's impact on 1918 gubernatorial races.
+The stark policy implications of a Trump versus Biden presidency for the next four years warrants exploration of this narrative. Of course, I cannot run a randomized experiment with treatment and control groups to determine the causal impact of COVID-19 on Trump's vote share. Ideally, we would compare Donald Trump's vote share in areas hit by COVID-19 to areas untouched by the pandemic. However, the widespread nature of the pandemic makes natural experiments nearly impossible in this scenario. Because we do not have access to the ideal experimental data, this analysis regresses Trump's 2020 vote share as a function of COVID cases or deaths and 2016 vote share to examine the *association* between Donald Trump's vote share and COVID-19.
 
-Previous research on the 1918 midterms and 1920 general election suggests that the pandemic had negligible in any electoral impact.[^achen-bartels-flu] However, the national dialogue around the pandemic looks quite different now than it did a century ago. Relative to the magnitude of the pandemic, the Spanish flu received little public attention, which contrasts greatly with how COVID-19 has dominated nearly every facet of life in 2020. So, while we cannot automatically extend the conclusions from the 1918 pandemic to COVID-19, we can use similar methodology to take a preliminary look at COVID's electoral impact. 
+The 1918 Spanish influenza pandemic provides the only historical event of comparable circumstances and magnitude to the COVID-19 pandemic. Previous research on the 1918 midterms and 1920 general election suggests that the pandemic had a negligible electoral impact.[^achen-bartels-flu] However, the national dialogue surrounding the pandemic looks quite different now than it did a century ago. Relative to the magnitude of the pandemic, the Spanish flu received little public attention, which contrasts greatly with how COVID-19 has dominated nearly every facet of life in 2020. So, while we cannot automatically extend the conclusions from the 1918 pandemic to COVID-19, we can apply a similar methodology to take a preliminary look at COVID's electoral impact. 
 
-In *Democracy For Realists*, Achen and Bartels examined whether the states and cities hit hardest by the pandemic responded differently at the polls.[^achen-bartels-flu] While they focused on gubernatorial races during the 1918 midterms, I plan on applying the underlying structure of their analysis to the 2020 presidential race. Similar to Achen and Bartels, I plan on running a simple regression that maps Donald Trump's 2020 vote share from his 2016 vote share and COVID cases and/or deaths.[^dummy]
+In *Democracy For Realists*, Achen and Bartels examined whether the states and cities hit hardest by the pandemic responded differently at the polls.[^achen-bartels-flu] While they focused on gubernatorial races during the 1918 midterms, I plan on applying the underlying structure of their regressions to the 2020 data. Similar to Achen and Bartels, I plan on running a simple regression that maps Donald Trump's 2020 vote share as a function of his 2016 vote share and COVID cases or deaths in the respective geography.[^dummy]
 
 ## Regression Data
 
-For this regression, I had to gather a mixture of COVID, population, and voting data from several sources:
+This regression draws a mixture of COVID, population, and voting data from several sources:
 
 - **COVID-19 cases and deaths**: the state-level COVID data came from the [CDC COVID Data Tracker](https://covid.cdc.gov/covid-data-tracker/#cases_casesper100klast7days), and the county-level COVID counts came from the [GitHub](https://github.com/nytimes/covid-19-data/blob/master/us-counties.csv) of the New York Times
 - **Population**: I used 2019 population estimates from the [US Census Bureau](https://www.census.gov/data/datasets/time-series/demo/popest/2010s-state-total.html) to calculate the COVID cases and/or deaths as a percentage of the total population within the relevant state or county
@@ -330,9 +331,9 @@ For this regression, I had to gather a mixture of COVID, population, and voting 
 
 ## Regression Results
 
-Achen and Bartels centered their analysis around excess flu deaths and vote share in the previous election, so ny initial regression mapped Trump's 2020 state-level vote share from his 2016 vote share and total COVID deaths up to Election Day as a percentage of that state's population. The p-value for the COVID deaths coefficient was quite large, but the same regression with cases instead yielded a much smaller, but still insignificant p-value. Both of these coefficients were positive, but the large p-values make it difficult to draw any conclusions from the regression. Perhaps, COVID was more of a deciding factor in battleground states?
+Achen and Bartels centered their analysis around excess flu deaths and vote share in the previous election. Following their lead, my initial regression mapped Trump's 2020 state-level vote share from his 2016 vote share and total COVID deaths up to Election Day as a percentage of that state's population. The p-value for the COVID deaths coefficient was quite large; the same regression with cases instead of deaths yielded a slightly more significant p-value, but still not enough to declare statistical significance. Both of these coefficients were positive, but the large p-values make it difficult to draw any conclusions from the regression. Perhaps the pandemic was unlikely to sway voters in heavily partisan states but was more of a deciding factor in battleground states?
 
-Sure enough, the state-level regressions yielded more significant coefficients for the COVID terms when focusing solely on battleground states. The most significant coefficient was when looking at COVID cases in battleground states, which had a p-value of $0.086$. If we want to interpret this coefficient with a significance level of $\alpha = 0.10$, we can say that a 1% increase in a battleground state's case count as a percentage of the population is associated with an approximate increase of $0.57$% of Trump's 2020 two-party vote share within that state.
+Sure enough, the state-level regressions yielded more significant coefficients for the COVID terms when focusing solely on battleground states. The most significant coefficient was when looking at COVID cases in battleground states, which had a p-value of $0.086$. If we want to interpret this coefficient with a significance level of $\alpha = 0.10$, we can say that we have sufficient evidence that a 1% increase in a battleground state's case count as a percentage of the population is associated with an approximate increase of $0.57$% of Trump's 2020 two-party vote share within that state.
 
 ```{r state_regression, warning = FALSE, message = FALSE}
 
@@ -358,9 +359,9 @@ tab_model(all_states_deaths, all_states_cases, bg_states_deaths, bg_states_cases
 
 ```
 
-The significance of that term depends on how you select your $\alpha$ value. However, whether you conclude its significant or not, it does reveal that there is possibly a positive association between Trump's 2020 vote share in battleground states and higher total cases as percent of the population when controlling for Trump's lagged vote share in that same state.
+The significance of that term depends on how you select your $\alpha$ value. Even with a p-value of $\alpha = 0.05$ that deems the results insignificant, the regression indicates the *possibility* of a positive association between COVID cases and Trump's 2020 vote share in battleground states when controlling for Trump's 2016 vote share.
 
-Next, I wanted to extend the analysis one step further and observe the same regressions with county-level COVID metrics and vote shares. Again, all of the coefficients indicated a positive relationship between Donald Trump's 2020 vote share and increase in COVID cases or deaths as a percentage of the county's population. This time, all of the slope coefficients yielded significant p-values at an $\alpha = 0.001$ significance level, confirming the positive association: **ADD NOTE ABOUT INCREASING SAMPLE SIZE AND DECREASING P-VALUE**
+Next, I wanted to extend the analysis one step further and run the same regressions with county-level COVID metrics and vote shares. Again, all of the coefficients indicated a positive relationship between Donald Trump's 2020 vote share and an increase in COVID cases or deaths as a percentage of the county's population. This time, all of the slope coefficients yielded significant p-values at an $\alpha = 0.001$ significance level, confirming the positive association: **ADD NOTE ABOUT INCREASING SAMPLE SIZE AND DECREASING P-VALUE**
 
 ```{r county_regression, warning = FALSE, message = FALSE}
 
@@ -389,45 +390,63 @@ tab_model(all_county_deaths, all_county_cases, bg_county_deaths, bg_county_cases
 
 ```
 
-The below plots provide a clearer visualization of this positive association between COVID-19 and Trump's 2020 vote share:
+The below plots provide a clearer visualization of this positive association between COVID-19 and Trump's 2020 vote share within battleground states. However, it is important to note that these plots do not control for lagged vote share like the regression does. While I attempted to illustrate the multivariate relationship between the variables by changing the size of the points on the state plot and faceting the county plots, the plots still fail to show the complete picture of the regression since the 2016 vote share is a continuous variable. Controlling for 2016 vote share in the regression yields an even stronger relationship between Trump's 2020 vote share and COVID counts than displayed by the below graphs, but at least they provide a rough visualization of the relationship:
 
 ## {.tabset}
 
 ### State-Level
 
-```{r state_scatterplot}
+```{r state_scatterplot, message = FALSE}
 
-# visualizing the positive association
+# visualizing the positive association for some reason I could not get
+# geom_smooth to work, so I just manually created a geom_abline with a simple
+# regression of 2020 vote share from COVID deaths¿
 
+new_mod <- lm(r_pv2p_2020 ~ death_pct, data = mod_dat %>% filter(state %in% bg_states,
+         r_pv2p_2016 < 55 & r_pv2p_2016 > 45))
 
-ggplotly(mod_dat %>% 
+mod_dat %>% 
   filter(state %in% bg_states,
          r_pv2p_2016 < 55 & r_pv2p_2016 > 45) %>% 
-  ggplot(aes(case_pct, r_pv2p_2020, text = state, size = r_pv2p_2016)) +
+  ggplot(aes(death_pct, r_pv2p_2020, text = state, size = r_pv2p_2016)) +
   geom_point() + 
-  geom_smooth(formula = y ~ x, aes(case_pct, r_pv2p_2020), method = "lm", se = 0, color = my_red) +
+  geom_abline(intercept = new_mod$coefficients[1], slope = new_mod$coefficients[2], color = my_red) +
   theme_hodp() +
-  labs(x = "Cases as Percent of the Population",
-       y = "Trump's 2020 Two-Party Popular Vote",
-       title = "Republican Vote Share and COVID-19 \nCases in Battleground States"))
+  labs(x = "Deaths as a Percentage of the State Population",
+       y = "Trump's 2020 Two-Party Vote Share",
+       title = "Republican Vote Share and COVID-19 \nDeaths in Battleground States",
+       size = "Trump's 2016 Two-Party Vote Share") +
+  theme(plot.title = element_text(margin = margin(0, 0, 25, 0)))
 
 ```
 
 ### County-Level
 
-```{r county_scatterplot}
+```{r county_scatterplot, message = FALSE}
 
 county %>% 
+  mutate(cat = case_when(r_pv2p_2016 < 40 ~ "Less than 40% for Trump in 2016",
+                         r_pv2p_2016 >= 40 & r_pv2p_2016 <= 50 ~ "40-50% for Trump in 2016",
+                         r_pv2p_2016 > 50 & r_pv2p_2016 < 60 ~ "50-60% for Trump in 2016",
+                         r_pv2p_2016 >= 60 & r_pv2p_2016 <=70 ~ "60-70% for Trump in 2016",
+                         r_pv2p_2016 > 70 & r_pv2p_2016 < 80 ~ "70-80% for Trump in 2016",
+                         r_pv2p_2016 >= 80 ~ "80%+ for Trump in 2016"),
+         cat = fct_relevel(cat, c("Less than 40% for Trump in 2016",
+                                  "40-50% for Trump in 2016",
+                                  "50-60% for Trump in 2016",
+                                  "60-70% for Trump in 2016",
+                                  "70-80% for Trump in 2016",
+                                  "80%+ for Trump in 2016"))) %>% 
   filter(state %in% bg_states,
-         death_pct > 0.05,
-         r_pv2p_2020 > 45 & r_pv2p_2020 < 55) %>% 
-  ggplot(aes(case_pct, r_pv2p_2020)) +
-  geom_point() + 
+         death_pct > 0.05) %>% 
+  ggplot(aes(death_pct, r_pv2p_2020)) +
+  geom_point(alpha = 0.25) + 
   geom_smooth(method = "lm", se = 0, color = my_red) +
+  facet_wrap(~ cat) +
   theme_hodp() +
-  labs(x = "Cases as Percent of the Population",
+  labs(x = "Deaths as a Percentage of the County Population",
        y = "Trump's 2020 Two-Party Popular Vote",
-       title = "Republican Vote Share and COVID-19 \nCases in Battleground States")
+       title = "County-Level Vote Share and COVID-19 \nDeaths within Battleground States")
 
 ```
 
@@ -438,7 +457,7 @@ Taking an interest in the results of the regression, I decided to take a more nu
 COVID-19 bled into the polling and economic data used for the predictions, so I took steps to try to erase or minimize any impact of COVID-19 on these metrics:
 
 * I treated the election as if Trump was running for re-election off of his 2019 economy by using 2019's Q1 GDP in the prediction. 
-* For polling, crafted my predictions with all state-level polls from more than 15 weeks[^poll-weeks] out from the election, as opposed to focusing on the 4 weeks prior to the election.
+* For polling, I crafted my predictions with state-level polls from at least 15 weeks[^poll-weeks] before the election, as opposed to focusing on the 4 weeks preceding the election.
 
 I used a very similar[^model-changes] model equation to that from my [final forecast](https://kayla-manning.github.io/gov1347/posts/final.html). In this hypothetical, pandemic-free world, Trump lost both the Electoral College and the national two-party popular vote by an even larger margin than what panned out on the actual election day:
 
@@ -460,7 +479,7 @@ q1_gdp <- vote_econ %>%
 vep_std <- vep %>% 
   filter(state != "United States") %>% 
   group_by(state) %>% 
-  summarise(vep_sd = sd(VEP)) %>% 
+  summarise(vep_sd = sd(VEP), .groups = "drop") %>% 
   mutate(state = state.abb[match(state, state.name)])
 
 # also finding the std. deviation for pv2p for each party/state so I can draw
@@ -671,17 +690,21 @@ tibble(Candidate = c("Biden", "Trump"),
 ```
 
 
-## Do these results support the narrative?
+## Do these results support the narrative? No, actually the opposite
 
-While these tests were imperfect measures, they indicate that coronavirus likely did not hurt, and may have even helped, Trump in his 2020 election bid. While I cannot conclude that COVID-19 caused Trump to perform better in the 2020 election, these preliminary measures do indicate that there is a positive association between COVID numbers and Donald Trump's vote share.
+The pervasive nature of COVID-19 eliminates the possibility of a natural experiment, which makes a clear test of the impact of COVID-19 on the presidential election nearly impossible. The above regressions and hypothetical forecast do, however, indicate that COVID likely did not hurt--and quite possibly could have helped--Donald Trump in his 2020 election bid. The regression does not control for demographic and socioeconomic changes in the past four years, but Trump's 2016 vote share does control for the state or county's position in the prior election. While the above tests do not allow us to conclude that COVID-19 *caused* Trump to perform better in the 2020 election, these preliminary measures do support the likelihood of a *positive association* between COVID numbers and Donald Trump's vote share.
+
+While counterintuitive and the exact opposite of my initial hypothesis, this finding is not the first suggestion that [COVID may have boosted Trump's support in the 2020 election](https://slate.com/technology/2020/11/did-covid-help-trump.html). Perhaps lockdowns following local outbreaks angered voters who support the idea of small government? This hypothesis does not seem out of reach given the [protests](https://www.bbc.com/news/world-us-canada-52496514) and [kidnapping plots](https://abc7chicago.com/michigan-governor-gretchen-whitmer-kidnapping-plot-militia/8079861/) that emerged in response to Michigan's crackdown on COVID cases earlier this year. 
+
+The possibility of a positive association between Trump's vote share and the impact of COVID-19 warrants further exploration. While I certainly hope that any future research on the topic would not need to be applied to any global pandemics in the near future, any lessons from this election will help to enhance our general understanding of how voters respond to large-scale crises.
 
 -----------------------
 
 [^achen-bartels-flu]: [Achen and Bartels, 2017] Achen, C. H. and Bartels, L. M. (2017). Democracy for realists: Why elections do not produce responsive government
 
-[^poll-weeks]: While this includes some data from after COVID-19 came to the United States, I had to expand the window of time in order to get a large enough sample size for the model to run for each state.
+[^poll-weeks]: While this includes some data from after COVID-19 came to the United States, I had to expand the window of time to get a large enough sample size for the model to run for each state.
 
-[^model-changes]: I added an interaction term to the model from my original forecast for this iteration. In retrospect, it did not make sense to not include it in the first place since the state of the economy likely has opposite effects for incumbent and non-incumbent candidates.
+[^model-changes]: I added an interaction term to the model from my original forecast for this iteration. In retrospect, it did not make sense to not include it in the first place since the state of the economy likely has opposite effects for incumbent and non-incumbent candidates. The final equation used to predict $\hat{y}$, the probability of voting for the Democratic or Republican candidate within each state, in this updated model is $\hat{y} = \text{incumbent} * \text{gdp_growth_qt} + \text{avg_state_poll} + \text{prev_dem_margin} + \text{black_change} + \text{age20_change} + \text{age65_change}$
 
 [^dummy]: Achen and Bartels also included a dummy variable that indicated whether the specified gubernatorial candidate was a Democratic incumbent. Since Donald Trump ran in both 2016 and 2020, I did not include an indicator for incumbency and instead just focused on his vote share for both races.
 
