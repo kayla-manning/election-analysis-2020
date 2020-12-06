@@ -1,5 +1,5 @@
 ---
-title: "Testing Narratives: Would Trump win in a COVID-free world?"
+title: "Testing Narratives: Would Trump have won in a COVID-free world?"
 date: December 10, 2020
 output:
   html_document:
@@ -361,7 +361,7 @@ tab_model(all_states_deaths, all_states_cases, bg_states_deaths, bg_states_cases
 
 The significance of that term depends on how you select your $\alpha$ value. Even with a p-value of $\alpha = 0.05$ that deems the results insignificant, the regression indicates the *possibility* of a positive association between COVID cases and Trump's 2020 vote share in battleground states when controlling for Trump's 2016 vote share.
 
-Next, I wanted to extend the analysis one step further and run the same regressions with county-level COVID metrics and vote shares. Again, all of the coefficients indicated a positive relationship between Donald Trump's 2020 vote share and an increase in COVID cases or deaths as a percentage of the county's population. This time, all of the slope coefficients yielded significant p-values at an $\alpha = 0.001$ significance level, confirming the positive association: **ADD NOTE ABOUT INCREASING SAMPLE SIZE AND DECREASING P-VALUE**
+Next, I wanted to extend the analysis one step further and run the same regressions with county-level COVID metrics and vote shares. Again, all of the coefficients indicated a positive relationship between Donald Trump's 2020 vote share and an increase in COVID cases or deaths as a percentage of the county's population. This time, all of the slope coefficients yielded significant[^significance] p-values at an $\alpha = 0.001$ significance level, confirming the positive association:
 
 ```{r county_regression, warning = FALSE, message = FALSE}
 
@@ -690,6 +690,9 @@ tibble(Candidate = c("Biden", "Trump"),
 ```
 
 
+
+These plots do appear to reveal a positive association between COVID cases and deaths with Trump's vote share in the affected locality. The county plots suggest the strongest in the counties with closest races (e.g. where Trump received 40-50% of the vote) in 2016.
+
 ## Do these results support the narrative? No, actually the opposite
 
 The pervasive nature of COVID-19 eliminates the possibility of a natural experiment, which makes a clear test of the impact of COVID-19 on the presidential election nearly impossible. The above regressions and hypothetical forecast do, however, indicate that COVID likely did not hurt--and quite possibly could have helped--Donald Trump in his 2020 election bid. The regression does not control for demographic and socioeconomic changes in the past four years, but Trump's 2016 vote share does control for the state or county's position in the prior election. While the above tests do not allow us to conclude that COVID-19 *caused* Trump to perform better in the 2020 election, these preliminary measures do support the likelihood of a *positive association* between COVID numbers and Donald Trump's vote share.
@@ -708,5 +711,6 @@ The possibility of a positive association between Trump's vote share and the imp
 
 [^dummy]: Achen and Bartels also included a dummy variable that indicated whether the specified gubernatorial candidate was a Democratic incumbent. Since Donald Trump ran in both 2016 and 2020, I did not include an indicator for incumbency and instead just focused on his vote share for both races.
 
+[^significance]: Larger sample sizes typically lead to smaller p-values. Typically, [increasing the sample size results in a smaller p-value](https://www.researchgate.net/post/How-significant-p-value-is-related-to-the-sample-size#:~:text=The%20p%2Dvalues%20is%20affected,smaller%20is%20the%20p%2Dvalues.&text=by%20null%20hypothesis.-,Increasing%20the%20sample%20size%20will%20tend%20to%20result%20in%20a,the%20null%20hypothesis%20is%20false.) if the null hypothesis is false. In this case, our null hypothesis is that COVID-19 has no association with Trump's vote share, and since the p-values are significant, we can conclude that we have sufficient evidence of a positive association between Donald Trump's 2020 vote share and COVID-19 cases/deaths.
 
 

@@ -6,8 +6,10 @@ Welcome to my election analysis blog! I will post updates every Saturday. Feel f
 ## [Post-Election Model Reflection](posts/reflection/reflection.html)
 How did my model compare to election results? In this post, I analyze my blog in the context of the election results, hypothesize reasons for its shortcomings, and brainstorm ways to improve it in future iterations.
 
-## [Testing Narratives: Did COVID-19 hurt Trump's re-election bid?](posts/narrative/narrative.html)
+## [Testing Narratives: Would Trump have won in a COVID-free world?](posts/narrative/narrative.html)
 In an alternate universe without COVID-19, would Donald Trump have won the 2020 election? Inspired by previous research on the impact of the 1918 Spanish influenza outbreak on elections, this analysis takes a look at the association between state- and county-level COVID outbreaks and Trump's 2020 vote share.
+
+------------------------------------------------------------------
 
 The following posts analyze various components of presidential elections and provide updated predictions for the 2020 race. Each post ultimately informed the modeling decisions in my final prediction:
 
