@@ -722,12 +722,14 @@ pv2p <- prob_table %>%
             d_pv2p = total_dem / (total_dem + total_rep),
             r_pv2p = total_rep / (total_dem + total_rep))
 
-tibble(Candidate = c("Biden", "Trump"),
-       `Hypothetical Electoral Votes` = c(ev$biden_ev, ev$trump_ev),
-       `Actual Electoral Votes` = c(306, 232),
-       `Hypothetical Two-Party Popular Vote` = c(paste(round(pv2p$d_pv2p * 100, 1),
-                                                       "%"), paste(round(pv2p$r_pv2p * 100, 1), "%")),
-       `Actual Two-Party Popular Vote` = c("51.3%", "46.9%")) %>% 
+
+tibble(Type = c("COVID-Free Forecast", "Actual Results"),
+       `Biden Electoral Votes` = c(ev$biden_ev, 306),
+       `Trump Electoral Votes` = c(ev$trump_ev, 232),
+       `Biden Two-Party Popular Vote` = c(paste(round(pv2p$d_pv2p * 100, 1),"%"), 
+                                          "51.3%"),
+       `Trump Two-Party Popular Vote` = c(paste(round(pv2p$r_pv2p * 100, 1), "%"), 
+                                          "46.9%")) %>% 
   kable(align = rep("c", 5)) %>% 
   kable_styling(bootstrap_options = c("striped", "hover"))
 
