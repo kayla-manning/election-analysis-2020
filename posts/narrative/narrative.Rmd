@@ -664,8 +664,8 @@ reg_map <- prob_table %>%
   scale_fill_manual(breaks = c("Biden", "Trump"),
                     values = c(muted("blue"), my_red)) +
   theme_void() +
-  labs(fill = "Projected \nWinner",
-       title = "Forecasted Winners in Each State",
+  labs(fill = "Winner",
+       title = "Forecasted COVID-Free Results",
        x = "", 
        y = "") +
   theme_hodp() +
@@ -673,7 +673,27 @@ reg_map <- prob_table %>%
         axis.text = element_blank(),
         axis.text.x = element_blank())
 
-ggplotly(reg_map, tooltip = "text")
+actual_map <- state_votes_all %>% 
+  mutate(winner = ifelse(d_pv2p > 50, "Biden", "Trump")) %>% 
+  left_join(us_map) %>% 
+  ggplot(aes(long, lat, group = group, text = paste(winner, "won", state))) +
+  geom_polygon(aes(fill = winner)) +
+  coord_map() +
+  scale_fill_manual(breaks = c("Biden", "Trump"),
+                    values = c(muted("blue"), my_red)) +
+  theme_void() +
+  labs(fill = "Winner",
+       title = "Actual Election Results",
+       x = "", 
+       y = "") +
+  theme_hodp() +
+  theme(axis.line = element_blank(),
+        axis.text = element_blank(),
+        axis.text.x = element_blank())
+
+
+ggarrange(reg_map, actual_map, 
+          nrow = 2, legend = "none")
 
 
 # calculating electoral votes
@@ -703,9 +723,12 @@ pv2p <- prob_table %>%
             r_pv2p = total_rep / (total_dem + total_rep))
 
 tibble(Candidate = c("Biden", "Trump"),
-       `Electoral Votes` = c(ev$biden_ev, ev$trump_ev),
-       `Two-Party Popular Vote` = c(paste(round(pv2p$d_pv2p * 100, 3), "%"), paste(round(pv2p$r_pv2p * 100, 3), "%"))) %>% 
-  kable() %>% 
+       `Hypothetical Electoral Votes` = c(ev$biden_ev, ev$trump_ev),
+       `Actual Electoral Votes` = c(306, 232),
+       `Hypothetical Two-Party Popular Vote` = c(paste(round(pv2p$d_pv2p * 100, 1),
+                                                       "%"), paste(round(pv2p$r_pv2p * 100, 1), "%")),
+       `Actual Two-Party Popular Vote` = c("51.3%", "46.9%")) %>% 
+  kable(align = rep("c", 5)) %>% 
   kable_styling(bootstrap_options = c("striped", "hover"))
 
 ```
